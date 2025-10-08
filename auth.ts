@@ -18,37 +18,57 @@ const config: NextAuthConfig = {
         password: { label: 'Password', type: 'password' }
       },
       authorize: async (creds, req) => {
-        await init();
-        const email = (creds?.email || '').toString().toLowerCase();
-        const password = (creds?.password || '').toString();
-        if (!email || !password) return null;
+        try {
+          await init();
+          const email = (creds?.email || '').toString().toLowerCase();
+          const password = (creds?.password || '').toString();
 
-        const pool = getPool();
+          console.log('[AUTH] Login attempt:', email);
 
-        // Busca o usuário e tenant pelo email (sem RLS)
-        const { rows } = await pool.query(
-          `select u.id, u.email, u.name, u.password_hash, u.role, u.tenant_id, t.slug as tenant_slug
-           from users u
-           join tenants t on t.id = u.tenant_id
-           where u.email = $1
-           limit 1`,
-          [email]
-        );
+          if (!email || !password) {
+            console.log('[AUTH] Missing credentials');
+            return null;
+          }
 
-        const user = rows[0];
-        if (!user || !user.password_hash) return null;
+          const pool = getPool();
 
-        const ok = await bcrypt.compare(password, user.password_hash);
-        if (!ok) return null;
+          // Busca o usuário e tenant pelo email (sem RLS)
+          const { rows } = await pool.query(
+            `select u.id, u.email, u.name, u.password_hash, u.role, u.tenant_id, t.slug as tenant_slug
+             from users u
+             join tenants t on t.id = u.tenant_id
+             where u.email = $1
+             limit 1`,
+            [email]
+          );
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          tenantId: user.tenant_id,
-          tenantSlug: user.tenant_slug,
-          role: user.role || 'member'
-        } as any;
+          console.log('[AUTH] User found:', rows.length > 0);
+
+          const user = rows[0];
+          if (!user || !user.password_hash) {
+            console.log('[AUTH] No user or password hash');
+            return null;
+          }
+
+          const ok = await bcrypt.compare(password, user.password_hash);
+          console.log('[AUTH] Password valid:', ok);
+
+          if (!ok) return null;
+
+          console.log('[AUTH] Login successful for:', email);
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            tenantId: user.tenant_id,
+            tenantSlug: user.tenant_slug,
+            role: user.role || 'member'
+          } as any;
+        } catch (error) {
+          console.error('[AUTH] Error during login:', error);
+          return null;
+        }
       }
     })
   ],
