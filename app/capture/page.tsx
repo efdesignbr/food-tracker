@@ -215,7 +215,6 @@ export default function CapturePage() {
                 <input
                   type="file"
                   accept="image/*"
-                  capture="environment"
                   onChange={handleFileChange}
                   style={{ display: 'none' }}
                 />
