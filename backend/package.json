@@ -1,6 +1,7 @@
 {
   "name": "food-tracker-backend",
   "version": "1.0.0",
+  "type": "module",
   "description": "Food tracker backend with AI analysis",
   "main": "dist/server.js",
   "scripts": {
