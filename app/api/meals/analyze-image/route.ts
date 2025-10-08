@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import { requireTenant } from '@/lib/tenant';
 import { analyzeMealFromImage } from '@/lib/ai';
 import { init } from '@/lib/init';
+import sharp from 'sharp';
 
 export async function POST(req: Request) {
   try {
@@ -23,10 +24,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'file_too_large' }, { status: 413 });
     }
 
+    // Converte e comprime a imagem para JPEG (max 100kb)
     const arrayBuffer = await image.arrayBuffer();
-    const bytes = new Uint8Array(arrayBuffer);
-    const mediaType = image.type || 'image/png';
-    const result = await analyzeMealFromImage(bytes, mediaType);
+    const buffer = Buffer.from(arrayBuffer);
+
+    let quality = 80;
+    let processedBuffer = await sharp(buffer)
+      .rotate() // Auto-rotaciona baseado em EXIF
+      .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality })
+      .toBuffer();
+
+    // Reduz qualidade até ficar abaixo de 100kb
+    while (processedBuffer.length > 100 * 1024 && quality > 20) {
+      quality -= 10;
+      processedBuffer = await sharp(buffer)
+        .rotate()
+        .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality })
+        .toBuffer();
+    }
+
+    const bytes = new Uint8Array(processedBuffer);
+    const result = await analyzeMealFromImage(bytes, 'image/jpeg');
     return NextResponse.json({ ok: true, tenant, result });
   } catch (err: any) {
     const status = err instanceof Response ? err.status : 400;
