@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 const EnvSchema = z.object({
   NODE_ENV: z.string().default('development'),
-  DEFAULT_TENANT_SLUG: z.string().default('default'),
   MAX_UPLOAD_BYTES: z.coerce.number().default(5 * 1024 * 1024),
 
   DATABASE_URL: z.string().url().optional(),

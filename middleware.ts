@@ -25,16 +25,17 @@ export function middleware(req: NextRequest) {
     }
   }
 
-  // Set tenant header
+  // Set tenant header (only if provided)
   const host = req.headers.get('host') || '';
   const devHeader = req.headers.get('x-tenant-slug') || '';
 
   let tenant = devHeader;
   if (!tenant) tenant = extractTenantFromHost(host) || '';
-  if (!tenant) tenant = process.env.DEFAULT_TENANT_SLUG || 'default';
 
   const requestHeaders = new Headers(req.headers);
-  requestHeaders.set('x-active-tenant', tenant);
+  if (tenant) {
+    requestHeaders.set('x-active-tenant', tenant);
+  }
 
   return NextResponse.next({ request: { headers: requestHeaders } });
 }

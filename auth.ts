@@ -23,44 +23,30 @@ const config: NextAuthConfig = {
         const password = (creds?.password || '').toString();
         if (!email || !password) return null;
 
-        const host = req.headers.get('host') || '';
-        let tenantSlug = (creds?.tenant as string) || req.headers.get('x-active-tenant') || req.headers.get('x-tenant-slug') || '';
-        if (!tenantSlug && host) {
-          const parts = host.split('.').filter(Boolean);
-          if (parts.length > 2) tenantSlug = parts[0];
-        }
-        if (!tenantSlug) tenantSlug = process.env.DEFAULT_TENANT_SLUG || 'default';
-
-        const tenant = await getTenantBySlug(tenantSlug);
-        if (!tenant) return null;
-
         const pool = getPool();
-        const client = await pool.connect();
-        let user: any;
-        try {
-          await client.query('BEGIN');
-          await client.query("SELECT set_config('app.tenant_id', $1, true)", [tenant.id]);
-          const { rows } = await client.query(
-            'select id, email, name, password_hash, role from users where email = $1 and tenant_id = $2 limit 1',
-            [email, tenant.id]
-          );
-          user = rows[0];
-          await client.query('COMMIT');
-        } catch (e) {
-          await client.query('ROLLBACK');
-          throw e;
-        } finally {
-          client.release();
-        }
+
+        // Busca o usuário e tenant pelo email (sem RLS)
+        const { rows } = await pool.query(
+          `select u.id, u.email, u.name, u.password_hash, u.role, u.tenant_id, t.slug as tenant_slug
+           from users u
+           join tenants t on t.id = u.tenant_id
+           where u.email = $1
+           limit 1`,
+          [email]
+        );
+
+        const user = rows[0];
         if (!user || !user.password_hash) return null;
+
         const ok = await bcrypt.compare(password, user.password_hash);
         if (!ok) return null;
+
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          tenantId: tenant.id,
-          tenantSlug,
+          tenantId: user.tenant_id,
+          tenantSlug: user.tenant_slug,
           role: user.role || 'member'
         } as any;
       }

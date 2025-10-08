@@ -3,9 +3,9 @@ import { getPool } from './db';
 
 export type Tenant = { id: string; slug: string; name: string };
 
-export function getActiveTenantSlug(req: Request | NextRequest): string {
+export function getActiveTenantSlug(req: Request | NextRequest): string | null {
   const header = req.headers.get('x-active-tenant') || req.headers.get('x-tenant-slug');
-  return header || process.env.DEFAULT_TENANT_SLUG || 'default';
+  return header || null;
 }
 
 export async function getTenantBySlug(slug: string): Promise<Tenant | null> {
@@ -19,6 +19,7 @@ export async function getTenantBySlug(slug: string): Promise<Tenant | null> {
 
 export async function requireTenant(req: Request | NextRequest): Promise<Tenant> {
   const slug = getActiveTenantSlug(req);
+  if (!slug) throw new Response(JSON.stringify({ error: 'tenant_required' }), { status: 400 });
   const tenant = await getTenantBySlug(slug);
   if (!tenant) throw new Response(JSON.stringify({ error: 'tenant_not_found', slug }), { status: 404 });
   return tenant;
