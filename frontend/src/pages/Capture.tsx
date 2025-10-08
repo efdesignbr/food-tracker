@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mealService } from '../services/meal.service';
-import { AIAnalysisResponse, FoodItem } from '../types';
+import { AIAnalysisResponse } from '../types';
 
 export default function Capture() {
   const navigate = useNavigate();
