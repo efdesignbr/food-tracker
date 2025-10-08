@@ -1,47 +1,43 @@
-# Dependencies
-node_modules/
-.pnp
+# dependencies
+/node_modules
+/.pnp
 .pnp.js
 
-# Testing
-coverage/
+# testing
+/coverage
 
-# Production
-dist/
-build/
+# next.js
+/.next/
+/out/
 
-# Environment
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# production
+/build
 
-# Logs
-logs/
-*.log
+# misc
+.DS_Store
+*.pem
+
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pino-pretty.log
 
-# OS
-.DS_Store
-Thumbs.db
+# local env files
+.env*.local
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Uploads
-uploads/
-*.jpg
-*.jpeg
-*.png
-*.webp
-
-# Misc
+# vercel
 .vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# PWA files
+**/public/sw.js
+**/public/workbox-*.js
+**/public/worker-*.js
+**/public/sw.js.map
+**/public/workbox-*.js.map
+**/public/worker-*.js.map
+**/public/service-worker.js
+**/public/service-worker.js.map
