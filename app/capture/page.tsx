@@ -26,6 +26,7 @@ const mealTypeLabels: Record<string, string> = {
 };
 
 export default function CapturePage() {
+  const [mode, setMode] = useState<'photo' | 'text'>('photo');
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -149,12 +150,12 @@ export default function CapturePage() {
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, borderBottom: '2px solid #e5e7eb' }}>
         <button
-          onClick={() => { setText(''); setAnalysis(null); }}
+          onClick={() => { setMode('photo'); setText(''); setAnalysis(null); }}
           style={{
             padding: '12px 24px',
             border: 'none',
-            background: !text ? '#2196F3' : 'transparent',
-            color: !text ? 'white' : '#666',
+            background: mode === 'photo' ? '#2196F3' : 'transparent',
+            color: mode === 'photo' ? 'white' : '#666',
             fontWeight: 600,
             cursor: 'pointer',
             borderRadius: '8px 8px 0 0'
@@ -163,12 +164,12 @@ export default function CapturePage() {
           📷 Foto
         </button>
         <button
-          onClick={() => { setFile(null); setPreviewUrl(null); setAnalysis(null); }}
+          onClick={() => { setMode('text'); setFile(null); setPreviewUrl(null); setAnalysis(null); }}
           style={{
             padding: '12px 24px',
             border: 'none',
-            background: text ? '#2196F3' : 'transparent',
-            color: text ? 'white' : '#666',
+            background: mode === 'text' ? '#2196F3' : 'transparent',
+            color: mode === 'text' ? 'white' : '#666',
             fontWeight: 600,
             cursor: 'pointer',
             borderRadius: '8px 8px 0 0'
@@ -179,7 +180,7 @@ export default function CapturePage() {
       </div>
 
       {/* Foto Mode */}
-      {!text && (
+      {mode === 'photo' && (
         <div style={{ marginBottom: 32 }}>
           <div style={{
             border: '2px dashed #d1d5db',
@@ -257,7 +258,7 @@ export default function CapturePage() {
       )}
 
       {/* Texto Mode */}
-      {text !== '' && (
+      {mode === 'text' && (
         <div style={{ marginBottom: 32 }}>
           <textarea
             placeholder="Descreva sua refeição... Ex: Arroz, feijão, frango grelhado e salada"
