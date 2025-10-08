@@ -1,12 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-function extractTenantFromHost(host: string): string | null {
-  const parts = host.split('.').filter(Boolean);
-  if (parts.length > 2) return parts[0];
-  return null;
-}
-
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -25,19 +19,7 @@ export function middleware(req: NextRequest) {
     }
   }
 
-  // Set tenant header (only if provided)
-  const host = req.headers.get('host') || '';
-  const devHeader = req.headers.get('x-tenant-slug') || '';
-
-  let tenant = devHeader;
-  if (!tenant) tenant = extractTenantFromHost(host) || '';
-
-  const requestHeaders = new Headers(req.headers);
-  if (tenant) {
-    requestHeaders.set('x-active-tenant', tenant);
-  }
-
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  return NextResponse.next();
 }
 
 export const config = {
