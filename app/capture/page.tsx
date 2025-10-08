@@ -1,20 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-
-async function compressToWebP(file: File, maxSize = 1024, quality = 0.7): Promise<Blob> {
-  const img = document.createElement('img');
-  img.src = URL.createObjectURL(file);
-  await img.decode();
-  const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(img.width * scale);
-  canvas.height = Math.round(img.height * scale);
-  const ctx = canvas.getContext('2d')!;
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  const blob = await new Promise<Blob>((resolve) => canvas.toBlob(b => resolve(b!), 'image/webp', quality));
-  return blob;
-}
+import { useState } from 'react';
 
 function nowSaoPauloLocalInput() {
   try {
@@ -24,8 +10,7 @@ function nowSaoPauloLocalInput() {
     } as any);
     const parts = f.formatToParts(new Date());
     const get = (t: string) => parts.find(p => p.type === t)?.value || '';
-    const s = `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`;
-    return s;
+    return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`;
   } catch {
     const d = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
@@ -33,41 +18,57 @@ function nowSaoPauloLocalInput() {
   }
 }
 
+const mealTypeLabels: Record<string, string> = {
+  breakfast: 'Café da Manhã',
+  lunch: 'Almoço',
+  dinner: 'Jantar',
+  snack: 'Lanche'
+};
+
 export default function CapturePage() {
   const [file, setFile] = useState<File | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [text, setText] = useState('');
   const [mealType, setMealType] = useState('');
   const [analysis, setAnalysis] = useState<any | null>(null);
   const [consumedAt, setConsumedAt] = useState<string>(() => nowSaoPauloLocalInput());
   const [notes, setNotes] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  async function onSubmit(ev: React.FormEvent<HTMLFormElement>) {
-    ev.preventDefault();
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (f) {
+      setFile(f);
+      setPreviewUrl(URL.createObjectURL(f));
+      setAnalysis(null);
+      setError(null);
+    }
+  }
+
+  async function analyzeImage() {
     if (!file) return;
     setLoading(true);
-    setMessage(null);
+    setError(null);
     try {
-      const compressed = await compressToWebP(file);
       const fd = new FormData();
-      fd.append('image', new File([compressed], 'meal.webp', { type: 'image/webp' }));
+      fd.append('image', file);
       const res = await fetch('/api/meals/analyze-image', { method: 'POST', body: fd });
       const json = await res.json();
-      setAnalysis(json.result || null);
-      setMessage(JSON.stringify(json, null, 2));
+      if (!res.ok) throw new Error(json.error || 'Erro ao analisar');
+      setAnalysis(json.result);
     } catch (e) {
-      setMessage((e as Error).message);
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }
   }
 
-  async function onAnalyzeText(ev: React.FormEvent<HTMLFormElement>) {
-    ev.preventDefault();
+  async function analyzeText() {
     if (!text.trim()) return;
     setLoading(true);
-    setMessage(null);
+    setError(null);
     try {
       const body: any = { description: text };
       if (mealType) body.meal_type = mealType;
@@ -77,114 +78,394 @@ export default function CapturePage() {
         body: JSON.stringify(body)
       });
       const json = await res.json();
-      setAnalysis(json.result || null);
-      setMessage(JSON.stringify(json, null, 2));
+      if (!res.ok) throw new Error(json.error || 'Erro ao analisar');
+      setAnalysis(json.result);
     } catch (e) {
-      setMessage((e as Error).message);
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }
   }
 
-  async function onApprove(ev: React.FormEvent) {
-    ev.preventDefault();
+  async function saveMeal() {
     if (!analysis) return;
     setLoading(true);
-    setMessage(null);
+    setError(null);
+    setSuccess(false);
     try {
       const payload: any = {
-        meal_type: analysis.meal_type || mealType || 'lunch',
+        meal_type: analysis.meal_type || 'lunch',
         consumed_at: new Date(consumedAt).toISOString(),
         notes: notes || analysis.notes || '',
         foods: (analysis.foods || []).map((f: any) => ({
           name: f.name,
           quantity: Number(f.quantity)||1,
           unit: f.unit || 'un',
-          calories: typeof f.calories==='number'? f.calories : undefined,
-          protein_g: typeof f.protein_g==='number'? f.protein_g : undefined,
-          carbs_g: typeof f.carbs_g==='number'? f.carbs_g : undefined,
-          fat_g: typeof f.fat_g==='number'? f.fat_g : undefined,
-          fiber_g: typeof f.fiber_g==='number'? f.fiber_g : undefined,
-          sodium_mg: typeof f.sodium_mg==='number'? f.sodium_mg : undefined,
-          sugar_g: typeof f.sugar_g==='number'? f.sugar_g : undefined
+          calories: f.calories,
+          protein_g: f.protein_g,
+          carbs_g: f.carbs_g,
+          fat_g: f.fat_g,
+          fiber_g: f.fiber_g,
+          sodium_mg: f.sodium_mg,
+          sugar_g: f.sugar_g
         }))
       };
       let res: Response;
       if (file) {
         const fd = new FormData();
-        // re-comprime para webp
-        const compressed = await compressToWebP(file);
-        fd.append('image', new File([compressed], 'meal.webp', { type: 'image/webp' }));
+        fd.append('image', file);
         fd.append('payload', JSON.stringify(payload));
-        res = await fetch('/api/meals/approve', { method: 'POST', body: fd, credentials: 'include' as RequestCredentials });
+        res = await fetch('/api/meals/approve', { method: 'POST', body: fd });
       } else {
         res = await fetch('/api/meals/approve', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          credentials: 'include' as RequestCredentials
+          body: JSON.stringify(payload)
         });
       }
       const json = await res.json();
-      setMessage(JSON.stringify(json, null, 2));
+      if (!res.ok) throw new Error(json.error || 'Erro ao salvar');
+      setSuccess(true);
+      // Limpar formulário
+      setFile(null);
+      setPreviewUrl(null);
+      setText('');
+      setAnalysis(null);
+      setNotes('');
+      setConsumedAt(nowSaoPauloLocalInput());
     } catch (e) {
-      setMessage((e as Error).message);
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }
   }
 
+  const totalCalories = analysis?.foods?.reduce((sum: number, f: any) => sum + (f.calories || 0), 0) || 0;
+
   return (
-    <main style={{ padding: 24, fontFamily: 'system-ui, -apple-system' }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700 }}>Capturar Refeição</h1>
+    <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>📸 Capturar Refeição</h1>
 
-      <section style={{ marginTop: 16, padding: 12, border: '1px solid #eee', borderRadius: 8 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Analisar por Imagem</h2>
-        <form onSubmit={onSubmit} style={{ display: 'grid', gap: 12 }}>
-          <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} />
-          <button type="submit" disabled={!file || loading}>
-            {loading ? 'Analisando…' : 'Analisar Imagem'}
-          </button>
-        </form>
-      </section>
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 24, borderBottom: '2px solid #e5e7eb' }}>
+        <button
+          onClick={() => { setText(''); setAnalysis(null); }}
+          style={{
+            padding: '12px 24px',
+            border: 'none',
+            background: !text ? '#2196F3' : 'transparent',
+            color: !text ? 'white' : '#666',
+            fontWeight: 600,
+            cursor: 'pointer',
+            borderRadius: '8px 8px 0 0'
+          }}
+        >
+          📷 Foto
+        </button>
+        <button
+          onClick={() => { setFile(null); setPreviewUrl(null); setAnalysis(null); }}
+          style={{
+            padding: '12px 24px',
+            border: 'none',
+            background: text ? '#2196F3' : 'transparent',
+            color: text ? 'white' : '#666',
+            fontWeight: 600,
+            cursor: 'pointer',
+            borderRadius: '8px 8px 0 0'
+          }}
+        >
+          ✍️ Texto
+        </button>
+      </div>
 
-      <section style={{ marginTop: 16, padding: 12, border: '1px solid #eee', borderRadius: 8 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Analisar por Texto</h2>
-        <form onSubmit={onAnalyzeText} style={{ display: 'grid', gap: 12 }}>
-          <textarea placeholder="Descreva sua refeição (ex.: arroz, feijão e frango)" value={text} onChange={e => setText(e.target.value)} rows={4} />
-          <select value={mealType} onChange={e => setMealType(e.target.value)}>
-            <option value="">Tipo (opcional)</option>
-            <option value="breakfast">Café da manhã</option>
-            <option value="lunch">Almoço</option>
-            <option value="dinner">Jantar</option>
-            <option value="snack">Lanche</option>
+      {/* Foto Mode */}
+      {!text && (
+        <div style={{ marginBottom: 32 }}>
+          <div style={{
+            border: '2px dashed #d1d5db',
+            borderRadius: 16,
+            padding: 32,
+            textAlign: 'center',
+            background: '#f9fafb'
+          }}>
+            {previewUrl ? (
+              <div>
+                <img src={previewUrl} alt="Preview" style={{ maxWidth: '100%', maxHeight: 300, borderRadius: 12, marginBottom: 16 }} />
+                <button
+                  onClick={() => { setFile(null); setPreviewUrl(null); setAnalysis(null); }}
+                  style={{
+                    padding: '8px 16px',
+                    background: '#ef4444',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: 'pointer'
+                  }}
+                >
+                  🗑️ Remover
+                </button>
+              </div>
+            ) : (
+              <label style={{ cursor: 'pointer' }}>
+                <div style={{ fontSize: 48, marginBottom: 8 }}>📸</div>
+                <div style={{ fontSize: 16, color: '#666', marginBottom: 16 }}>
+                  Toque para tirar uma foto ou selecionar da galeria
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+                <div style={{
+                  display: 'inline-block',
+                  padding: '12px 24px',
+                  background: '#2196F3',
+                  color: 'white',
+                  borderRadius: 8,
+                  fontWeight: 600
+                }}>
+                  Selecionar Foto
+                </div>
+              </label>
+            )}
+          </div>
+
+          {file && !analysis && (
+            <button
+              onClick={analyzeImage}
+              disabled={loading}
+              style={{
+                width: '100%',
+                marginTop: 16,
+                padding: 16,
+                background: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: 12,
+                fontSize: 16,
+                fontWeight: 600,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1
+              }}
+            >
+              {loading ? '🔄 Analisando...' : '✨ Analisar Foto'}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Texto Mode */}
+      {text !== '' && (
+        <div style={{ marginBottom: 32 }}>
+          <textarea
+            placeholder="Descreva sua refeição... Ex: Arroz, feijão, frango grelhado e salada"
+            value={text}
+            onChange={e => setText(e.target.value)}
+            rows={5}
+            style={{
+              width: '100%',
+              padding: 16,
+              fontSize: 16,
+              border: '2px solid #e5e7eb',
+              borderRadius: 12,
+              resize: 'vertical',
+              fontFamily: 'inherit'
+            }}
+          />
+          <select
+            value={mealType}
+            onChange={e => setMealType(e.target.value)}
+            style={{
+              width: '100%',
+              marginTop: 12,
+              padding: 16,
+              fontSize: 16,
+              border: '2px solid #e5e7eb',
+              borderRadius: 12
+            }}
+          >
+            <option value="">Tipo de refeição (opcional)</option>
+            <option value="breakfast">☀️ Café da Manhã</option>
+            <option value="lunch">🍽️ Almoço</option>
+            <option value="dinner">🌙 Jantar</option>
+            <option value="snack">🍿 Lanche</option>
           </select>
-          <button type="submit" disabled={loading}>
-            {loading ? 'Analisando…' : 'Analisar Texto'}
-          </button>
-        </form>
-      </section>
 
+          {!analysis && (
+            <button
+              onClick={analyzeText}
+              disabled={loading || !text.trim()}
+              style={{
+                width: '100%',
+                marginTop: 16,
+                padding: 16,
+                background: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: 12,
+                fontSize: 16,
+                fontWeight: 600,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading || !text.trim() ? 0.6 : 1
+              }}
+            >
+              {loading ? '🔄 Analisando...' : '✨ Analisar Texto'}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div style={{
+          padding: 16,
+          background: '#fee2e2',
+          border: '2px solid #ef4444',
+          borderRadius: 12,
+          color: '#991b1b',
+          marginBottom: 24
+        }}>
+          ❌ {error}
+        </div>
+      )}
+
+      {/* Success */}
+      {success && (
+        <div style={{
+          padding: 16,
+          background: '#d1fae5',
+          border: '2px solid #10b981',
+          borderRadius: 12,
+          color: '#065f46',
+          marginBottom: 24
+        }}>
+          ✅ Refeição salva com sucesso!
+        </div>
+      )}
+
+      {/* Analysis Result */}
       {analysis && (
-        <section style={{ marginTop: 16, padding: 12, border: '1px solid #eee', borderRadius: 8 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Aprovar e Salvar</h2>
-          <form onSubmit={onApprove} style={{ display: 'grid', gap: 12 }}>
-            <label>
-              Quando foi consumido:
-              <input type="datetime-local" value={consumedAt} onChange={e => setConsumedAt(e.target.value)} />
-            </label>
-            <label>
-              Observações:
-              <input type="text" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Opcional" />
-            </label>
-            <button type="submit" disabled={loading}>{loading ? 'Salvando…' : 'Aprovar'}</button>
-            <small>Dica: precisa estar logado para salvar. Use /login.</small>
-          </form>
-        </section>
+        <div style={{ marginBottom: 32 }}>
+          <div style={{
+            background: 'white',
+            border: '2px solid #e5e7eb',
+            borderRadius: 16,
+            padding: 24,
+            marginBottom: 24
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700 }}>
+                {mealTypeLabels[analysis.meal_type] || 'Refeição'}
+              </h2>
+              <div style={{
+                padding: '8px 16px',
+                background: '#dbeafe',
+                color: '#1e40af',
+                borderRadius: 20,
+                fontWeight: 600
+              }}>
+                {totalCalories} kcal
+              </div>
+            </div>
+
+            {analysis.notes && (
+              <p style={{ color: '#666', fontSize: 14, marginBottom: 16, fontStyle: 'italic' }}>
+                {analysis.notes}
+              </p>
+            )}
+
+            <div style={{ display: 'grid', gap: 12 }}>
+              {analysis.foods?.map((food: any, i: number) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: 16,
+                    background: '#f9fafb',
+                    borderRadius: 12,
+                    border: '1px solid #e5e7eb'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span style={{ fontWeight: 600, fontSize: 16 }}>{food.name}</span>
+                    <span style={{ color: '#666' }}>
+                      {food.quantity} {food.unit}
+                    </span>
+                  </div>
+                  {food.calories && (
+                    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 14, color: '#666' }}>
+                      <span>🔥 {food.calories} kcal</span>
+                      {food.protein_g && <span>🥩 {food.protein_g}g prot</span>}
+                      {food.carbs_g && <span>🍚 {food.carbs_g}g carb</span>}
+                      {food.fat_g && <span>🧈 {food.fat_g}g gord</span>}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Approve Form */}
+          <div style={{ display: 'grid', gap: 16 }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                📅 Quando foi consumido?
+              </label>
+              <input
+                type="datetime-local"
+                value={consumedAt}
+                onChange={e => setConsumedAt(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  fontSize: 16,
+                  border: '2px solid #e5e7eb',
+                  borderRadius: 8
+                }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                📝 Observações (opcional)
+              </label>
+              <input
+                type="text"
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                placeholder="Ex: Comi tudo, estava delicioso!"
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  fontSize: 16,
+                  border: '2px solid #e5e7eb',
+                  borderRadius: 8
+                }}
+              />
+            </div>
+
+            <button
+              onClick={saveMeal}
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: 16,
+                background: '#2196F3',
+                color: 'white',
+                border: 'none',
+                borderRadius: 12,
+                fontSize: 16,
+                fontWeight: 600,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1
+              }}
+            >
+              {loading ? '💾 Salvando...' : '✅ Salvar Refeição'}
+            </button>
+          </div>
+        </div>
       )}
-      {message && (
-        <pre style={{ marginTop: 16, background: '#f6f6f6', padding: 12, overflow: 'auto' }}>{message}</pre>
-      )}
-    </main>
+    </div>
   );
 }
