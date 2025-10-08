@@ -33,37 +33,42 @@ app.get('/health', (req, res) => {
 // Error handler (must be last)
 app.use(errorHandler);
 
-// Start server
-async function start() {
-  try {
-    // Test database connection
-    const dbConnected = await db.testConnection();
-    if (!dbConnected) {
-      throw new Error('Failed to connect to database');
+// Export app for serverless (Vercel)
+export { app };
+
+// Start server only in non-serverless environment
+if (process.env.VERCEL !== '1') {
+  async function start() {
+    try {
+      // Test database connection
+      const dbConnected = await db.testConnection();
+      if (!dbConnected) {
+        throw new Error('Failed to connect to database');
+      }
+
+      app.listen(config.server.port, () => {
+        logger.info(`🚀 Server running on port ${config.server.port}`);
+        logger.info(`📊 Environment: ${config.server.env}`);
+        logger.info(`🔗 CORS origin: ${config.server.corsOrigin}`);
+      });
+    } catch (error) {
+      logger.error('Failed to start server', { error });
+      process.exit(1);
     }
-
-    app.listen(config.server.port, () => {
-      logger.info(`🚀 Server running on port ${config.server.port}`);
-      logger.info(`📊 Environment: ${config.server.env}`);
-      logger.info(`🔗 CORS origin: ${config.server.corsOrigin}`);
-    });
-  } catch (error) {
-    logger.error('Failed to start server', { error });
-    process.exit(1);
   }
+
+  // Graceful shutdown
+  process.on('SIGINT', async () => {
+    logger.info('Shutting down gracefully...');
+    await db.close();
+    process.exit(0);
+  });
+
+  process.on('SIGTERM', async () => {
+    logger.info('Shutting down gracefully...');
+    await db.close();
+    process.exit(0);
+  });
+
+  start();
 }
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  logger.info('Shutting down gracefully...');
-  await db.close();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  logger.info('Shutting down gracefully...');
-  await db.close();
-  process.exit(0);
-});
-
-start();
