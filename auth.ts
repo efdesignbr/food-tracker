@@ -11,7 +11,22 @@ import { isAppUser } from './lib/types/auth';
 const config: NextAuthConfig = {
   trustHost: true,
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
-  session: { strategy: 'jwt' },
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 dias
+  },
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: true,
+        maxAge: 30 * 24 * 60 * 60, // 30 dias
+      }
+    }
+  },
   providers: [
     Credentials({
       name: 'credentials',
