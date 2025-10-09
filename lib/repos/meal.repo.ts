@@ -207,7 +207,7 @@ export async function findMealsWithFoodsByDateRange(args: {
     const { rows } = await client.query(
       `SELECT m.id as meal_id, m.image_url, m.meal_type, m.consumed_at, m.notes,
             fi.id as food_id, fi.name as food_name, fi.quantity, fi.unit,
-            nd.calories
+            nd.calories, nd.protein_g, nd.carbs_g, nd.fat_g, nd.fiber_g, nd.sodium_mg, nd.sugar_g
      FROM meals m
      LEFT JOIN food_items fi ON fi.meal_id = m.id
      LEFT JOIN nutrition_data nd ON nd.food_item_id = fi.id
@@ -231,7 +231,19 @@ export async function findMealsWithFoodsByDateRange(args: {
         map.set(r.meal_id, m);
       }
       if (r.food_id) {
-        m.foods.push({ id: r.food_id, name: r.food_name, quantity: Number(r.quantity), unit: r.unit, calories: r.calories != null ? Number(r.calories) : undefined });
+        m.foods.push({
+          id: r.food_id,
+          name: r.food_name,
+          quantity: Number(r.quantity),
+          unit: r.unit,
+          calories: r.calories != null ? Number(r.calories) : undefined,
+          protein_g: r.protein_g != null ? Number(r.protein_g) : undefined,
+          carbs_g: r.carbs_g != null ? Number(r.carbs_g) : undefined,
+          fat_g: r.fat_g != null ? Number(r.fat_g) : undefined,
+          fiber_g: r.fiber_g != null ? Number(r.fiber_g) : undefined,
+          sodium_mg: r.sodium_mg != null ? Number(r.sodium_mg) : undefined,
+          sugar_g: r.sugar_g != null ? Number(r.sugar_g) : undefined
+        });
       }
     }
     await client.query('COMMIT');

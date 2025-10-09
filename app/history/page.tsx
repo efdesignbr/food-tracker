@@ -8,6 +8,12 @@ type Food = {
   quantity: number;
   unit: string;
   calories?: number;
+  protein_g?: number;
+  carbs_g?: number;
+  fat_g?: number;
+  fiber_g?: number;
+  sodium_mg?: number;
+  sugar_g?: number;
 };
 
 type Meal = {
@@ -238,6 +244,9 @@ export default function HistoryPage() {
         <div style={{ display: 'grid', gap: 16 }}>
           {filteredMeals.map((meal) => {
             const mealCalories = meal.foods.reduce((s, f) => s + (f.calories || 0), 0);
+            const mealProtein = meal.foods.reduce((s, f) => s + (f.protein_g || 0), 0);
+            const mealCarbs = meal.foods.reduce((s, f) => s + (f.carbs_g || 0), 0);
+            const mealFat = meal.foods.reduce((s, f) => s + (f.fat_g || 0), 0);
             const config = mealTypeConfig[meal.meal_type] || mealTypeConfig.lunch;
 
             return (
@@ -302,40 +311,61 @@ export default function HistoryPage() {
                     }}>
                       Alimentos ({meal.foods.length})
                     </div>
-                    <div style={{ display: 'grid', gap: 6 }}>
+                    <div style={{ display: 'grid', gap: 8 }}>
                       {meal.foods.map((food) => (
                         <div
                           key={food.id}
                           style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            padding: '8px 12px',
+                            padding: '10px 12px',
                             background: '#f9fafb',
                             borderRadius: 8,
-                            fontSize: 13
+                            fontSize: 13,
+                            border: '1px solid #e5e7eb'
                           }}
                         >
-                          <span style={{ fontWeight: 600 }}>{food.name}</span>
-                          <span style={{ color: '#666' }}>
-                            {food.quantity}{food.unit}
-                            {food.calories && ` • ${food.calories.toFixed(0)} kcal`}
-                          </span>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                            <span style={{ fontWeight: 600, color: '#374151' }}>{food.name}</span>
+                            <span style={{ color: '#666', fontSize: 12 }}>
+                              {food.quantity}{food.unit}
+                            </span>
+                          </div>
+                          {(food.calories || food.protein_g || food.carbs_g || food.fat_g) && (
+                            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', fontSize: 11, color: '#666' }}>
+                              {food.calories && <span>🔥 {food.calories.toFixed(0)} kcal</span>}
+                              {food.protein_g && <span>🥩 {food.protein_g.toFixed(1)}g prot</span>}
+                              {food.carbs_g && <span>🍚 {food.carbs_g.toFixed(1)}g carb</span>}
+                              {food.fat_g && <span>🧈 {food.fat_g.toFixed(1)}g gord</span>}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
                   </div>
 
                   <div style={{
-                    padding: 12,
+                    padding: 14,
                     background: config.color,
                     borderRadius: 8,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
                     color: 'white'
                   }}>
-                    <span style={{ fontWeight: 600 }}>Total</span>
-                    <span style={{ fontSize: 18, fontWeight: 700 }}>{mealCalories.toFixed(0)} kcal</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <span style={{ fontWeight: 600 }}>Total</span>
+                      <span style={{ fontSize: 20, fontWeight: 700 }}>{mealCalories.toFixed(0)} kcal</span>
+                    </div>
+                    {(mealProtein > 0 || mealCarbs > 0 || mealFat > 0) && (
+                      <div style={{
+                        display: 'flex',
+                        gap: 12,
+                        fontSize: 12,
+                        opacity: 0.95,
+                        paddingTop: 8,
+                        borderTop: '1px solid rgba(255,255,255,0.3)'
+                      }}>
+                        {mealProtein > 0 && <span>🥩 {mealProtein.toFixed(1)}g</span>}
+                        {mealCarbs > 0 && <span>🍚 {mealCarbs.toFixed(1)}g</span>}
+                        {mealFat > 0 && <span>🧈 {mealFat.toFixed(1)}g</span>}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
