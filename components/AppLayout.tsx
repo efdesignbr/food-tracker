@@ -15,7 +15,8 @@ const navItems: NavItem[] = [
   { href: '/', label: 'Início', icon: '🏠' },
   { href: '/capture', label: 'Capturar', icon: '📸' },
   { href: '/history', label: 'Histórico', icon: '📋' },
-  { href: '/reports', label: 'Relatórios', icon: '📊' }
+  { href: '/reports', label: 'Relatórios', icon: '📊' },
+  { href: '/account', label: 'Minha Conta', icon: '⚙️' }
 ];
 
 export default function AppLayout({ children, tenantName, userName }: {
