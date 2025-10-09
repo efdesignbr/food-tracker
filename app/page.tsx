@@ -37,20 +37,24 @@ export default function HomePage() {
     calories: 2000,
     protein: 150,
     carbs: 250,
-    fat: 65
+    fat: 65,
+    water: 2000
   });
+  const [waterIntake, setWaterIntake] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [addingWater, setAddingWater] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
 
-        // Fetch meals and user profile in parallel
-        const [mealsRes, profileRes] = await Promise.all([
+        // Fetch meals, user profile, and water intake in parallel
+        const [mealsRes, profileRes, waterRes] = await Promise.all([
           fetch('/api/meals'),
-          fetch('/api/user/profile')
+          fetch('/api/user/profile'),
+          fetch('/api/water-intake')
         ]);
 
         if (!mealsRes.ok) throw new Error('Erro ao buscar refeições');
@@ -61,7 +65,19 @@ export default function HomePage() {
         // Load user goals if profile fetch succeeded
         if (profileRes.ok) {
           const profileData = await profileRes.json();
-          setGoals(profileData.user.goals);
+          setGoals({
+            calories: profileData.user.goals.calories,
+            protein: profileData.user.goals.protein,
+            carbs: profileData.user.goals.carbs,
+            fat: profileData.user.goals.fat,
+            water: profileData.user.goals.water || 2000
+          });
+        }
+
+        // Load water intake
+        if (waterRes.ok) {
+          const waterData = await waterRes.json();
+          setWaterIntake(waterData.total_ml || 0);
         }
       } catch (err: any) {
         setError(err.message);
@@ -71,6 +87,27 @@ export default function HomePage() {
     }
     fetchData();
   }, []);
+
+  // Função para adicionar água
+  const addWater = async (amount: number) => {
+    try {
+      setAddingWater(true);
+      const res = await fetch('/api/water-intake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount_ml: amount })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setWaterIntake(data.total_today_ml);
+      }
+    } catch (err) {
+      console.error('Erro ao adicionar água:', err);
+    } finally {
+      setAddingWater(false);
+    }
+  };
 
   // Stats do dia atual
   const todayStats = useMemo(() => {
@@ -225,6 +262,134 @@ export default function HomePage() {
               Meta: {goals.fat}g
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Card de Hidratação */}
+      <div style={{
+        background: 'white',
+        borderRadius: 16,
+        padding: 20,
+        marginBottom: 16,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        border: '2px solid #06b6d4'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#06b6d4' }}>
+            💧 Hidratação
+          </h2>
+          <span style={{ fontSize: 13, color: '#666' }}>
+            {Math.floor(waterIntake / 250)} {Math.floor(waterIntake / 250) === 1 ? 'copo' : 'copos'}
+          </span>
+        </div>
+
+        {/* Barra de progresso */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>💦 Água</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: waterIntake >= goals.water ? '#06b6d4' : '#0891b2' }}>
+              {waterIntake} / {goals.water} ml
+            </span>
+          </div>
+          <div style={{
+            width: '100%',
+            height: 8,
+            background: '#e0f2fe',
+            borderRadius: 4,
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              width: `${Math.min((waterIntake / goals.water) * 100, 100)}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, #06b6d4 0%, #0891b2 100%)',
+              transition: 'width 0.3s ease'
+            }} />
+          </div>
+          {waterIntake >= goals.water && (
+            <p style={{ fontSize: 11, color: '#06b6d4', margin: '4px 0 0 0' }}>
+              ✅ Meta atingida! Parabéns!
+            </p>
+          )}
+          {waterIntake < goals.water && waterIntake > 0 && (
+            <p style={{ fontSize: 11, color: '#0891b2', margin: '4px 0 0 0' }}>
+              Faltam {goals.water - waterIntake}ml ({Math.ceil((goals.water - waterIntake) / 250)} copos)
+            </p>
+          )}
+        </div>
+
+        {/* Botões de ação */}
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button
+            onClick={() => addWater(250)}
+            disabled={addingWater}
+            style={{
+              flex: 1,
+              padding: '14px 16px',
+              border: 'none',
+              background: addingWater ? '#94a3b8' : 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+              color: 'white',
+              borderRadius: 12,
+              fontWeight: 600,
+              fontSize: 16,
+              cursor: addingWater ? 'not-allowed' : 'pointer',
+              boxShadow: '0 2px 8px rgba(6, 182, 212, 0.3)',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8
+            }}
+            onMouseOver={(e) => {
+              if (!addingWater) {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(6, 182, 212, 0.4)';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (!addingWater) {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(6, 182, 212, 0.3)';
+              }
+            }}
+          >
+            <span style={{ fontSize: 20 }}>🥤</span>
+            <span>+ 250ml</span>
+          </button>
+
+          <button
+            onClick={() => addWater(500)}
+            disabled={addingWater}
+            style={{
+              flex: 1,
+              padding: '14px 16px',
+              border: '2px solid #06b6d4',
+              background: 'white',
+              color: '#06b6d4',
+              borderRadius: 12,
+              fontWeight: 600,
+              fontSize: 16,
+              cursor: addingWater ? 'not-allowed' : 'pointer',
+              opacity: addingWater ? 0.5 : 1,
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8
+            }}
+            onMouseOver={(e) => {
+              if (!addingWater) {
+                e.currentTarget.style.background = '#ecfeff';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (!addingWater) {
+                e.currentTarget.style.background = 'white';
+              }
+            }}
+          >
+            <span style={{ fontSize: 20 }}>🧊</span>
+            <span>+ 500ml</span>
+          </button>
         </div>
       </div>
 

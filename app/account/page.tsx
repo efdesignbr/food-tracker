@@ -14,6 +14,7 @@ type UserProfile = {
     protein: number;
     carbs: number;
     fat: number;
+    water: number;
   };
   createdAt: string;
 };
@@ -33,6 +34,7 @@ export default function AccountPage() {
   const [goalProtein, setGoalProtein] = useState(150);
   const [goalCarbs, setGoalCarbs] = useState(250);
   const [goalFat, setGoalFat] = useState(65);
+  const [goalWater, setGoalWater] = useState(2000);
 
   // Expanded sections
   const [expandedSection, setExpandedSection] = useState<string | null>('personal');
@@ -57,6 +59,7 @@ export default function AccountPage() {
       setGoalProtein(data.user.goals.protein);
       setGoalCarbs(data.user.goals.carbs);
       setGoalFat(data.user.goals.fat);
+      setGoalWater(data.user.goals.water || 2000);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -104,6 +107,7 @@ export default function AccountPage() {
             protein: goalProtein,
             carbs: goalCarbs,
             fat: goalFat,
+            water: goalWater,
           },
         }),
       });
@@ -413,7 +417,7 @@ export default function AccountPage() {
                 />
               </div>
 
-              <div style={{ marginBottom: 20 }}>
+              <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: '#374151' }}>
                   🧈 Gorduras (g)
                 </label>
@@ -435,6 +439,34 @@ export default function AccountPage() {
                   onFocus={(e) => e.target.style.borderColor = '#10b981'}
                   onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                 />
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: '#374151' }}>
+                  💧 Água (ml)
+                </label>
+                <input
+                  type="number"
+                  value={goalWater}
+                  onChange={(e) => setGoalWater(Number(e.target.value))}
+                  min="500"
+                  max="5000"
+                  step="100"
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#10b981'}
+                  onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                />
+                <p style={{ fontSize: 12, color: '#6b7280', margin: '4px 0 0 0' }}>
+                  Meta diária de hidratação (ex: 2000ml = 8 copos)
+                </p>
               </div>
 
               <button

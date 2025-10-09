@@ -20,7 +20,7 @@ type Meal = {
   foods: Food[];
 };
 
-type FilterPeriod = 'today' | 'week' | 'month' | 'all';
+type FilterPeriod = 'week' | 'month' | 'all';
 
 const mealTypeConfig: Record<string, { label: string; icon: string; color: string }> = {
   breakfast: { label: 'Café da Manhã', icon: '☀️', color: '#f59e0b' },
@@ -30,7 +30,6 @@ const mealTypeConfig: Record<string, { label: string; icon: string; color: strin
 };
 
 const periodConfig: Record<FilterPeriod, { label: string; icon: string }> = {
-  today: { label: 'Hoje', icon: '📅' },
   week: { label: '7 dias', icon: '📊' },
   month: { label: '30 dias', icon: '📈' },
   all: { label: 'Tudo', icon: '🗂️' }
@@ -43,9 +42,6 @@ function filterMealsByPeriod(meals: Meal[], period: FilterPeriod): Meal[] {
   const cutoff = new Date();
 
   switch (period) {
-    case 'today':
-      cutoff.setHours(0, 0, 0, 0);
-      break;
     case 'week':
       cutoff.setDate(cutoff.getDate() - 7);
       break;
@@ -57,30 +53,72 @@ function filterMealsByPeriod(meals: Meal[], period: FilterPeriod): Meal[] {
   return meals.filter(meal => new Date(meal.consumed_at) >= cutoff);
 }
 
+type WaterRecord = {
+  date: string;
+  total_ml: number;
+};
+
 export default function ReportsPage() {
   const [meals, setMeals] = useState<Meal[]>([]);
+  const [waterRecords, setWaterRecords] = useState<WaterRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<FilterPeriod>('week');
+  const [goals, setGoals] = useState({
+    calories: 2000,
+    protein: 150,
+    carbs: 250,
+    fat: 65,
+    water: 2000
+  });
 
   useEffect(() => {
-    async function fetchMeals() {
+    async function fetchData() {
       try {
         setLoading(true);
-        const res = await fetch('/api/meals');
-        if (!res.ok) throw new Error('Erro ao buscar refeições');
-        const data = await res.json();
-        setMeals(data.meals || []);
+        const [mealsRes, profileRes, waterRes] = await Promise.all([
+          fetch('/api/meals'),
+          fetch('/api/user/profile'),
+          fetch('/api/water-intake?history=true')
+        ]);
+
+        if (!mealsRes.ok) throw new Error('Erro ao buscar refeições');
+
+        const mealsData = await mealsRes.json();
+        setMeals(mealsData.meals || []);
+
+        // Load water history
+        if (waterRes.ok) {
+          const waterData = await waterRes.json();
+          setWaterRecords(waterData.history || []);
+        }
+
+        // Load user goals if profile fetch succeeded
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          setGoals(profileData.user.goals);
+        }
       } catch (err: any) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-    fetchMeals();
+    fetchData();
   }, []);
 
   const filteredMeals = useMemo(() => filterMealsByPeriod(meals, period), [meals, period]);
+
+  // Filtrar água pelo período
+  const filteredWater = useMemo(() => {
+    if (period === 'all') return waterRecords;
+
+    const cutoff = new Date();
+    if (period === 'week') cutoff.setDate(cutoff.getDate() - 7);
+    else if (period === 'month') cutoff.setDate(cutoff.getDate() - 30);
+
+    return waterRecords.filter(record => new Date(record.date) >= cutoff);
+  }, [waterRecords, period]);
 
   const stats = useMemo(() => {
     const totalMeals = filteredMeals.length;
@@ -114,16 +152,14 @@ export default function ReportsPage() {
     const foodFrequency: Record<string, number> = {};
     filteredMeals.forEach((meal) => {
       meal.foods.forEach((food) => {
-        // Normaliza: remove variações comuns para agrupar melhor
         let key = food.name
           .toLowerCase()
           .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '') // Remove acentos
-          .replace(/\b(natural|desnatado|integral|light|zero|diet)\b/gi, '') // Remove modificadores
-          .replace(/\s+/g, ' ') // Remove espaços extras
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\b(natural|desnatado|integral|light|zero|diet)\b/gi, '')
+          .replace(/\s+/g, ' ')
           .trim();
 
-        // Remove plural básico
         if (key.endsWith('s') && !key.endsWith('ss')) {
           key = key.slice(0, -1);
         }
@@ -136,18 +172,39 @@ export default function ReportsPage() {
       .sort(([, a], [, b]) => b - a)
       .slice(0, 10);
 
-    // Calorias por dia
-    const caloriesByDay: Record<string, number> = {};
+    // Calorias por dia (últimos 7 dias para o gráfico)
+    const caloriesByDay: { date: string; calories: number; dateObj: Date }[] = [];
+    const daysMap = new Map<string, number>();
+
     filteredMeals.forEach((meal) => {
-      const date = new Date(meal.consumed_at).toLocaleDateString('pt-BR');
+      const date = new Date(meal.consumed_at);
+      const dateKey = date.toLocaleDateString('pt-BR');
       const mealCals = meal.foods.reduce((s, f) => s + (f.calories || 0), 0);
-      caloriesByDay[date] = (caloriesByDay[date] || 0) + mealCals;
+      daysMap.set(dateKey, (daysMap.get(dateKey) || 0) + mealCals);
     });
 
+    // Pega os últimos 7 dias para o gráfico
+    const last7Days = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateKey = date.toLocaleDateString('pt-BR');
+      last7Days.push({
+        date: dateKey,
+        dateObj: date,
+        calories: daysMap.get(dateKey) || 0
+      });
+    }
+
     const avgCaloriesPerDay =
-      Object.keys(caloriesByDay).length > 0
-        ? Object.values(caloriesByDay).reduce((a, b) => a + b, 0) / Object.keys(caloriesByDay).length
+      daysMap.size > 0
+        ? Array.from(daysMap.values()).reduce((a, b) => a + b, 0) / daysMap.size
         : 0;
+
+    // Estatísticas de água
+    const totalWater = filteredWater.reduce((sum, record) => sum + record.total_ml, 0);
+    const avgWaterPerDay = filteredWater.length > 0 ? totalWater / filteredWater.length : 0;
+    const daysWithWater = filteredWater.filter(r => r.total_ml > 0).length;
 
     return {
       totalMeals,
@@ -159,9 +216,12 @@ export default function ReportsPage() {
       avgCaloriesPerDay,
       caloriesByType,
       topFoods,
-      caloriesByDay
+      last7Days,
+      totalWater,
+      avgWaterPerDay,
+      daysWithWater
     };
-  }, [filteredMeals]);
+  }, [filteredMeals, filteredWater]);
 
   if (loading) {
     return (
@@ -199,7 +259,7 @@ export default function ReportsPage() {
       {/* Period Filter */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: 8,
         marginBottom: 24
       }}>
@@ -278,52 +338,221 @@ export default function ReportsPage() {
               <div style={{ fontSize: 28, fontWeight: 700 }}>{stats.avgCaloriesPerDay.toFixed(0)}</div>
               <div style={{ fontSize: 11, opacity: 0.8 }}>kcal</div>
             </div>
+            <div style={{
+              background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+              padding: 16,
+              borderRadius: 12,
+              color: 'white'
+            }}>
+              <div style={{ fontSize: 12, opacity: 0.9 }}>💧 Água Total</div>
+              <div style={{ fontSize: 28, fontWeight: 700 }}>{(stats.totalWater / 1000).toFixed(1)}L</div>
+              <div style={{ fontSize: 11, opacity: 0.8 }}>{stats.daysWithWater} dias</div>
+            </div>
           </div>
 
-          {/* Macronutrients Cards */}
+          {/* Nutrientes Detalhados */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
-            gap: 12,
-            marginBottom: 24
+            background: 'white',
+            borderRadius: 16,
+            padding: 20,
+            marginBottom: 24,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '2px solid #2196F3'
           }}>
-            <div style={{
-              background: 'white',
-              padding: 16,
-              borderRadius: 12,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              border: '2px solid #ef4444'
-            }}>
-              <div style={{ fontSize: 24, marginBottom: 4 }}>🥩</div>
-              <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Proteína</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#ef4444' }}>
-                {stats.totalProtein.toFixed(0)}g
+            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#2196F3' }}>
+              🎯 Nutrientes no Período
+            </h2>
+
+            {/* Proteína */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>🥩 Proteína</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#ef4444' }}>
+                  {stats.totalProtein.toFixed(1)}g total
+                </span>
+              </div>
+              <div style={{
+                width: '100%',
+                height: 8,
+                background: '#e5e7eb',
+                borderRadius: 4,
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: `${Math.min((stats.totalProtein / (goals.protein * stats.last7Days.length)) * 100, 100)}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #ef4444 0%, #f97316 100%)',
+                  transition: 'width 0.3s ease'
+                }} />
               </div>
             </div>
-            <div style={{
-              background: 'white',
-              padding: 16,
-              borderRadius: 12,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              border: '2px solid #f59e0b'
-            }}>
-              <div style={{ fontSize: 24, marginBottom: 4 }}>🍚</div>
-              <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Carboidratos</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#f59e0b' }}>
-                {stats.totalCarbs.toFixed(0)}g
+
+            {/* Carboidratos */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>🍚 Carboidratos</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#f59e0b' }}>
+                  {stats.totalCarbs.toFixed(1)}g total
+                </span>
+              </div>
+              <div style={{
+                width: '100%',
+                height: 8,
+                background: '#e5e7eb',
+                borderRadius: 4,
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: `${Math.min((stats.totalCarbs / (goals.carbs * stats.last7Days.length)) * 100, 100)}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)',
+                  transition: 'width 0.3s ease'
+                }} />
               </div>
             </div>
-            <div style={{
-              background: 'white',
-              padding: 16,
-              borderRadius: 12,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              border: '2px solid #8b5cf6'
-            }}>
-              <div style={{ fontSize: 24, marginBottom: 4 }}>🧈</div>
-              <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Gorduras</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#8b5cf6' }}>
-                {stats.totalFat.toFixed(0)}g
+
+            {/* Gorduras */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>🧈 Gorduras</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#8b5cf6' }}>
+                  {stats.totalFat.toFixed(1)}g total
+                </span>
+              </div>
+              <div style={{
+                width: '100%',
+                height: 8,
+                background: '#e5e7eb',
+                borderRadius: 4,
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: `${Math.min((stats.totalFat / (goals.fat * stats.last7Days.length)) * 100, 100)}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%)',
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+            </div>
+
+            {/* Água */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>💧 Água</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#06b6d4' }}>
+                  {(stats.totalWater / 1000).toFixed(1)}L total • {stats.avgWaterPerDay.toFixed(0)}ml/dia
+                </span>
+              </div>
+              <div style={{
+                width: '100%',
+                height: 8,
+                background: '#e5e7eb',
+                borderRadius: 4,
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: `${Math.min((stats.avgWaterPerDay / goals.water) * 100, 100)}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #06b6d4 0%, #22d3ee 100%)',
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Gráfico de Calorias (Últimos 7 dias) */}
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            padding: 20,
+            marginBottom: 24,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid #e5e7eb'
+          }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
+              📈 Evolução (Últimos 7 dias)
+            </h2>
+            <div style={{ position: 'relative', height: 200 }}>
+              {/* Linha de Meta */}
+              <div style={{
+                position: 'absolute',
+                top: '30%',
+                left: 0,
+                right: 0,
+                borderTop: '2px dashed #2196F3',
+                opacity: 0.3
+              }} />
+              <div style={{
+                position: 'absolute',
+                top: 'calc(30% - 20px)',
+                left: 8,
+                fontSize: 11,
+                color: '#2196F3',
+                fontWeight: 600
+              }}>
+                Meta: {goals.calories} kcal
+              </div>
+
+              {/* Barras */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'flex-end',
+                justifyContent: 'space-around',
+                height: '100%',
+                paddingTop: 24
+              }}>
+                {stats.last7Days.map((day, idx) => {
+                  const maxCal = Math.max(...stats.last7Days.map(d => d.calories), goals.calories);
+                  const heightPercent = maxCal > 0 ? (day.calories / maxCal) * 100 : 0;
+                  const isOverGoal = day.calories > goals.calories;
+
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        flex: 1,
+                        marginRight: idx < stats.last7Days.length - 1 ? 4 : 0
+                      }}
+                    >
+                      {day.calories > 0 && (
+                        <div style={{
+                          fontSize: 10,
+                          fontWeight: 600,
+                          color: isOverGoal ? '#ef4444' : '#10b981',
+                          marginBottom: 4
+                        }}>
+                          {day.calories.toFixed(0)}
+                        </div>
+                      )}
+                      <div
+                        style={{
+                          width: '100%',
+                          height: `${heightPercent}%`,
+                          background: day.calories === 0
+                            ? '#e5e7eb'
+                            : isOverGoal
+                            ? 'linear-gradient(180deg, #f59e0b 0%, #ef4444 100%)'
+                            : 'linear-gradient(180deg, #10b981 0%, #2196F3 100%)',
+                          borderRadius: '4px 4px 0 0',
+                          minHeight: day.calories > 0 ? 20 : 10,
+                          transition: 'height 0.3s ease'
+                        }}
+                      />
+                      <div style={{
+                        fontSize: 9,
+                        color: '#6b7280',
+                        marginTop: 6,
+                        textAlign: 'center',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {day.dateObj.toLocaleDateString('pt-BR', { weekday: 'short' })}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -436,49 +665,6 @@ export default function ReportsPage() {
                       </span>
                     </div>
                   ))}
-                </div>
-              </div>
-            )}
-
-            {/* Calories per Day */}
-            {Object.keys(stats.caloriesByDay).length > 0 && (
-              <div style={{
-                background: 'white',
-                borderRadius: 16,
-                padding: 20,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                border: '1px solid #e5e7eb'
-              }}>
-                <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
-                  📅 Calorias por Dia
-                </h2>
-                <div style={{ maxHeight: 400, overflow: 'auto' }}>
-                  <div style={{ display: 'grid', gap: 8 }}>
-                    {Object.entries(stats.caloriesByDay)
-                      .sort(([a], [b]) => {
-                        const [dA, mA, yA] = a.split('/').map(Number);
-                        const [dB, mB, yB] = b.split('/').map(Number);
-                        return new Date(yB, mB - 1, dB).getTime() - new Date(yA, mA - 1, dA).getTime();
-                      })
-                      .map(([date, cals]) => (
-                        <div
-                          key={date}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            padding: '12px 16px',
-                            background: '#f9fafb',
-                            borderRadius: 8,
-                            border: '1px solid #e5e7eb'
-                          }}
-                        >
-                          <span style={{ fontWeight: 600, color: '#374151' }}>{date}</span>
-                          <span style={{ fontWeight: 700, color: '#2196F3' }}>
-                            {cals.toFixed(0)} kcal
-                          </span>
-                        </div>
-                      ))}
-                  </div>
                 </div>
               </div>
             )}

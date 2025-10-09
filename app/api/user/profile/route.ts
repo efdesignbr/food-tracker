@@ -42,11 +42,12 @@ export async function GET(req: Request) {
         goal_protein_g: number;
         goal_carbs_g: number;
         goal_fat_g: number;
+        goal_water_ml: number;
         created_at: string;
       }>(
         `SELECT
           id, email, name, phone, role,
-          goal_calories, goal_protein_g, goal_carbs_g, goal_fat_g,
+          goal_calories, goal_protein_g, goal_carbs_g, goal_fat_g, goal_water_ml,
           created_at
         FROM users
         WHERE id = $1 AND tenant_id = $2`,
@@ -72,6 +73,7 @@ export async function GET(req: Request) {
             protein: user.goal_protein_g,
             carbs: user.goal_carbs_g,
             fat: user.goal_fat_g,
+            water: user.goal_water_ml,
           },
           createdAt: user.created_at,
         },
@@ -147,6 +149,11 @@ export async function PATCH(req: Request) {
         values.push(goals.fat);
       }
 
+      if (goals?.water !== undefined) {
+        updates.push(`goal_water_ml = $${paramIndex++}`);
+        values.push(goals.water);
+      }
+
       if (updates.length === 0) {
         return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
       }
@@ -161,7 +168,7 @@ export async function PATCH(req: Request) {
         WHERE id = $${paramIndex++} AND tenant_id = $${paramIndex}
         RETURNING
           id, email, name, phone, role,
-          goal_calories, goal_protein_g, goal_carbs_g, goal_fat_g,
+          goal_calories, goal_protein_g, goal_carbs_g, goal_fat_g, goal_water_ml,
           created_at
       `;
 
@@ -186,6 +193,7 @@ export async function PATCH(req: Request) {
             protein: user.goal_protein_g,
             carbs: user.goal_carbs_g,
             fat: user.goal_fat_g,
+            water: user.goal_water_ml,
           },
           createdAt: user.created_at,
         },
