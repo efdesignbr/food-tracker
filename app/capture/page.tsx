@@ -130,7 +130,12 @@ export default function CapturePage() {
     try {
       const fd = new FormData();
       fd.append('image', file);
-      const res = await fetch('/api/meals/analyze-image', { method: 'POST', body: fd });
+      const res = await fetch('/api/meals/analyze-image', {
+        method: 'POST',
+        body: fd,
+        credentials: 'include',
+        cache: 'no-store'
+      });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Erro ao analisar');
       setAnalysis(json.result);
@@ -151,7 +156,9 @@ export default function CapturePage() {
       const res = await fetch('/api/meals/analyze-text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        credentials: 'include',
+        cache: 'no-store'
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Erro ao analisar');
@@ -198,12 +205,19 @@ export default function CapturePage() {
         const fd = new FormData();
         fd.append('image', file);
         fd.append('payload', JSON.stringify(payload));
-        res = await fetch('/api/meals/approve', { method: 'POST', body: fd });
+        res = await fetch('/api/meals/approve', {
+          method: 'POST',
+          body: fd,
+          credentials: 'include',
+          cache: 'no-store'
+        });
       } else {
         res = await fetch('/api/meals/approve', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          credentials: 'include',
+          cache: 'no-store'
         });
       }
       const json = await res.json();

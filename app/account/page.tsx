@@ -56,7 +56,7 @@ export default function AccountPage() {
   async function fetchProfile() {
     try {
       setLoading(true);
-      const res = await fetch('/api/user/profile');
+      const res = await fetch('/api/user/profile', { credentials: 'include', cache: 'no-store' });
       if (!res.ok) throw new Error('Erro ao carregar perfil');
 
       const data = await res.json();
@@ -87,6 +87,8 @@ export default function AccountPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, phone: phone || null }),
+        credentials: 'include',
+        cache: 'no-store'
       });
 
       if (!res.ok) throw new Error('Erro ao salvar dados');
@@ -120,6 +122,8 @@ export default function AccountPage() {
             water: goalWater,
           },
         }),
+        credentials: 'include',
+        cache: 'no-store'
       });
 
       if (!res.ok) throw new Error('Erro ao salvar metas');
@@ -183,6 +187,8 @@ export default function AccountPage() {
           password: deletePassword,
           confirmText: deleteConfirmText,
         }),
+        credentials: 'include',
+        cache: 'no-store'
       });
 
       const data = await res.json();

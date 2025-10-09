@@ -13,10 +13,10 @@ export function middleware(req: NextRequest) {
 
   // Align cookie check with auth.ts configuration and NextAuth defaults
   const sessionCookieNames = [
-    '__Secure-next-auth.session-token', // configured in auth.ts
-    'next-auth.session-token',          // non-secure variant (dev)
     '__Secure-authjs.session-token',    // NextAuth v5 default (secure)
     'authjs.session-token',             // NextAuth v5 default
+    '__Secure-next-auth.session-token', // legacy/previous custom name
+    'next-auth.session-token',          // legacy non-secure variant (dev)
   ];
 
   const hasSession = sessionCookieNames.some((name) => req.cookies.get(name)?.value);
@@ -32,6 +32,7 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     // Apply to all routes except static assets and Next internals
-    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.json|apple-touch-icon.png|apple-touch-icon-precomposed.png|icon-.*|workbox-.*|service-worker.js).*)'
+    // Also exclude API routes to allow proper JSON error handling in APIs
+    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.json|apple-touch-icon.png|apple-touch-icon-precomposed.png|icon-.*|workbox-.*|service-worker.js|api/).*)'
   ]
 };

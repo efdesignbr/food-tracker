@@ -77,9 +77,9 @@ export default function ReportsPage() {
       try {
         setLoading(true);
         const [mealsRes, profileRes, waterRes] = await Promise.all([
-          fetch('/api/meals'),
-          fetch('/api/user/profile'),
-          fetch('/api/water-intake?history=true')
+          fetch('/api/meals', { credentials: 'include', cache: 'no-store' }),
+          fetch('/api/user/profile', { credentials: 'include', cache: 'no-store' }),
+          fetch('/api/water-intake?history=true', { credentials: 'include', cache: 'no-store' })
         ]);
 
         if (!mealsRes.ok) throw new Error('Erro ao buscar refeições');

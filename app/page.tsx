@@ -52,9 +52,9 @@ export default function HomePage() {
 
         // Fetch meals, user profile, and water intake in parallel
         const [mealsRes, profileRes, waterRes] = await Promise.all([
-          fetch('/api/meals'),
-          fetch('/api/user/profile'),
-          fetch('/api/water-intake')
+          fetch('/api/meals', { credentials: 'include', cache: 'no-store' }),
+          fetch('/api/user/profile', { credentials: 'include', cache: 'no-store' }),
+          fetch('/api/water-intake', { credentials: 'include', cache: 'no-store' })
         ]);
 
         if (!mealsRes.ok) throw new Error('Erro ao buscar refeições');
@@ -95,7 +95,9 @@ export default function HomePage() {
       const res = await fetch('/api/water-intake', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount_ml: amount })
+        body: JSON.stringify({ amount_ml: amount }),
+        credentials: 'include',
+        cache: 'no-store'
       });
 
       if (res.ok) {
