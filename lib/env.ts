@@ -21,7 +21,7 @@ const EnvSchema = z.object({
 
   // Automation flags (dev-friendly)
   AUTO_MIGRATE: z.coerce.boolean().default(true),
-  AUTO_BOOTSTRAP_DEFAULTS: z.coerce.boolean().default(true),
+  AUTO_BOOTSTRAP_DEFAULTS: z.coerce.boolean().default(false),
 
   // Default admin (dev only)
   DEFAULT_ADMIN_EMAIL: z.string().default('user@foodtracker.local'),
