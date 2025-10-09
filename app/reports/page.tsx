@@ -114,7 +114,20 @@ export default function ReportsPage() {
     const foodFrequency: Record<string, number> = {};
     filteredMeals.forEach((meal) => {
       meal.foods.forEach((food) => {
-        const key = food.name.toLowerCase();
+        // Normaliza: remove variações comuns para agrupar melhor
+        let key = food.name
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+          .replace(/\b(natural|desnatado|integral|light|zero|diet)\b/gi, '') // Remove modificadores
+          .replace(/\s+/g, ' ') // Remove espaços extras
+          .trim();
+
+        // Remove plural básico
+        if (key.endsWith('s') && !key.endsWith('ss')) {
+          key = key.slice(0, -1);
+        }
+
         foodFrequency[key] = (foodFrequency[key] || 0) + 1;
       });
     });
