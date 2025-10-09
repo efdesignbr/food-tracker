@@ -10,10 +10,13 @@ const EnvSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   SUPABASE_STORAGE_BUCKET: z.string().default('images'),
 
-  ANTHROPIC_API_KEY: z.string(),
+  ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL_DEFAULT: z.string().default('claude-3-haiku-20240307'),
   ANTHROPIC_MODEL_FALLBACK: z.string().default('claude-3-5-sonnet-20241022'),
   ANTHROPIC_MAX_TOKENS: z.coerce.number().default(1200),
+
+  GEMINI_API_KEY: z.string(),
+  GEMINI_MODEL: z.string().default('gemini-2.0-flash-exp'),
 
   // Automation flags (dev-friendly)
   AUTO_MIGRATE: z.coerce.boolean().default(true),

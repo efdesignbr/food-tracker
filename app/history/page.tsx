@@ -116,6 +116,32 @@ export default function HistoryPage() {
     return { totalCalories, avgCaloriesPerMeal };
   }, [filteredMeals]);
 
+  // Stats do dia atual
+  const todayStats = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const todayMeals = meals.filter(meal => {
+      const mealDate = new Date(meal.consumed_at);
+      return mealDate >= today;
+    });
+
+    const calories = todayMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.calories || 0), 0), 0
+    );
+    const protein = todayMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.protein_g || 0), 0), 0
+    );
+    const carbs = todayMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.carbs_g || 0), 0), 0
+    );
+    const fat = todayMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.fat_g || 0), 0), 0
+    );
+
+    return { calories, protein, carbs, fat, mealsCount: todayMeals.length };
+  }, [meals]);
+
   if (loading) {
     return (
       <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
@@ -148,6 +174,141 @@ export default function HistoryPage() {
     <div style={{ padding: 16, maxWidth: 800, margin: '0 auto', paddingBottom: 80 }}>
       {/* Header */}
       <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}>📋 Histórico</h1>
+
+      {/* Daily Tracker - Hoje */}
+      {todayStats.mealsCount > 0 && (
+        <div style={{
+          background: 'white',
+          borderRadius: 16,
+          padding: 20,
+          marginBottom: 24,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          border: '2px solid #2196F3'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#2196F3' }}>
+              🎯 Progresso de Hoje
+            </h2>
+            <span style={{ fontSize: 13, color: '#666' }}>
+              {todayStats.mealsCount} refeição{todayStats.mealsCount !== 1 ? 'ões' : ''}
+            </span>
+          </div>
+
+          {/* Calorias */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>🔥 Calorias</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: todayStats.calories > 2000 ? '#ef4444' : '#2196F3' }}>
+                {todayStats.calories.toFixed(0)} / 2000 kcal
+              </span>
+            </div>
+            <div style={{
+              width: '100%',
+              height: 8,
+              background: '#e5e7eb',
+              borderRadius: 4,
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${Math.min((todayStats.calories / 2000) * 100, 100)}%`,
+                height: '100%',
+                background: todayStats.calories > 2000
+                  ? 'linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)'
+                  : 'linear-gradient(90deg, #10b981 0%, #2196F3 100%)',
+                transition: 'width 0.3s ease'
+              }} />
+            </div>
+            {todayStats.calories > 2000 && (
+              <p style={{ fontSize: 11, color: '#ef4444', margin: '4px 0 0 0' }}>
+                ⚠️ Acima da meta em {(todayStats.calories - 2000).toFixed(0)} kcal
+              </p>
+            )}
+            {todayStats.calories < 2000 && todayStats.calories > 0 && (
+              <p style={{ fontSize: 11, color: '#10b981', margin: '4px 0 0 0' }}>
+                ✅ Restam {(2000 - todayStats.calories).toFixed(0)} kcal
+              </p>
+            )}
+          </div>
+
+          {/* Proteína */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>🥩 Proteína</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: todayStats.protein > 150 ? '#ef4444' : '#2196F3' }}>
+                {todayStats.protein.toFixed(1)} / 150 g
+              </span>
+            </div>
+            <div style={{
+              width: '100%',
+              height: 8,
+              background: '#e5e7eb',
+              borderRadius: 4,
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${Math.min((todayStats.protein / 150) * 100, 100)}%`,
+                height: '100%',
+                background: todayStats.protein > 150
+                  ? 'linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)'
+                  : 'linear-gradient(90deg, #ef4444 0%, #f97316 100%)',
+                transition: 'width 0.3s ease'
+              }} />
+            </div>
+          </div>
+
+          {/* Carboidratos */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>🍚 Carboidratos</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: todayStats.carbs > 250 ? '#ef4444' : '#2196F3' }}>
+                {todayStats.carbs.toFixed(1)} / 250 g
+              </span>
+            </div>
+            <div style={{
+              width: '100%',
+              height: 8,
+              background: '#e5e7eb',
+              borderRadius: 4,
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${Math.min((todayStats.carbs / 250) * 100, 100)}%`,
+                height: '100%',
+                background: todayStats.carbs > 250
+                  ? 'linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)'
+                  : 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)',
+                transition: 'width 0.3s ease'
+              }} />
+            </div>
+          </div>
+
+          {/* Gorduras */}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>🧈 Gorduras</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: todayStats.fat > 65 ? '#ef4444' : '#2196F3' }}>
+                {todayStats.fat.toFixed(1)} / 65 g
+              </span>
+            </div>
+            <div style={{
+              width: '100%',
+              height: 8,
+              background: '#e5e7eb',
+              borderRadius: 4,
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${Math.min((todayStats.fat / 65) * 100, 100)}%`,
+                height: '100%',
+                background: todayStats.fat > 65
+                  ? 'linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)'
+                  : 'linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%)',
+                transition: 'width 0.3s ease'
+              }} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Period Filter */}
       <div style={{

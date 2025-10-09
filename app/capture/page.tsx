@@ -38,13 +38,82 @@ export default function CapturePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function compressImage(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Redimensiona mantendo proporção, max 1024px
+          const maxSize = 1024;
+          if (width > height && width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          } else if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Comprime progressivamente até ficar < 500kb
+          let quality = 0.8;
+          const tryCompress = () => {
+            canvas.toBlob((blob) => {
+              if (!blob) {
+                reject(new Error('Erro ao comprimir imagem'));
+                return;
+              }
+
+              // Se menor que 500kb ou qualidade já muito baixa, aceita
+              if (blob.size < 500 * 1024 || quality < 0.3) {
+                const compressedFile = new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now()
+                });
+                resolve(compressedFile);
+              } else {
+                // Reduz qualidade e tenta novamente
+                quality -= 0.1;
+                tryCompress();
+              }
+            }, 'image/jpeg', quality);
+          };
+
+          tryCompress();
+        };
+        img.onerror = () => reject(new Error('Erro ao carregar imagem'));
+      };
+      reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
+    });
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (f) {
-      setFile(f);
-      setPreviewUrl(URL.createObjectURL(f));
-      setAnalysis(null);
+      setLoading(true);
       setError(null);
+      try {
+        // Comprime a imagem no frontend
+        const compressed = await compressImage(f);
+        setFile(compressed);
+        setPreviewUrl(URL.createObjectURL(compressed));
+        setAnalysis(null);
+      } catch (err) {
+        setError('Erro ao processar imagem. Tente outra foto.');
+      } finally {
+        setLoading(false);
+      }
     }
   }
 
