@@ -32,6 +32,6 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     // Apply to all routes except static assets and Next internals
-    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|icon-.*|manifest.json|workbox-.*|service-worker.js).*)'
+    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.json|apple-touch-icon.png|apple-touch-icon-precomposed.png|icon-.*|workbox-.*|service-worker.js).*)'
   ]
 };
