@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { auth } from './auth';
+import type { NextRequest } from 'next/server';
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
+export function middleware(req: NextRequest) {
+  const { pathname, search } = req.nextUrl;
 
   // Public routes that don't need authentication
   const isPublic = ['/login', '/signup', '/api/auth'].some((route) =>
@@ -11,13 +11,23 @@ export default auth((req) => {
 
   if (isPublic) return NextResponse.next();
 
-  // For all other routes, require an authenticated session
-  if (req.auth) return NextResponse.next();
+  // Align cookie check with auth.ts configuration and NextAuth defaults
+  const sessionCookieNames = [
+    '__Secure-next-auth.session-token', // configured in auth.ts
+    'next-auth.session-token',          // non-secure variant (dev)
+    '__Secure-authjs.session-token',    // NextAuth v5 default (secure)
+    'authjs.session-token',             // NextAuth v5 default
+  ];
+
+  const hasSession = sessionCookieNames.some((name) => req.cookies.get(name)?.value);
+
+  if (hasSession) return NextResponse.next();
 
   const loginUrl = new URL('/login', req.url);
-  loginUrl.searchParams.set('callbackUrl', pathname);
+  const cb = `${pathname}${search || ''}`;
+  loginUrl.searchParams.set('callbackUrl', cb);
   return NextResponse.redirect(loginUrl);
-});
+}
 
 export const config = {
   matcher: [
