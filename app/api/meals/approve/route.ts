@@ -10,6 +10,8 @@ import { insertMealWithItems, insertMealWithItemsTx } from '@/lib/repos/meal.rep
 import { getPool } from '@/lib/db';
 import { init } from '@/lib/init';
 import { placeholderPng } from '@/lib/images';
+import { logger } from '@/lib/logger';
+import { getSessionData } from '@/lib/types/auth';
 
 export async function POST(req: Request) {
   let tenantForDiag: any = null;
@@ -18,13 +20,10 @@ export async function POST(req: Request) {
     await init();
     const tenant = await requireTenant(req);
     tenantForDiag = tenant;
-    const session = await auth();
+    const session = getSessionData(await auth());
     if (!session) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-    const userId = (session as any).userId as string | undefined;
-    userIdForDiag = userId || null;
-    const tokenTenantId = (session as any).tenantId as string | undefined;
-    const tokenTenantSlug = (session as any).tenantSlug as string | undefined;
-    if (!userId || tokenTenantId !== tenant.id) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+    userIdForDiag = session.userId;
+    if (session.tenantId !== tenant.id) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
     const contentType = req.headers.get('content-type') || '';
     let input: any;
     let imageUrl: string | null = null;
@@ -35,27 +34,14 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'payload_required' }, { status: 400 });
       }
       input = JSON.parse(payload);
-      const image = form.get('image');
-      // TEMPORARY FIX: Skip Supabase Storage upload due to RLS issues
-      // Use a placeholder URL instead
-      imageUrl = 'https://via.placeholder.com/400x300.png?text=Meal+Image';
-      console.log('⚠️  Skipping image upload due to Storage RLS - using placeholder');
-
-      // TODO: Re-enable after fixing Storage RLS:
-      // if (image instanceof File) {
-      //   const buf = new Uint8Array(await image.arrayBuffer());
-      //   const ct = image.type || 'image/webp';
-      //   const saved = await saveImage(tokenTenantSlug || tenant.slug, buf, ct);
-      //   imageUrl = saved.publicUrl;
-      // } else {
-      //   const saved = await saveImage(tokenTenantSlug || tenant.slug, placeholderPng(), 'image/png');
-      //   imageUrl = saved.publicUrl;
-      // }
+      // Architectural decision: Don't store meal images
+      // Images are used only for AI analysis, not for storage
+      // This reduces costs, improves performance, and simplifies LGPD compliance
+      imageUrl = null;
     } else {
       input = await req.json();
-      // TEMPORARY FIX: Skip Supabase Storage upload due to RLS issues
-      imageUrl = 'https://via.placeholder.com/400x300.png?text=Meal+Image';
-      console.log('⚠️  Skipping image upload due to Storage RLS - using placeholder');
+      // Architectural decision: Don't store meal images
+      imageUrl = null;
     }
     const data = ApproveMealSchema.parse(input);
 
@@ -66,11 +52,11 @@ export async function POST(req: Request) {
     let meal;
     try {
       await client.query('BEGIN');
+      // Use set_config which supports parameters (SET LOCAL doesn't accept $1)
       await client.query("SELECT set_config('app.tenant_id', $1, true)", [tenant.id]);
-      await client.query(`SET LOCAL app.tenant_id = '${tenant.id}'`);
       meal = await insertMealWithItemsTx(client, {
         tenantId: tenant.id,
-        userId,
+        userId: session.userId,
         imageUrl: imageUrl!,
         mealType: data.meal_type,
         consumedAt: data.consumed_at,
@@ -99,10 +85,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, id: meal.id });
   } catch (err: any) {
     // Surface underlying DB error details and diagnostics (no changes committed)
-    console.error('❌ APPROVE ERROR:', err);
-    console.error('Error message:', err?.message);
-    console.error('Error code:', err?.code);
-    console.error('Error detail:', err?.detail);
+    logger.error('Approve meal error', err, {
+      message: err?.message,
+      code: err?.code,
+      detail: err?.detail,
+    });
     const details: any = { error: err?.message || 'unknown_error' };
     if (err && typeof err === 'object') {
       for (const k of ['code','schema','table','constraint','detail','hint','position','routine']) {
@@ -142,9 +129,13 @@ export async function POST(req: Request) {
           await client.query('COMMIT');
         }
         details.diagnostics = { info: info.rows[0], dummy, userId: userIdForDiag, tenant: tenantForDiag };
-      } catch {}
+      } catch (diagError) {
+        logger.error('Error during diagnostics query', diagError);
+      }
       finally { /* eslint-disable no-empty */ }
-    } catch {}
+    } catch (outerDiagError) {
+      logger.error('Error initializing diagnostics', outerDiagError);
+    }
     return NextResponse.json(details, { status: 400 });
   }
 }

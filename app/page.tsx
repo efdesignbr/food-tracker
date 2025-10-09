@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { PERIOD } from '@/lib/constants';
 
 type Food = {
   id: string;
@@ -72,10 +73,10 @@ function filterMealsByPeriod(meals: Meal[], period: FilterPeriod): Meal[] {
       cutoff.setHours(0, 0, 0, 0);
       break;
     case 'week':
-      cutoff.setDate(cutoff.getDate() - 7);
+      cutoff.setDate(cutoff.getDate() - PERIOD.WEEK_DAYS);
       break;
     case 'month':
-      cutoff.setDate(cutoff.getDate() - 30);
+      cutoff.setDate(cutoff.getDate() - PERIOD.MONTH_DAYS);
       break;
   }
 

@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { getPool } from './db';
 import { auth } from '../auth';
+import { isAppSession } from './types/auth';
 
 export type Tenant = { id: string; slug: string; name: string };
 
@@ -25,12 +26,11 @@ export async function getTenantById(id: string): Promise<Tenant | null> {
 export async function requireTenant(req: Request | NextRequest): Promise<Tenant> {
   const session = await auth();
 
-  if (!session || !(session as any).tenantId) {
+  if (!isAppSession(session)) {
     throw new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401 });
   }
 
-  const tenantId = (session as any).tenantId;
-  const tenant = await getTenantById(tenantId);
+  const tenant = await getTenantById(session.tenantId);
 
   if (!tenant) {
     throw new Response(JSON.stringify({ error: 'tenant_not_found' }), { status: 404 });

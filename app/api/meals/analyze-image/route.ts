@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import { requireTenant } from '@/lib/tenant';
 import { analyzeMealFromImage } from '@/lib/ai';
 import { init } from '@/lib/init';
+import { UPLOAD, IMAGE } from '@/lib/constants';
 import sharp from 'sharp';
 
 export async function POST(req: Request) {
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
     if (!(image instanceof File)) {
       return NextResponse.json({ error: 'image_required' }, { status: 400 });
     }
-    if (image.size > Number(process.env.MAX_UPLOAD_BYTES || 5 * 1024 * 1024)) {
+    if (image.size > Number(process.env.MAX_UPLOAD_BYTES || UPLOAD.MAX_BYTES)) {
       return NextResponse.json({ error: 'file_too_large' }, { status: 413 });
     }
 
@@ -28,19 +29,19 @@ export async function POST(req: Request) {
     const arrayBuffer = await image.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    let quality = 80;
+    let quality = IMAGE.INITIAL_QUALITY;
     let processedBuffer = await sharp(buffer)
       .rotate() // Auto-rotaciona baseado em EXIF
-      .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true })
+      .resize(IMAGE.MAX_DIMENSION_PX, IMAGE.MAX_DIMENSION_PX, { fit: 'inside', withoutEnlargement: true })
       .jpeg({ quality })
       .toBuffer();
 
     // Reduz qualidade até ficar abaixo de 100kb
-    while (processedBuffer.length > 100 * 1024 && quality > 20) {
-      quality -= 10;
+    while (processedBuffer.length > IMAGE.TARGET_MAX_SIZE_BYTES && quality > IMAGE.MIN_QUALITY) {
+      quality -= IMAGE.QUALITY_STEP;
       processedBuffer = await sharp(buffer)
         .rotate()
-        .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true })
+        .resize(IMAGE.MAX_DIMENSION_PX, IMAGE.MAX_DIMENSION_PX, { fit: 'inside', withoutEnlargement: true })
         .jpeg({ quality })
         .toBuffer();
     }

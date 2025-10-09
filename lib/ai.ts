@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { env } from './env';
+import { logger } from './logger';
 
 export type AiFood = {
   name: string;
@@ -103,7 +104,7 @@ Retorne apenas o JSON, sem texto adicional.`;
     const parsed = JSON.parse(text) as AiMealAnalysis;
     return parsed;
   } catch (error: any) {
-    console.error('Gemini API error:', error);
+    logger.error('Gemini API error', error);
     throw new Error(`Erro ao analisar refeição: ${error.message}`);
   }
 }
@@ -152,7 +153,7 @@ Retorne apenas o JSON estruturado, sem texto adicional.`;
     const parsed = JSON.parse(text) as AiMealAnalysis;
     return parsed;
   } catch (error: any) {
-    console.error('Gemini Vision API error:', error);
+    logger.error('Gemini Vision API error', error);
     throw new Error(`Erro ao analisar imagem: ${error.message}`);
   }
 }

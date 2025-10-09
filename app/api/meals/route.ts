@@ -6,18 +6,17 @@ import { requireTenant } from '@/lib/tenant';
 import { auth } from '@/lib/auth';
 import { findMealsWithFoodsByDateRange } from '@/lib/repos/meal.repo';
 import { init } from '@/lib/init';
+import { logger } from '@/lib/logger';
+import { getSessionData } from '@/lib/types/auth';
 
 export async function GET(req: Request) {
   try {
     await init();
     const tenant = await requireTenant(req);
-    const session = await auth();
+    const session = getSessionData(await auth());
     if (!session) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-    const userId = (session as any).userId as string | undefined;
-    const tokenTenantId = (session as any).tenantId as string | undefined;
-
-    if (!userId || tokenTenantId !== tenant.id) {
+    if (session.tenantId !== tenant.id) {
       return NextResponse.json({ error: 'forbidden' }, { status: 403 });
     }
 
@@ -32,14 +31,14 @@ export async function GET(req: Request) {
 
     const meals = await findMealsWithFoodsByDateRange({
       tenantId: tenant.id,
-      userId,
+      userId: session.userId,
       start,
       end
     });
 
     return NextResponse.json({ meals });
   } catch (err: any) {
-    console.error('Error fetching meals:', err);
+    logger.error('Error fetching meals', err);
     return NextResponse.json({ error: err?.message || 'unknown_error' }, { status: 400 });
   }
 }

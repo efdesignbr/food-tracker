@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { UPLOAD } from './constants';
 
 const EnvSchema = z.object({
   NODE_ENV: z.string().default('development'),
-  MAX_UPLOAD_BYTES: z.coerce.number().default(5 * 1024 * 1024),
+  MAX_UPLOAD_BYTES: z.coerce.number().default(UPLOAD.MAX_BYTES),
 
   DATABASE_URL: z.string().url().optional(),
 

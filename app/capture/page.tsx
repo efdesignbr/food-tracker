@@ -4,10 +4,16 @@ import { useState } from 'react';
 
 function nowSaoPauloLocalInput() {
   try {
-    const f = new Intl.DateTimeFormat('sv-SE', {
-      timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', hour12: false
-    } as any);
+    const options: Intl.DateTimeFormatOptions = {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    };
+    const f = new Intl.DateTimeFormat('sv-SE', options);
     const parts = f.formatToParts(new Date());
     const get = (t: string) => parts.find(p => p.type === t)?.value || '';
     return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`;

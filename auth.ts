@@ -4,6 +4,9 @@ import { getPool } from './lib/db';
 import { getTenantBySlug } from './lib/tenant';
 import bcrypt from 'bcryptjs';
 import { init } from './lib/init';
+import { logger } from './lib/logger';
+import type { AppUser, AppJWT, AppSession } from './lib/types/auth';
+import { isAppUser } from './lib/types/auth';
 
 const config: NextAuthConfig = {
   trustHost: true,
@@ -23,10 +26,10 @@ const config: NextAuthConfig = {
           const email = (creds?.email || '').toString().toLowerCase();
           const password = (creds?.password || '').toString();
 
-          console.log('[AUTH] Login attempt:', email);
+          logger.debug('Login attempt', { email });
 
           if (!email || !password) {
-            console.log('[AUTH] Missing credentials');
+            logger.debug('Missing credentials');
             return null;
           }
 
@@ -42,20 +45,20 @@ const config: NextAuthConfig = {
             [email]
           );
 
-          console.log('[AUTH] User found:', rows.length > 0);
+          logger.debug('User lookup result', { found: rows.length > 0 });
 
           const user = rows[0];
           if (!user || !user.password_hash) {
-            console.log('[AUTH] No user or password hash');
+            logger.debug('No user or password hash found');
             return null;
           }
 
           const ok = await bcrypt.compare(password, user.password_hash);
-          console.log('[AUTH] Password valid:', ok);
+          logger.debug('Password validation', { valid: ok });
 
           if (!ok) return null;
 
-          console.log('[AUTH] Login successful for:', email);
+          logger.info('Login successful', { email });
 
           return {
             id: user.id,
@@ -64,9 +67,9 @@ const config: NextAuthConfig = {
             tenantId: user.tenant_id,
             tenantSlug: user.tenant_slug,
             role: user.role || 'member'
-          } as any;
+          } satisfies AppUser;
         } catch (error) {
-          console.error('[AUTH] Error during login:', error);
+          logger.error('Error during login', error);
           return null;
         }
       }
@@ -74,20 +77,23 @@ const config: NextAuthConfig = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.userId = (user as any).id;
-        token.tenantId = (user as any).tenantId;
-        token.tenantSlug = (user as any).tenantSlug;
-        token.role = (user as any).role || 'member';
+      if (user && isAppUser(user)) {
+        (token as AppJWT).userId = user.id;
+        (token as AppJWT).tenantId = user.tenantId;
+        (token as AppJWT).tenantSlug = user.tenantSlug;
+        (token as AppJWT).role = user.role || 'member';
       }
-      return token as any;
+      return token;
     },
     async session({ session, token }) {
-      (session as any).userId = (token as any).userId;
-      (session as any).tenantId = (token as any).tenantId;
-      (session as any).tenantSlug = (token as any).tenantSlug;
-      (session as any).role = (token as any).role || 'member';
-      return session;
+      const appToken = token as AppJWT;
+      return {
+        ...session,
+        userId: appToken.userId,
+        tenantId: appToken.tenantId,
+        tenantSlug: appToken.tenantSlug,
+        role: appToken.role || 'member',
+      } as AppSession;
     }
   }
 };

@@ -42,5 +42,16 @@ async function applyMigrations() {
 }
 
 async function bootstrapDefaults() {
+  const e = env();
+
+  // SECURITY: Prevent AUTO_BOOTSTRAP_DEFAULTS in production
+  if (e.NODE_ENV === 'production' && e.AUTO_BOOTSTRAP_DEFAULTS) {
+    throw new Error(
+      '🚨 SECURITY ERROR: AUTO_BOOTSTRAP_DEFAULTS must be false in production. ' +
+      'This flag would create default credentials with weak passwords. ' +
+      'Set AUTO_BOOTSTRAP_DEFAULTS=false in your production environment.'
+    );
+  }
+
   // Bootstrap desabilitado - sistema requer cadastro manual de tenants via scripts/setup-tenant.ts
 }

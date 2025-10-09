@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { DATABASE } from './constants';
 
 let pool: Pool | undefined;
 declare global {
@@ -14,10 +15,10 @@ export function getPool(): Pool {
   }
   const cs = process.env.DATABASE_URL;
   if (!cs) throw new Error('DATABASE_URL is not set');
-  pool = new Pool({ connectionString: cs, max: 5 });
+  pool = new Pool({ connectionString: cs, max: DATABASE.POOL_MAX_CONNECTIONS });
   // Set timezone for all connections
   pool.on('connect', (client) => {
-    client.query("SET TIME ZONE 'America/Sao_Paulo'").catch(() => {});
+    client.query(`SET TIME ZONE '${DATABASE.DEFAULT_TIMEZONE}'`).catch(() => {});
   });
   global.__pgPool = pool;
   return pool;

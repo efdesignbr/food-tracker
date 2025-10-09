@@ -1,16 +1,17 @@
 import { auth } from '@/auth';
 import { getTenantBySlug } from '@/lib/tenant';
 import AppLayout from './AppLayout';
+import { getSessionData } from '@/lib/types/auth';
 
 export default async function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
+  const session = getSessionData(await auth());
 
   if (!session) {
     return <>{children}</>;
   }
 
-  const tenantSlug = (session as any).tenantSlug as string;
-  const userName = (session as any).user?.name || (session as any).user?.email;
+  const tenantSlug = session.tenantSlug;
+  const userName = session.user?.name || session.user?.email || 'User';
 
   let tenantName = tenantSlug;
   try {

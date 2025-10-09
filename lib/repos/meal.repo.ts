@@ -5,7 +5,7 @@ export type DbMeal = {
   id: string;
   user_id: string;
   tenant_id: string;
-  image_url: string;
+  image_url: string | null; // Nullable: images are not stored, only used for AI analysis
   meal_type: 'breakfast'|'lunch'|'dinner'|'snack';
   consumed_at: Date;
   status: 'pending'|'approved'|'rejected';
@@ -27,7 +27,7 @@ export type DbFoodItem = {
 export async function insertMealWithItems(args: {
   tenantId: string;
   userId: string;
-  imageUrl: string;
+  imageUrl: string | null;
   mealType: DbMeal['meal_type'];
   consumedAt: Date;
   notes?: string | null;
@@ -49,8 +49,8 @@ export async function insertMealWithItems(args: {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // Use set_config which supports parameters (SET LOCAL doesn't accept $1)
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
-    await client.query(`SET LOCAL app.tenant_id = '${args.tenantId}'`);
     const mealRes = await client.query<DbMeal>(
       `INSERT INTO meals (user_id, tenant_id, image_url, meal_type, consumed_at, status, notes)
        VALUES ($1,$2,$3,$4,$5,'approved',$6) RETURNING *`,
@@ -120,7 +120,7 @@ export async function insertMealWithItems(args: {
 export async function insertMealWithItemsTx(client: PoolClient, args: {
   tenantId: string;
   userId: string;
-  imageUrl: string;
+  imageUrl: string | null;
   mealType: DbMeal['meal_type'];
   consumedAt: Date;
   notes?: string | null;
@@ -199,11 +199,8 @@ export async function findMealsWithFoodsByDateRange(args: {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // Use set_config which supports parameters (SET LOCAL doesn't accept $1)
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
-    const cs2 = await client.query<{ app_tenant_id: string | null }>("SELECT current_setting('app.tenant_id', true) AS app_tenant_id");
-    if (!cs2.rows[0]?.app_tenant_id) {
-      await client.query(`SET LOCAL app.tenant_id = '${args.tenantId}'`);
-    }
     const { rows } = await client.query(
       `SELECT m.id as meal_id, m.image_url, m.meal_type, m.consumed_at, m.notes,
             fi.id as food_id, fi.name as food_name, fi.quantity, fi.unit,
