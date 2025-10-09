@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 
 type UserProfile = {
   id: string;
@@ -38,6 +39,15 @@ export default function AccountPage() {
 
   // Expanded sections
   const [expandedSection, setExpandedSection] = useState<string | null>('personal');
+
+  // Delete account states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteAgreed, setDeleteAgreed] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProfile();
@@ -127,6 +137,69 @@ export default function AccountPage() {
 
   function toggleSection(section: string) {
     setExpandedSection(expandedSection === section ? null : section);
+  }
+
+  function openDeleteModal() {
+    setShowDeleteModal(true);
+    setShowDeleteConfirm(false);
+    setDeletePassword('');
+    setDeleteConfirmText('');
+    setDeleteAgreed(false);
+    setDeleteError(null);
+  }
+
+  function closeDeleteModal() {
+    setShowDeleteModal(false);
+    setShowDeleteConfirm(false);
+    setDeletePassword('');
+    setDeleteConfirmText('');
+    setDeleteAgreed(false);
+    setDeleteError(null);
+  }
+
+  function proceedToConfirmation() {
+    setShowDeleteConfirm(true);
+  }
+
+  async function handleDeleteAccount() {
+    if (!deletePassword || !deleteConfirmText || !deleteAgreed) {
+      setDeleteError('Por favor, preencha todos os campos e confirme');
+      return;
+    }
+
+    if (deleteConfirmText !== 'EXCLUIR') {
+      setDeleteError('Digite exatamente: EXCLUIR');
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      setDeleteError(null);
+
+      const res = await fetch('/api/account/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          password: deletePassword,
+          confirmText: deleteConfirmText,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setDeleteError(data.error || 'Erro ao excluir conta');
+        setDeleting(false);
+        return;
+      }
+
+      // Logout e redirecionar
+      await signOut({ redirect: false });
+      router.push('/signup?deleted=true');
+    } catch (err: any) {
+      setDeleteError('Erro ao excluir conta. Tente novamente.');
+      setDeleting(false);
+    }
   }
 
   if (loading) {
@@ -546,7 +619,330 @@ export default function AccountPage() {
             </div>
           )}
         </div>
+
+        {/* 4. Zona de Perigo - Excluir Conta */}
+        <div style={{
+          background: 'white',
+          borderRadius: 16,
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          border: expandedSection === 'danger' ? '2px solid #ef4444' : '1px solid #e5e7eb'
+        }}>
+          <button
+            onClick={() => toggleSection('danger')}
+            style={{
+              width: '100%',
+              padding: 20,
+              border: 'none',
+              background: expandedSection === 'danger' ? '#fef2f2' : 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontWeight: 700,
+              fontSize: 16,
+              color: expandedSection === 'danger' ? '#ef4444' : '#374151'
+            }}
+          >
+            <span>⚠️ Zona de Perigo</span>
+            <span style={{ fontSize: 20 }}>{expandedSection === 'danger' ? '▼' : '▶'}</span>
+          </button>
+
+          {expandedSection === 'danger' && (
+            <div style={{ padding: 20, borderTop: '1px solid #e5e7eb' }}>
+              <div style={{
+                padding: 16,
+                background: '#fef2f2',
+                border: '2px solid #fca5a5',
+                borderRadius: 12,
+                marginBottom: 16
+              }}>
+                <p style={{ fontSize: 14, color: '#991b1b', margin: 0, fontWeight: 600 }}>
+                  ⚠️ Atenção: Excluir sua conta é uma ação permanente e irreversível!
+                </p>
+              </div>
+
+              <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 16, lineHeight: 1.6 }}>
+                Ao excluir sua conta, os seguintes dados serão <strong>perdidos permanentemente</strong>:
+              </p>
+
+              <ul style={{ fontSize: 14, color: '#6b7280', marginBottom: 20, paddingLeft: 20 }}>
+                <li>Todos os seus dados pessoais</li>
+                <li>Todas as suas refeições registradas</li>
+                <li>Todos os seus alimentos cadastrados</li>
+                <li>Todo o histórico de água</li>
+                <li>Suas metas e configurações</li>
+              </ul>
+
+              <button
+                onClick={openDeleteModal}
+                style={{
+                  width: '100%',
+                  padding: 14,
+                  border: '2px solid #ef4444',
+                  background: 'white',
+                  color: '#ef4444',
+                  borderRadius: 12,
+                  fontWeight: 700,
+                  fontSize: 16,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#ef4444';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'white';
+                  e.currentTarget.style.color = '#ef4444';
+                }}
+              >
+                🗑️ Excluir minha conta permanentemente
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Modal de Confirmação - Passo 1 */}
+      {showDeleteModal && !showDeleteConfirm && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: 16
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            maxWidth: 500,
+            width: '100%',
+            padding: 32,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+          }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: '#ef4444', marginBottom: 16 }}>
+              ⚠️ Tem certeza absoluta?
+            </h2>
+
+            <p style={{ fontSize: 16, color: '#374151', marginBottom: 20, lineHeight: 1.6 }}>
+              Esta ação irá <strong>deletar permanentemente</strong>:
+            </p>
+
+            <ul style={{ fontSize: 14, color: '#6b7280', marginBottom: 24, paddingLeft: 20 }}>
+              <li>❌ Todos os seus dados pessoais</li>
+              <li>❌ Todas as suas refeições registradas</li>
+              <li>❌ Todos os seus alimentos cadastrados</li>
+              <li>❌ Todo o histórico de água</li>
+              <li>❌ Suas metas e configurações</li>
+            </ul>
+
+            <div style={{
+              padding: 16,
+              background: '#fef2f2',
+              border: '2px solid #fca5a5',
+              borderRadius: 12,
+              marginBottom: 24
+            }}>
+              <p style={{ fontSize: 14, color: '#991b1b', margin: 0, fontWeight: 700, textAlign: 'center' }}>
+                ⚠️ ESTA AÇÃO É IRREVERSÍVEL E PERMANENTE!
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                onClick={closeDeleteModal}
+                style={{
+                  flex: 1,
+                  padding: 14,
+                  border: '2px solid #e5e7eb',
+                  background: 'white',
+                  color: '#374151',
+                  borderRadius: 12,
+                  fontWeight: 700,
+                  fontSize: 16,
+                  cursor: 'pointer'
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={proceedToConfirmation}
+                style={{
+                  flex: 1,
+                  padding: 14,
+                  border: 'none',
+                  background: '#ef4444',
+                  color: 'white',
+                  borderRadius: 12,
+                  fontWeight: 700,
+                  fontSize: 16,
+                  cursor: 'pointer'
+                }}
+              >
+                Sim, continuar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação - Passo 2 (Confirmação Final) */}
+      {showDeleteModal && showDeleteConfirm && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: 16
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            maxWidth: 500,
+            width: '100%',
+            padding: 32,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+          }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: '#ef4444', marginBottom: 16 }}>
+              🔐 Confirmação Final
+            </h2>
+
+            <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 20 }}>
+              Para confirmar a exclusão permanente da sua conta, preencha os campos abaixo:
+            </p>
+
+            {deleteError && (
+              <div style={{
+                padding: 12,
+                background: '#fef2f2',
+                border: '2px solid #ef4444',
+                borderRadius: 8,
+                marginBottom: 16,
+                color: '#991b1b',
+                fontSize: 14,
+                fontWeight: 600
+              }}>
+                ⚠️ {deleteError}
+              </div>
+            )}
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: '#374151' }}>
+                Digite sua senha atual:
+              </label>
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                placeholder="Sua senha"
+                disabled={deleting}
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  border: '2px solid #e5e7eb',
+                  borderRadius: 8,
+                  fontSize: 14,
+                  outline: 'none'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: '#374151' }}>
+                Digite <strong>EXCLUIR</strong> (em maiúsculas):
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="EXCLUIR"
+                disabled={deleting}
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  border: '2px solid #e5e7eb',
+                  borderRadius: 8,
+                  fontSize: 14,
+                  outline: 'none'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 8,
+                cursor: 'pointer',
+                fontSize: 14,
+                color: '#374151'
+              }}>
+                <input
+                  type="checkbox"
+                  checked={deleteAgreed}
+                  onChange={(e) => setDeleteAgreed(e.target.checked)}
+                  disabled={deleting}
+                  style={{ marginTop: 2 }}
+                />
+                <span>
+                  Entendo que perderei <strong>todos os meus dados permanentemente</strong> e que esta ação não pode ser desfeita.
+                </span>
+              </label>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                onClick={closeDeleteModal}
+                disabled={deleting}
+                style={{
+                  flex: 1,
+                  padding: 14,
+                  border: '2px solid #e5e7eb',
+                  background: 'white',
+                  color: '#374151',
+                  borderRadius: 12,
+                  fontWeight: 700,
+                  fontSize: 16,
+                  cursor: deleting ? 'not-allowed' : 'pointer',
+                  opacity: deleting ? 0.5 : 1
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting || !deletePassword || !deleteConfirmText || !deleteAgreed}
+                style={{
+                  flex: 1,
+                  padding: 14,
+                  border: 'none',
+                  background: (deleting || !deletePassword || !deleteConfirmText || !deleteAgreed) ? '#9ca3af' : '#ef4444',
+                  color: 'white',
+                  borderRadius: 12,
+                  fontWeight: 700,
+                  fontSize: 16,
+                  cursor: (deleting || !deletePassword || !deleteConfirmText || !deleteAgreed) ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {deleting ? '🗑️ Excluindo...' : '🗑️ Excluir permanentemente'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

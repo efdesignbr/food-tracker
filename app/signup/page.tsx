@@ -1,38 +1,65 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
-export default function LoginPage() {
+export default function SignupPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showDeletedMessage, setShowDeletedMessage] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/';
+
+  useEffect(() => {
+    if (searchParams.get('deleted') === 'true') {
+      setShowDeletedMessage(true);
+      setTimeout(() => setShowDeletedMessage(false), 8000);
+    }
+  }, [searchParams]);
 
   async function onSubmit(ev: React.FormEvent) {
     ev.preventDefault();
     setError(null);
     setLoading(true);
+
     try {
-      const res = await signIn('credentials', {
+      // Criar conta
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, companyName })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Erro ao criar conta');
+        setLoading(false);
+        return;
+      }
+
+      // Auto-login após cadastro
+      const signInRes = await signIn('credentials', {
         email,
         password,
         redirect: false
       });
 
-      if (res?.error) {
-        setError('Email ou senha incorretos');
-      } else if (res?.ok) {
-        router.push(callbackUrl);
+      if (signInRes?.error) {
+        setError('Conta criada, mas erro ao fazer login. Tente fazer login manualmente.');
+        setLoading(false);
+      } else if (signInRes?.ok) {
+        router.push('/');
         router.refresh();
       }
     } catch (e: any) {
-      setError('Erro ao fazer login');
-    } finally {
+      setError('Erro ao criar conta. Tente novamente.');
       setLoading(false);
     }
   }
@@ -67,10 +94,54 @@ export default function LoginPage() {
           textAlign: 'center',
           marginBottom: 32
         }}>
-          Faça login para continuar
+          Crie sua conta grátis
         </p>
 
+        {showDeletedMessage && (
+          <div style={{
+            padding: 16,
+            backgroundColor: '#d1fae5',
+            border: '2px solid #10b981',
+            borderRadius: 12,
+            marginBottom: 16,
+            color: '#065f46',
+            fontWeight: 600,
+            textAlign: 'center'
+          }}>
+            ✅ Conta excluída com sucesso. Você pode criar uma nova conta quando quiser.
+          </div>
+        )}
+
         <form onSubmit={onSubmit} style={{ display: 'grid', gap: 16 }}>
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: 14,
+              fontWeight: 500,
+              marginBottom: 8
+            }}>
+              Nome completo
+            </label>
+            <input
+              type="text"
+              placeholder="Seu nome"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: 14,
+                border: '1px solid #e0e0e0',
+                borderRadius: 8,
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#2196F3'}
+              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+            />
+          </div>
+
           <div>
             <label style={{
               display: 'block',
@@ -111,10 +182,39 @@ export default function LoginPage() {
             </label>
             <input
               type="password"
-              placeholder="••••••••"
+              placeholder="Mínimo 8 caracteres"
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
+              minLength={8}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: 14,
+                border: '1px solid #e0e0e0',
+                borderRadius: 8,
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#2196F3'}
+              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+            />
+          </div>
+
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: 14,
+              fontWeight: 500,
+              marginBottom: 8
+            }}>
+              Nome da empresa (opcional)
+            </label>
+            <input
+              type="text"
+              placeholder="Deixe em branco para usar seu nome"
+              value={companyName}
+              onChange={e => setCompanyName(e.target.value)}
               style={{
                 width: '100%',
                 padding: '12px 16px',
@@ -163,22 +263,22 @@ export default function LoginPage() {
               if (!loading) e.currentTarget.style.backgroundColor = '#2196F3';
             }}
           >
-            {loading ? 'Entrando…' : 'Entrar'}
+            {loading ? 'Criando conta...' : 'Criar conta grátis'}
           </button>
         </form>
 
         <p style={{ textAlign: 'center', marginTop: 16, color: '#666', fontSize: 14 }}>
-          Não tem conta?{' '}
-          <a
-            href="/signup"
+          Já tem uma conta?{' '}
+          <Link
+            href="/login"
             style={{
               color: '#2196F3',
               fontWeight: 600,
               textDecoration: 'none'
             }}
           >
-            Criar conta grátis
-          </a>
+            Fazer login
+          </Link>
         </p>
       </div>
     </div>

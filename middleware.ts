@@ -5,7 +5,7 @@ export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Public routes that don't need authentication
-  const publicRoutes = ['/login', '/api/auth'];
+  const publicRoutes = ['/login', '/signup', '/api/auth'];
   const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
 
   // Check for session cookie (NextAuth uses this)
