@@ -90,12 +90,19 @@ export default function CapturePage() {
 
   async function saveMeal() {
     if (!analysis) return;
+
+    // Validar que o tipo de refeição foi selecionado
+    if (!mealType) {
+      setError('Por favor, selecione o tipo de refeição');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(false);
     try {
       const payload: any = {
-        meal_type: analysis.meal_type || 'lunch',
+        meal_type: mealType,
         consumed_at: new Date(consumedAt).toISOString(),
         notes: notes || analysis.notes || '',
         foods: (analysis.foods || []).map((f: any) => ({
@@ -357,7 +364,7 @@ export default function CapturePage() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h2 style={{ fontSize: 20, fontWeight: 700 }}>
-                {mealTypeLabels[analysis.meal_type] || 'Refeição'}
+                Análise da Refeição
               </h2>
               <div style={{
                 padding: '8px 16px',
@@ -408,6 +415,30 @@ export default function CapturePage() {
 
           {/* Approve Form */}
           <div style={{ display: 'grid', gap: 16 }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                🍽️ Tipo de Refeição *
+              </label>
+              <select
+                value={mealType}
+                onChange={e => setMealType(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  fontSize: 16,
+                  border: mealType ? '2px solid #e5e7eb' : '2px solid #ef4444',
+                  borderRadius: 8,
+                  backgroundColor: 'white'
+                }}
+              >
+                <option value="">Selecione o tipo...</option>
+                <option value="breakfast">☀️ Café da Manhã</option>
+                <option value="lunch">🍽️ Almoço</option>
+                <option value="dinner">🌙 Jantar</option>
+                <option value="snack">🍿 Lanche</option>
+              </select>
+            </div>
+
             <div>
               <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
                 📅 Quando foi consumido?
