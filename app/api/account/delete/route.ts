@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getPool } from '@/lib/db';
 import bcrypt from 'bcryptjs';
+import { getSessionData } from '@/lib/types/auth';
 
 /**
  * DELETE /api/account/delete
@@ -27,8 +28,9 @@ export async function POST(req: NextRequest) {
 
   try {
     // 1. Verificar autenticação
-    const session = await auth();
-    if (!session?.userId || !session?.tenantId) {
+    const sessionData = await auth();
+    const session = getSessionData(sessionData);
+    if (!session) {
       return NextResponse.json(
         { error: 'Não autenticado' },
         { status: 401 }
