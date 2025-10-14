@@ -166,20 +166,6 @@ export default function LoginPage() {
             {loading ? 'Entrando…' : 'Entrar'}
           </button>
         </form>
-
-        <p style={{ textAlign: 'center', marginTop: 16, color: '#666', fontSize: 14 }}>
-          Não tem conta?{' '}
-          <a
-            href="/signup"
-            style={{
-              color: '#2196F3',
-              fontWeight: 600,
-              textDecoration: 'none'
-            }}
-          >
-            Criar conta grátis
-          </a>
-        </p>
       </div>
     </div>
   );

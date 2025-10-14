@@ -101,12 +101,11 @@ Para cada alimento, forneça:
 - Macronutrientes: proteína (g), carboidratos (g), gorduras (g)
 - Micronutrientes: fibras (g), sódio (mg), açúcares (g)
 
-No campo 'notes', inclua uma análise nutricional profissional sobre esta refeição, abordando:
-- Se contém alimentos inflamatórios (açúcar refinado, frituras, alimentos ultraprocessados, etc)
-- Potencial de contribuir para ganho de peso (considerando calorias, gorduras saturadas, açúcares)
-- Qualidade nutricional geral (equilíbrio de macronutrientes, presença de fibras, vitaminas)
-- Sugestões de melhoria se necessário
-- Inicie sempre com "Valores aproximados segundo tabela TACO." seguido da sua análise
+No campo 'notes', inclua uma análise nutricional CONCISA (máximo 400 caracteres):
+- Mencione se há alimentos inflamatórios ou ultraprocessados
+- Comente sobre potencial de ganho de peso
+- Avalie qualidade nutricional geral
+- Seja BREVE e OBJETIVO
 
 Retorne apenas o JSON, sem texto adicional.`;
 
@@ -114,6 +113,10 @@ Retorne apenas o JSON, sem texto adicional.`;
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     const parsed = JSON.parse(text) as AiMealAnalysis;
+    // Trunca notes para evitar erro de limite do banco (500 chars)
+    if (parsed.notes && parsed.notes.length > 490) {
+      parsed.notes = parsed.notes.substring(0, 487) + '...';
+    }
     return parsed;
   } catch (error: any) {
     logger.error('Gemini API error', error);
@@ -147,12 +150,11 @@ Para cada alimento identificado, forneça:
 
 Também identifique o tipo de refeição (breakfast, lunch, dinner, snack) baseado nos alimentos e horário típico.
 
-No campo 'notes', inclua uma análise nutricional profissional sobre esta refeição, abordando:
-- Se contém alimentos inflamatórios (açúcar refinado, frituras, alimentos ultraprocessados, etc)
-- Potencial de contribuir para ganho de peso (considerando calorias, gorduras saturadas, açúcares)
-- Qualidade nutricional geral (equilíbrio de macronutrientes, presença de fibras, vitaminas)
-- Sugestões de melhoria se necessário
-- Inicie sempre com "Valores aproximados segundo tabela TACO." seguido da sua análise
+No campo 'notes', inclua uma análise nutricional CONCISA (máximo 400 caracteres):
+- Mencione se há alimentos inflamatórios ou ultraprocessados
+- Comente sobre potencial de ganho de peso
+- Avalie qualidade nutricional geral
+- Seja BREVE e OBJETIVO
 
 Retorne apenas o JSON estruturado, sem texto adicional.`;
 
@@ -170,6 +172,10 @@ Retorne apenas o JSON estruturado, sem texto adicional.`;
     const result = await model.generateContent([prompt, imagePart]);
     const text = result.response.text();
     const parsed = JSON.parse(text) as AiMealAnalysis;
+    // Trunca notes para evitar erro de limite do banco (500 chars)
+    if (parsed.notes && parsed.notes.length > 490) {
+      parsed.notes = parsed.notes.substring(0, 487) + '...';
+    }
     return parsed;
   } catch (error: any) {
     logger.error('Gemini Vision API error', error);
