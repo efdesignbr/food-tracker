@@ -67,6 +67,11 @@ IMPORTANTE:
 - Se não tiver certeza dos valores exatos, faça estimativas conservadoras baseadas em alimentos similares
 - Normalize as porções para valores comuns (ex: 100g, 200ml, 1 unidade)
 - Inclua TODOS os nutrientes quando possível: calorias, proteínas, carboidratos, gorduras, fibras, sódio e açúcares
+
+ANÁLISE NUTRICIONAL:
+- Além dos valores nutricionais, forneça uma opinião profissional como nutricionista sobre a qualidade da refeição
+- Avalie aspectos como potencial inflamatório, impacto no ganho de peso, equilíbrio nutricional
+- Seja objetivo, claro e educativo nas observações
 `;
 
 export async function analyzeMealFromText(description: string, mealType?: string): Promise<AiMealAnalysis> {
@@ -95,6 +100,13 @@ Para cada alimento, forneça:
 - Calorias totais
 - Macronutrientes: proteína (g), carboidratos (g), gorduras (g)
 - Micronutrientes: fibras (g), sódio (mg), açúcares (g)
+
+No campo 'notes', inclua uma análise nutricional profissional sobre esta refeição, abordando:
+- Se contém alimentos inflamatórios (açúcar refinado, frituras, alimentos ultraprocessados, etc)
+- Potencial de contribuir para ganho de peso (considerando calorias, gorduras saturadas, açúcares)
+- Qualidade nutricional geral (equilíbrio de macronutrientes, presença de fibras, vitaminas)
+- Sugestões de melhoria se necessário
+- Inicie sempre com "Valores aproximados segundo tabela TACO." seguido da sua análise
 
 Retorne apenas o JSON, sem texto adicional.`;
 
@@ -134,6 +146,13 @@ Para cada alimento identificado, forneça:
 - Micronutrientes estimados: fibras (g), sódio (mg), açúcares (g)
 
 Também identifique o tipo de refeição (breakfast, lunch, dinner, snack) baseado nos alimentos e horário típico.
+
+No campo 'notes', inclua uma análise nutricional profissional sobre esta refeição, abordando:
+- Se contém alimentos inflamatórios (açúcar refinado, frituras, alimentos ultraprocessados, etc)
+- Potencial de contribuir para ganho de peso (considerando calorias, gorduras saturadas, açúcares)
+- Qualidade nutricional geral (equilíbrio de macronutrientes, presença de fibras, vitaminas)
+- Sugestões de melhoria se necessário
+- Inicie sempre com "Valores aproximados segundo tabela TACO." seguido da sua análise
 
 Retorne apenas o JSON estruturado, sem texto adicional.`;
 
