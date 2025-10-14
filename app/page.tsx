@@ -41,20 +41,25 @@ export default function HomePage() {
     water: 2000
   });
   const [waterIntake, setWaterIntake] = useState(0);
+  const [bowelMovementsCount, setBowelMovementsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addingWater, setAddingWater] = useState(false);
+  const [showBowelForm, setShowBowelForm] = useState(false);
+  const [selectedBristol, setSelectedBristol] = useState<number | null>(null);
+  const [addingBowel, setAddingBowel] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
 
-        // Fetch meals, user profile, and water intake in parallel
-        const [mealsRes, profileRes, waterRes] = await Promise.all([
+        // Fetch meals, user profile, water intake, and bowel movements in parallel
+        const [mealsRes, profileRes, waterRes, bowelRes] = await Promise.all([
           fetch('/api/meals', { credentials: 'include', cache: 'no-store' }),
           fetch('/api/user/profile', { credentials: 'include', cache: 'no-store' }),
-          fetch('/api/water-intake', { credentials: 'include', cache: 'no-store' })
+          fetch('/api/water-intake', { credentials: 'include', cache: 'no-store' }),
+          fetch('/api/bowel-movements', { credentials: 'include', cache: 'no-store' })
         ]);
 
         if (!mealsRes.ok) throw new Error('Erro ao buscar refeições');
@@ -78,6 +83,12 @@ export default function HomePage() {
         if (waterRes.ok) {
           const waterData = await waterRes.json();
           setWaterIntake(waterData.total_ml || 0);
+        }
+
+        // Load bowel movements
+        if (bowelRes.ok) {
+          const bowelData = await bowelRes.json();
+          setBowelMovementsCount(bowelData.count || 0);
         }
       } catch (err: any) {
         setError(err.message);
@@ -108,6 +119,31 @@ export default function HomePage() {
       console.error('Erro ao adicionar água:', err);
     } finally {
       setAddingWater(false);
+    }
+  };
+
+  // Função para adicionar evacuação
+  const addBowelMovement = async (bristolType: number) => {
+    try {
+      setAddingBowel(true);
+      const res = await fetch('/api/bowel-movements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bristol_type: bristolType }),
+        credentials: 'include',
+        cache: 'no-store'
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setBowelMovementsCount(data.count_today);
+        setShowBowelForm(false);
+        setSelectedBristol(null);
+      }
+    } catch (err) {
+      console.error('Erro ao adicionar evacuação:', err);
+    } finally {
+      setAddingBowel(false);
     }
   };
 
@@ -393,6 +429,143 @@ export default function HomePage() {
             <span>+ 500ml</span>
           </button>
         </div>
+      </div>
+
+      {/* Card de Saúde Intestinal */}
+      <div style={{
+        background: 'white',
+        borderRadius: 16,
+        padding: 20,
+        marginBottom: 16,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        border: '2px solid #f59e0b'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#f59e0b' }}>
+            🚻 Saúde Intestinal
+          </h2>
+          <span style={{ fontSize: 13, color: '#666' }}>
+            {bowelMovementsCount} {bowelMovementsCount === 1 ? 'vez' : 'vezes'} hoje
+          </span>
+        </div>
+
+        {!showBowelForm ? (
+          <button
+            onClick={() => setShowBowelForm(true)}
+            style={{
+              width: '100%',
+              padding: '14px 16px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              color: 'white',
+              borderRadius: 12,
+              fontWeight: 600,
+              fontSize: 16,
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.4)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(245, 158, 11, 0.3)';
+            }}
+          >
+            <span style={{ fontSize: 20 }}>➕</span>
+            <span>Registrar Evacuação</span>
+          </button>
+        ) : (
+          <div>
+            <p style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>
+              Selecione o tipo de fezes (Escala de Bristol):
+            </p>
+
+            <div style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
+              {[
+                { type: 1, emoji: '🔴', desc: 'Pedaços duros separados' },
+                { type: 2, emoji: '🟤', desc: 'Formato de salsicha irregular' },
+                { type: 3, emoji: '🟤', desc: 'Salsicha com rachaduras (normal)' },
+                { type: 4, emoji: '🟢', desc: 'Salsicha lisa e macia (ideal)' },
+                { type: 5, emoji: '🟡', desc: 'Pedaços macios' },
+                { type: 6, emoji: '🟠', desc: 'Pedaços moles irregulares' },
+                { type: 7, emoji: '🔴', desc: 'Aquoso, líquido' }
+              ].map((item) => (
+                <button
+                  key={item.type}
+                  onClick={() => setSelectedBristol(item.type)}
+                  style={{
+                    padding: '12px 16px',
+                    border: selectedBristol === item.type ? '2px solid #f59e0b' : '2px solid #e5e7eb',
+                    background: selectedBristol === item.type ? '#fffbeb' : 'white',
+                    borderRadius: 10,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    textAlign: 'left'
+                  }}
+                >
+                  <span style={{ fontSize: 24 }}>{item.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>
+                      Tipo {item.type}
+                    </div>
+                    <div style={{ fontSize: 11, color: '#6b7280' }}>
+                      {item.desc}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                onClick={() => {
+                  setShowBowelForm(false);
+                  setSelectedBristol(null);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  border: '2px solid #e5e7eb',
+                  background: 'white',
+                  color: '#6b7280',
+                  borderRadius: 10,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  cursor: 'pointer'
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => selectedBristol && addBowelMovement(selectedBristol)}
+                disabled={!selectedBristol || addingBowel}
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  border: 'none',
+                  background: !selectedBristol || addingBowel ? '#94a3b8' : '#f59e0b',
+                  color: 'white',
+                  borderRadius: 10,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  cursor: !selectedBristol || addingBowel ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {addingBowel ? 'Salvando...' : 'Salvar'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* CTA Principal */}
