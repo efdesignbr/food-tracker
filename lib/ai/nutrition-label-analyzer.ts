@@ -89,60 +89,26 @@ export async function analyzeNutritionLabel(
     }
   });
 
-  const prompt = `Você é um sistema OCR para extrair dados de tabelas nutricionais brasileiras.
+  const prompt = `Extraia os dados nutricionais desta tabela nutricional brasileira.
 
-TAREFA: Extrair TODOS os valores nutricionais da COLUNA DA PORÇÃO (não da coluna 100g).
+A tabela tem colunas: 100g, PORCAO, %VD
+Use APENAS os valores da coluna PORCAO (coluna do meio).
 
-FORMATO DA TABELA:
-A tabela pode ter 2 ou 3 colunas:
-- Coluna 1: "100g"
-- Coluna 2: PORÇÃO (ex: "25g", "30g", "200ml") ← USE ESTA COLUNA
-- Coluna 3 (opcional): "%VD" (ignore esta coluna)
+Extraia estes campos da coluna PORCAO:
+- Valor energetico em kcal -> calories
+- Carboidratos em g -> carbs
+- Acucares em g -> sugar
+- Proteinas em g -> protein
+- Gorduras totais em g -> fat
+- Gorduras saturadas em g -> saturated_fat
+- Fibras em g -> fiber
+- Sodio em mg -> sodium
+- Porcao (ex: 25g) -> serving_size
+- Nome do produto -> name
+- Marca -> brand
 
-IMPORTANTE: Procure no cabeçalho da tabela a informação de porção (ex: "Porções por embalagem: 4", "Porção: 25 g (1 xícara)")
-
-EXEMPLO:
-┌──────────────────────┬──────┬──────┬─────┐
-│                      │ 100g │ 25g  │ %VD │
-├──────────────────────┼──────┼──────┼─────┤
-│ Valor energético     │ 519  │ 131  │  7  │ → "calories": 131, "serving_size": "25g"
-│ Carboidratos (g)     │ 84   │ 21   │  7  │ → "carbs": 21
-│ Açúcares totais (g)  │ 1.2  │ 0.3  │     │ → "sugar": 0.3
-│ Proteínas (g)        │ 5    │ 1.2  │  2  │ → "protein": 1.2
-│ Gorduras totais (g)  │ 11   │ 2.8  │  5  │ → "fat": 2.8
-│ Saturadas (g)        │ 4.7  │ 1.2  │  5  │ → "saturated_fat": 1.2
-│ Trans (g)            │ 0    │ 0    │     │
-│ Fibras alimentares   │ 0    │ 0    │  0  │ → "fiber": 0
-│ Sódio (mg)           │ 428  │ 107  │  4  │ → "sodium": 107
-└──────────────────────┴──────┴──────┴─────┘
-
-PASSOS:
-
-1. Localize o cabeçalho "INFORMAÇÃO NUTRICIONAL"
-2. Identifique a porção (linha "Porção:" ou cabeçalho da coluna 2)
-3. Identifique a COLUNA DA PORÇÃO (segunda coluna, entre "100g" e "%VD")
-4. Para CADA nutriente, extraia o valor da COLUNA DA PORÇÃO:
-
-   - "Valor energético" → "calories" (em kcal, não kJ)
-   - "Carboidratos" → "carbs" (em g)
-   - "Açúcares totais" ou "dos quais açúcares" → "sugar" (em g)
-   - "Proteínas" → "protein" (em g)
-   - "Gorduras totais" → "fat" (em g)
-   - "Gorduras saturadas" ou "Saturadas" → "saturated_fat" (em g)
-   - "Fibra alimentar" ou "Fibras" → "fiber" (em g)
-   - "Sódio" → "sodium" (em mg)
-
-5. Para nome/marca: procure fora da tabela nutricional
-
-REGRAS CRÍTICAS:
-✓ Use APENAS a coluna da PORÇÃO (coluna do meio geralmente)
-✓ NUNCA use valores da coluna "100g"
-✓ NUNCA use valores da coluna "%VD"
-✓ Extraia APENAS números (sem unidades)
-✓ Se encontrar "kJ" ao invés de "kcal", divida por 4.184
-✓ Inclua TODOS os 8 campos nutricionais visíveis
-
-ATENÇÃO: A coluna da porção geralmente fica ENTRE "100g" e "%VD"!
+Extraia APENAS numeros (sem g, mg, kcal).
+Inclua TODOS os 8 nutrientes visiveis.
 `;
 
   try {
