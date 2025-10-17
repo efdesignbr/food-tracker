@@ -73,43 +73,6 @@ const nutritionLabelSchema = {
   required: ['name']
 };
 
-const systemPrompt = `Você é um especialista em OCR e análise de tabelas nutricionais brasileiras.
-Sua missão é extrair TODOS os valores nutricionais visíveis na imagem com máxima precisão.
-
-🎯 OBJETIVO PRINCIPAL:
-Extrair 100% dos dados nutricionais visíveis, mesmo que parcialmente legíveis.
-
-📋 ESTRUTURA PADRÃO DE TABELAS NUTRICIONAIS BRASILEIRAS:
-As tabelas geralmente contêm estas linhas (em ordem):
-1. Porção (ex: "30g", "200ml", "2 colheres de sopa (30g)")
-2. Valor energético / Calorias (kcal ou kJ)
-3. Carboidratos totais (g)
-   - dos quais açúcares (g) [sub-item]
-4. Proteínas (g)
-5. Gorduras totais (g)
-   - das quais saturadas (g) [sub-item]
-   - das quais trans (g) [sub-item]
-6. Fibra alimentar (g)
-7. Sódio (mg ou g)
-
-⚠️ REGRAS CRÍTICAS:
-1. SEMPRE extraia TODOS os valores visíveis, mesmo que estejam borrados ou parciais
-2. Se houver 2 colunas (100g e porção), use SEMPRE a coluna "Porção"
-3. NUNCA invente valores - apenas extraia o que está visível
-4. Valores podem ser decimais (2.5g, 150.3mg) ou inteiros (25g, 150mg)
-5. Se um campo não estiver visível, NÃO inclua no JSON
-
-🔢 CONVERSÕES OBRIGATÓRIAS:
-- Sódio: se estiver em g, MULTIPLIQUE por 1000 para mg (ex: 0.5g = 500mg)
-- Calorias: se estiver em kJ, DIVIDA por 4.184 para kcal (ex: 418kJ = 100kcal)
-- Porção: mantenha exatamente como aparece (ex: "30g", "200ml", "2 col. sopa (30g)")
-
-📍 ONDE PROCURAR OS DADOS:
-- Nome/Marca: topo da embalagem, logotipo, título principal
-- Porção: primeira linha da tabela nutricional
-- Nutrientes: linhas da tabela, podem ter recuo (sub-itens)
-- Valores: coluna à direita, procure números seguidos de unidades (g, mg, kcal)`;
-
 export async function analyzeNutritionLabel(
   bytes: Uint8Array,
   mediaType: string
@@ -122,56 +85,64 @@ export async function analyzeNutritionLabel(
     generationConfig: {
       responseMimeType: 'application/json',
       responseSchema: nutritionLabelSchema as any,
-      temperature: 0,  // Temperatura 0 para máxima precisão e consistência
+      temperature: 0,
     }
   });
 
-  const prompt = `${systemPrompt}
+  const prompt = `Você é um sistema OCR para extrair dados de tabelas nutricionais brasileiras.
 
-📸 ANALISE ESTA IMAGEM:
-Examine cuidadosamente a foto da tabela nutricional brasileira e extraia TODOS os dados visíveis.
+TAREFA: Extrair TODOS os valores nutricionais da COLUNA DA PORÇÃO (não da coluna 100g).
 
-📝 PROCEDIMENTO DE EXTRAÇÃO (SIGA EXATAMENTE):
+FORMATO DA TABELA:
+A tabela pode ter 2 ou 3 colunas:
+- Coluna 1: "100g"
+- Coluna 2: PORÇÃO (ex: "25g", "30g", "200ml") ← USE ESTA COLUNA
+- Coluna 3 (opcional): "%VD" (ignore esta coluna)
 
-PASSO 1 - Identifique o produto:
-- "name": Nome completo do produto (procure no topo da embalagem)
-- "brand": Marca (logotipo ou nome do fabricante)
+IMPORTANTE: Procure no cabeçalho da tabela a informação de porção (ex: "Porções por embalagem: 4", "Porção: 25 g (1 xícara)")
 
-PASSO 2 - Localize a linha "Porção" (primeira linha da tabela):
-- "serving_size": Copie exatamente como está escrito (ex: "30g", "200ml", "2 colheres (30g)")
+EXEMPLO:
+┌──────────────────────┬──────┬──────┬─────┐
+│                      │ 100g │ 25g  │ %VD │
+├──────────────────────┼──────┼──────┼─────┤
+│ Valor energético     │ 519  │ 131  │  7  │ → "calories": 131, "serving_size": "25g"
+│ Carboidratos (g)     │ 84   │ 21   │  7  │ → "carbs": 21
+│ Açúcares totais (g)  │ 1.2  │ 0.3  │     │ → "sugar": 0.3
+│ Proteínas (g)        │ 5    │ 1.2  │  2  │ → "protein": 1.2
+│ Gorduras totais (g)  │ 11   │ 2.8  │  5  │ → "fat": 2.8
+│ Saturadas (g)        │ 4.7  │ 1.2  │  5  │ → "saturated_fat": 1.2
+│ Trans (g)            │ 0    │ 0    │     │
+│ Fibras alimentares   │ 0    │ 0    │  0  │ → "fiber": 0
+│ Sódio (mg)           │ 428  │ 107  │  4  │ → "sodium": 107
+└──────────────────────┴──────┴──────┴─────┘
 
-PASSO 3 - Procure "Valor energético" ou "Calorias":
-- "calories": Valor em kcal por PORÇÃO (não por 100g!)
-- Se estiver em kJ, divida por 4.184
+PASSOS:
 
-PASSO 4 - Localize "Carboidratos" ou "Carboidratos totais":
-- "carbs": Valor em gramas por PORÇÃO
-- Abaixo pode ter "dos quais açúcares" (sub-item):
-  - "sugar": Valor de açúcares em gramas
+1. Localize o cabeçalho "INFORMAÇÃO NUTRICIONAL"
+2. Identifique a porção (linha "Porção:" ou cabeçalho da coluna 2)
+3. Identifique a COLUNA DA PORÇÃO (segunda coluna, entre "100g" e "%VD")
+4. Para CADA nutriente, extraia o valor da COLUNA DA PORÇÃO:
 
-PASSO 5 - Procure "Proteínas":
-- "protein": Valor em gramas por PORÇÃO
+   - "Valor energético" → "calories" (em kcal, não kJ)
+   - "Carboidratos" → "carbs" (em g)
+   - "Açúcares totais" ou "dos quais açúcares" → "sugar" (em g)
+   - "Proteínas" → "protein" (em g)
+   - "Gorduras totais" → "fat" (em g)
+   - "Gorduras saturadas" ou "Saturadas" → "saturated_fat" (em g)
+   - "Fibra alimentar" ou "Fibras" → "fiber" (em g)
+   - "Sódio" → "sodium" (em mg)
 
-PASSO 6 - Localize "Gorduras totais":
-- "fat": Valor em gramas por PORÇÃO
-- Abaixo pode ter "das quais saturadas" (sub-item):
-  - "saturated_fat": Valor de gorduras saturadas em gramas
+5. Para nome/marca: procure fora da tabela nutricional
 
-PASSO 7 - Procure "Fibra alimentar" ou "Fibras":
-- "fiber": Valor em gramas por PORÇÃO
+REGRAS CRÍTICAS:
+✓ Use APENAS a coluna da PORÇÃO (coluna do meio geralmente)
+✓ NUNCA use valores da coluna "100g"
+✓ NUNCA use valores da coluna "%VD"
+✓ Extraia APENAS números (sem unidades)
+✓ Se encontrar "kJ" ao invés de "kcal", divida por 4.184
+✓ Inclua TODOS os 8 campos nutricionais visíveis
 
-PASSO 8 - Localize "Sódio":
-- "sodium": Valor em MILIGRAMAS por PORÇÃO
-- ATENÇÃO: Se estiver em g, multiplique por 1000 (ex: 0.25g = 250mg)
-
-⚠️ REGRAS FINAIS:
-✓ Use SEMPRE os valores da coluna "Porção" (NÃO da coluna 100g)
-✓ Inclua TODOS os campos que conseguir ler
-✓ NÃO invente valores - apenas o que está visível
-✓ Valores podem ser decimais (2.5) ou inteiros (25)
-✓ Se não conseguir ler, omita o campo
-
-Retorne APENAS o JSON, sem explicações.`;
+ATENÇÃO: A coluna da porção geralmente fica ENTRE "100g" e "%VD"!`;
 
   try {
     // Converte para base64
