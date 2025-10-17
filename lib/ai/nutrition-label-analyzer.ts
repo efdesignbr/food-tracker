@@ -73,45 +73,42 @@ const nutritionLabelSchema = {
   required: ['name']
 };
 
-const systemPrompt = `Você é um assistente especializado em leitura de tabelas nutricionais de alimentos.
-Sua tarefa é extrair informações precisas de fotos de embalagens e tabelas nutricionais brasileiras.
+const systemPrompt = `Você é um especialista em OCR e análise de tabelas nutricionais brasileiras.
+Sua missão é extrair TODOS os valores nutricionais visíveis na imagem com máxima precisão.
 
-IMPORTANTE - VALORES POR PORÇÃO:
-- Leia com atenção TODOS os campos da tabela nutricional
-- Preste atenção especial ao tamanho da porção (serving size)
-- Todos os valores devem ser POR PORÇÃO, não por 100g
-- Se a tabela mostrar valores por 100g E por porção, use os valores POR PORÇÃO
-- Retorne apenas valores que você conseguir ler claramente na imagem
-- Se algum valor não estiver visível, omita esse campo do JSON
+🎯 OBJETIVO PRINCIPAL:
+Extrair 100% dos dados nutricionais visíveis, mesmo que parcialmente legíveis.
 
-CAMPOS OBRIGATÓRIOS (quando visíveis):
-- Nome do produto (obrigatório)
-- Marca (se visível)
-- Tamanho da porção
-- Calorias/Valor energético
-- Proteínas
-- Carboidratos totais
-- Gorduras totais
+📋 ESTRUTURA PADRÃO DE TABELAS NUTRICIONAIS BRASILEIRAS:
+As tabelas geralmente contêm estas linhas (em ordem):
+1. Porção (ex: "30g", "200ml", "2 colheres de sopa (30g)")
+2. Valor energético / Calorias (kcal ou kJ)
+3. Carboidratos totais (g)
+   - dos quais açúcares (g) [sub-item]
+4. Proteínas (g)
+5. Gorduras totais (g)
+   - das quais saturadas (g) [sub-item]
+   - das quais trans (g) [sub-item]
+6. Fibra alimentar (g)
+7. Sódio (mg ou g)
 
-CAMPOS OPCIONAIS (quando visíveis na tabela):
-- Fibras alimentares
-- Sódio (em mg)
-- Açúcares
-- Gorduras saturadas
-- Gorduras trans
-- Colesterol
+⚠️ REGRAS CRÍTICAS:
+1. SEMPRE extraia TODOS os valores visíveis, mesmo que estejam borrados ou parciais
+2. Se houver 2 colunas (100g e porção), use SEMPRE a coluna "Porção"
+3. NUNCA invente valores - apenas extraia o que está visível
+4. Valores podem ser decimais (2.5g, 150.3mg) ou inteiros (25g, 150mg)
+5. Se um campo não estiver visível, NÃO inclua no JSON
 
-CONVERSÕES IMPORTANTES:
-- Sódio: se estiver em g, multiplique por 1000 para ter mg
-- Calorias: aceite tanto kcal quanto kJ (se for kJ, divida por 4.184)
-- Porção: se descrita como "X colheres (Yg)", use "Yg" como serving_size
-- Porção: mantenha a unidade original (g, ml, unidade, etc)
+🔢 CONVERSÕES OBRIGATÓRIAS:
+- Sódio: se estiver em g, MULTIPLIQUE por 1000 para mg (ex: 0.5g = 500mg)
+- Calorias: se estiver em kJ, DIVIDA por 4.184 para kcal (ex: 418kJ = 100kcal)
+- Porção: mantenha exatamente como aparece (ex: "30g", "200ml", "2 col. sopa (30g)")
 
-ATENÇÃO ESPECIAL:
-- Procure TODOS os nutrientes listados, não apenas os principais
-- Gorduras saturadas geralmente aparecem como sub-item de gorduras totais
-- Açúcares geralmente aparecem como sub-item de carboidratos
-- Fibras podem estar separadas ou como sub-item de carboidratos`;
+📍 ONDE PROCURAR OS DADOS:
+- Nome/Marca: topo da embalagem, logotipo, título principal
+- Porção: primeira linha da tabela nutricional
+- Nutrientes: linhas da tabela, podem ter recuo (sub-itens)
+- Valores: coluna à direita, procure números seguidos de unidades (g, mg, kcal)`;
 
 export async function analyzeNutritionLabel(
   bytes: Uint8Array,
@@ -125,40 +122,56 @@ export async function analyzeNutritionLabel(
     generationConfig: {
       responseMimeType: 'application/json',
       responseSchema: nutritionLabelSchema as any,
-      temperature: 0.1,
+      temperature: 0,  // Temperatura 0 para máxima precisão e consistência
     }
   });
 
   const prompt = `${systemPrompt}
 
-Analise a imagem desta embalagem ou tabela nutricional brasileira e extraia TODAS as informações nutricionais visíveis.
+📸 ANALISE ESTA IMAGEM:
+Examine cuidadosamente a foto da tabela nutricional brasileira e extraia TODOS os dados visíveis.
 
-Retorne um JSON com TODOS os campos que conseguir identificar:
+📝 PROCEDIMENTO DE EXTRAÇÃO (SIGA EXATAMENTE):
 
-CAMPOS PRINCIPAIS (obrigatórios quando visíveis):
-- name: Nome do produto (OBRIGATÓRIO)
-- brand: Marca do produto (se visível)
-- serving_size: Tamanho da porção exata (ex: "30g", "200ml", "1 unidade (50g)")
-- calories: Valor energético/calorias em kcal por porção
-- protein: Proteínas em gramas por porção
-- carbs: Carboidratos totais em gramas por porção
-- fat: Gorduras totais em gramas por porção
+PASSO 1 - Identifique o produto:
+- "name": Nome completo do produto (procure no topo da embalagem)
+- "brand": Marca (logotipo ou nome do fabricante)
 
-CAMPOS ADICIONAIS (incluir quando disponíveis na tabela):
-- fiber: Fibras alimentares em gramas por porção
-- sodium: Sódio em MILIGRAMAS por porção (não gramas!)
-- sugar: Açúcares em gramas por porção
-- saturated_fat: Gorduras saturadas em gramas por porção
+PASSO 2 - Localize a linha "Porção" (primeira linha da tabela):
+- "serving_size": Copie exatamente como está escrito (ex: "30g", "200ml", "2 colheres (30g)")
 
-INSTRUÇÕES CRÍTICAS:
-1. LEIA TODOS OS ITENS da tabela nutricional, não apenas os principais
-2. Todos os valores devem ser POR PORÇÃO (não por 100g)
-3. Se houver duas colunas (100g e porção), use sempre a coluna da PORÇÃO
-4. Para sódio, se o valor estiver em gramas, converta para miligramas (multiplique por 1000)
-5. Retorne apenas campos que você conseguir ler com clareza
-6. Valores decimais são aceitáveis (ex: 2.5g, 150.3mg)
+PASSO 3 - Procure "Valor energético" ou "Calorias":
+- "calories": Valor em kcal por PORÇÃO (não por 100g!)
+- Se estiver em kJ, divida por 4.184
 
-Retorne apenas o JSON, sem texto adicional.`;
+PASSO 4 - Localize "Carboidratos" ou "Carboidratos totais":
+- "carbs": Valor em gramas por PORÇÃO
+- Abaixo pode ter "dos quais açúcares" (sub-item):
+  - "sugar": Valor de açúcares em gramas
+
+PASSO 5 - Procure "Proteínas":
+- "protein": Valor em gramas por PORÇÃO
+
+PASSO 6 - Localize "Gorduras totais":
+- "fat": Valor em gramas por PORÇÃO
+- Abaixo pode ter "das quais saturadas" (sub-item):
+  - "saturated_fat": Valor de gorduras saturadas em gramas
+
+PASSO 7 - Procure "Fibra alimentar" ou "Fibras":
+- "fiber": Valor em gramas por PORÇÃO
+
+PASSO 8 - Localize "Sódio":
+- "sodium": Valor em MILIGRAMAS por PORÇÃO
+- ATENÇÃO: Se estiver em g, multiplique por 1000 (ex: 0.25g = 250mg)
+
+⚠️ REGRAS FINAIS:
+✓ Use SEMPRE os valores da coluna "Porção" (NÃO da coluna 100g)
+✓ Inclua TODOS os campos que conseguir ler
+✓ NÃO invente valores - apenas o que está visível
+✓ Valores podem ser decimais (2.5) ou inteiros (25)
+✓ Se não conseguir ler, omita o campo
+
+Retorne APENAS o JSON, sem explicações.`;
 
   try {
     // Converte para base64

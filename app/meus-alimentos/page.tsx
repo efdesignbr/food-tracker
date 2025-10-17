@@ -579,12 +579,12 @@ export default function MeusAlimentosPage() {
                     padding: 16,
                     marginBottom: 16
                   }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>📝 Revisar e Editar:</h3>
+                    <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>📝 Revisar e Editar:</h3>
 
-                    <div style={{ display: 'grid', gap: 12 }}>
+                    <div style={{ display: 'grid', gap: 16 }}>
                       {/* Nome (editável) */}
                       <div>
-                        <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 14 }}>
+                        <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14, color: '#374151' }}>
                           Nome do Alimento *
                         </label>
                         <input
@@ -595,19 +595,24 @@ export default function MeusAlimentosPage() {
                           required
                           style={{
                             width: '100%',
-                            padding: 10,
-                            fontSize: 15,
+                            padding: 12,
+                            fontSize: 16,
                             border: '2px solid #d1d5db',
                             borderRadius: 8,
-                            background: 'white'
+                            background: 'white',
+                            boxSizing: 'border-box'
                           }}
                         />
                       </div>
 
-                      {/* Marca e Porção */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      {/* Marca e Porção - responsivo */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr',
+                        gap: 16
+                      }}>
                         <div>
-                          <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 14 }}>
+                          <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14, color: '#374151' }}>
                             Marca
                           </label>
                           <input
@@ -617,16 +622,17 @@ export default function MeusAlimentosPage() {
                             placeholder="Ex: Growth"
                             style={{
                               width: '100%',
-                              padding: 10,
-                              fontSize: 15,
+                              padding: 12,
+                              fontSize: 16,
                               border: '2px solid #d1d5db',
                               borderRadius: 8,
-                              background: 'white'
+                              background: 'white',
+                              boxSizing: 'border-box'
                             }}
                           />
                         </div>
                         <div>
-                          <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 14 }}>
+                          <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14, color: '#374151' }}>
                             Porção
                           </label>
                           <input
@@ -636,181 +642,208 @@ export default function MeusAlimentosPage() {
                             placeholder="Ex: 30g"
                             style={{
                               width: '100%',
-                              padding: 10,
-                              fontSize: 15,
+                              padding: 12,
+                              fontSize: 16,
                               border: '2px solid #d1d5db',
                               borderRadius: 8,
-                              background: 'white'
+                              background: 'white',
+                              boxSizing: 'border-box'
                             }}
                           />
                         </div>
                       </div>
 
-                      {/* Valores Nutricionais */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
-                        <div>
-                          <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 14 }}>
-                            Calorias
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={analyzedData.calories || ''}
-                            onChange={e => setAnalyzedData({ ...analyzedData, calories: e.target.value ? parseFloat(e.target.value) : undefined })}
-                            placeholder="kcal"
-                            style={{
-                              width: '100%',
-                              padding: 10,
-                              fontSize: 15,
-                              border: '2px solid #d1d5db',
-                              borderRadius: 8,
-                              background: 'white'
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 14 }}>
-                            Proteína (g)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={analyzedData.protein || ''}
-                            onChange={e => setAnalyzedData({ ...analyzedData, protein: e.target.value ? parseFloat(e.target.value) : undefined })}
-                            placeholder="g"
-                            style={{
-                              width: '100%',
-                              padding: 10,
-                              fontSize: 15,
-                              border: '2px solid #d1d5db',
-                              borderRadius: 8,
-                              background: 'white'
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 14 }}>
-                            Carboidratos (g)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={analyzedData.carbs || ''}
-                            onChange={e => setAnalyzedData({ ...analyzedData, carbs: e.target.value ? parseFloat(e.target.value) : undefined })}
-                            placeholder="g"
-                            style={{
-                              width: '100%',
-                              padding: 10,
-                              fontSize: 15,
-                              border: '2px solid #d1d5db',
-                              borderRadius: 8,
-                              background: 'white'
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 14 }}>
-                            Gorduras (g)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={analyzedData.fat || ''}
-                            onChange={e => setAnalyzedData({ ...analyzedData, fat: e.target.value ? parseFloat(e.target.value) : undefined })}
-                            placeholder="g"
-                            style={{
-                              width: '100%',
-                              padding: 10,
-                              fontSize: 15,
-                              border: '2px solid #d1d5db',
-                              borderRadius: 8,
-                              background: 'white'
-                            }}
-                          />
+                      {/* Seção de Macros Principais */}
+                      <div>
+                        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#6b7280', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Macronutrientes
+                        </h4>
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: window.innerWidth < 640 ? '1fr 1fr' : 'repeat(4, 1fr)',
+                          gap: 12
+                        }}>
+                          <div>
+                            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13, color: '#374151' }}>
+                              Calorias
+                            </label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={analyzedData.calories || ''}
+                              onChange={e => setAnalyzedData({ ...analyzedData, calories: e.target.value ? parseFloat(e.target.value) : undefined })}
+                              placeholder="kcal"
+                              style={{
+                                width: '100%',
+                                padding: 10,
+                                fontSize: 15,
+                                border: '2px solid #d1d5db',
+                                borderRadius: 8,
+                                background: 'white',
+                                boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13, color: '#374151' }}>
+                              Proteína (g)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={analyzedData.protein || ''}
+                              onChange={e => setAnalyzedData({ ...analyzedData, protein: e.target.value ? parseFloat(e.target.value) : undefined })}
+                              placeholder="g"
+                              style={{
+                                width: '100%',
+                                padding: 10,
+                                fontSize: 15,
+                                border: '2px solid #d1d5db',
+                                borderRadius: 8,
+                                background: 'white',
+                                boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13, color: '#374151' }}>
+                              Carboidratos (g)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={analyzedData.carbs || ''}
+                              onChange={e => setAnalyzedData({ ...analyzedData, carbs: e.target.value ? parseFloat(e.target.value) : undefined })}
+                              placeholder="g"
+                              style={{
+                                width: '100%',
+                                padding: 10,
+                                fontSize: 15,
+                                border: '2px solid #d1d5db',
+                                borderRadius: 8,
+                                background: 'white',
+                                boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13, color: '#374151' }}>
+                              Gorduras (g)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={analyzedData.fat || ''}
+                              onChange={e => setAnalyzedData({ ...analyzedData, fat: e.target.value ? parseFloat(e.target.value) : undefined })}
+                              placeholder="g"
+                              style={{
+                                width: '100%',
+                                padding: 10,
+                                fontSize: 15,
+                                border: '2px solid #d1d5db',
+                                borderRadius: 8,
+                                background: 'white',
+                                boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      {/* Campos adicionais */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
-                        <div>
-                          <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 14 }}>
-                            Fibras (g)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={analyzedData.fiber || ''}
-                            onChange={e => setAnalyzedData({ ...analyzedData, fiber: e.target.value ? parseFloat(e.target.value) : undefined })}
-                            placeholder="g"
-                            style={{
-                              width: '100%',
-                              padding: 10,
-                              fontSize: 15,
-                              border: '2px solid #d1d5db',
-                              borderRadius: 8,
-                              background: 'white'
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 14 }}>
-                            Sódio (mg)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={analyzedData.sodium || ''}
-                            onChange={e => setAnalyzedData({ ...analyzedData, sodium: e.target.value ? parseFloat(e.target.value) : undefined })}
-                            placeholder="mg"
-                            style={{
-                              width: '100%',
-                              padding: 10,
-                              fontSize: 15,
-                              border: '2px solid #d1d5db',
-                              borderRadius: 8,
-                              background: 'white'
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 14 }}>
-                            Açúcares (g)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={analyzedData.sugar || ''}
-                            onChange={e => setAnalyzedData({ ...analyzedData, sugar: e.target.value ? parseFloat(e.target.value) : undefined })}
-                            placeholder="g"
-                            style={{
-                              width: '100%',
-                              padding: 10,
-                              fontSize: 15,
-                              border: '2px solid #d1d5db',
-                              borderRadius: 8,
-                              background: 'white'
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 14 }}>
-                            Gordura Sat. (g)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={analyzedData.saturated_fat || ''}
-                            onChange={e => setAnalyzedData({ ...analyzedData, saturated_fat: e.target.value ? parseFloat(e.target.value) : undefined })}
-                            placeholder="g"
-                            style={{
-                              width: '100%',
-                              padding: 10,
-                              fontSize: 15,
-                              border: '2px solid #d1d5db',
-                              borderRadius: 8,
-                              background: 'white'
-                            }}
-                          />
+                      {/* Seção de Micronutrientes */}
+                      <div>
+                        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#6b7280', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Detalhes Nutricionais
+                        </h4>
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: window.innerWidth < 640 ? '1fr 1fr' : 'repeat(4, 1fr)',
+                          gap: 12
+                        }}>
+                          <div>
+                            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13, color: '#374151' }}>
+                              Fibras (g)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={analyzedData.fiber || ''}
+                              onChange={e => setAnalyzedData({ ...analyzedData, fiber: e.target.value ? parseFloat(e.target.value) : undefined })}
+                              placeholder="g"
+                              style={{
+                                width: '100%',
+                                padding: 10,
+                                fontSize: 15,
+                                border: '2px solid #d1d5db',
+                                borderRadius: 8,
+                                background: 'white',
+                                boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13, color: '#374151' }}>
+                              Sódio (mg)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={analyzedData.sodium || ''}
+                              onChange={e => setAnalyzedData({ ...analyzedData, sodium: e.target.value ? parseFloat(e.target.value) : undefined })}
+                              placeholder="mg"
+                              style={{
+                                width: '100%',
+                                padding: 10,
+                                fontSize: 15,
+                                border: '2px solid #d1d5db',
+                                borderRadius: 8,
+                                background: 'white',
+                                boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13, color: '#374151' }}>
+                              Açúcares (g)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={analyzedData.sugar || ''}
+                              onChange={e => setAnalyzedData({ ...analyzedData, sugar: e.target.value ? parseFloat(e.target.value) : undefined })}
+                              placeholder="g"
+                              style={{
+                                width: '100%',
+                                padding: 10,
+                                fontSize: 15,
+                                border: '2px solid #d1d5db',
+                                borderRadius: 8,
+                                background: 'white',
+                                boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13, color: '#374151' }}>
+                              Gord. Sat. (g)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={analyzedData.saturated_fat || ''}
+                              onChange={e => setAnalyzedData({ ...analyzedData, saturated_fat: e.target.value ? parseFloat(e.target.value) : undefined })}
+                              placeholder="g"
+                              style={{
+                                width: '100%',
+                                padding: 10,
+                                fontSize: 15,
+                                border: '2px solid #d1d5db',
+                                borderRadius: 8,
+                                background: 'white',
+                                boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
