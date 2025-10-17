@@ -142,7 +142,8 @@ REGRAS CRÍTICAS:
 ✓ Se encontrar "kJ" ao invés de "kcal", divida por 4.184
 ✓ Inclua TODOS os 8 campos nutricionais visíveis
 
-ATENÇÃO: A coluna da porção geralmente fica ENTRE "100g" e "%VD"!`;
+ATENÇÃO: A coluna da porção geralmente fica ENTRE "100g" e "%VD"!
+`;
 
   try {
     // Converte para base64
