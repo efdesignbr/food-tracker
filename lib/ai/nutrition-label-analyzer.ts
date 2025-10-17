@@ -185,11 +185,28 @@ Retorne APENAS o JSON, sem explicações.`;
     };
 
     const result = await model.generateContent([prompt, imagePart]);
-    const text = result.response.text();
+    const response = result.response;
+
+    // Log completo da resposta para debug
+    console.log('===== GEMINI RESPONSE DEBUG =====');
+    console.log('Response:', JSON.stringify(response, null, 2));
+    console.log('=================================');
+
+    const text = response.text();
+    console.log('===== TEXT RECEIVED =====');
+    console.log(text);
+    console.log('=========================');
+
     const parsed = JSON.parse(text) as NutritionLabelAnalysis;
 
     return parsed;
   } catch (error: any) {
+    console.error('===== ERROR DETAILS =====');
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('=========================');
+
     logger.error('Nutrition label analysis error', error);
     throw new Error(`Erro ao analisar tabela nutricional: ${error.message}`);
   }
