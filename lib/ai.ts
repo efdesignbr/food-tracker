@@ -74,7 +74,11 @@ ANÁLISE NUTRICIONAL:
 - Seja objetivo, claro e educativo nas observações
 `;
 
-export async function analyzeMealFromText(description: string, mealType?: string): Promise<AiMealAnalysis> {
+export async function analyzeMealFromText(
+  description: string,
+  mealType?: string,
+  context?: { location_type?: 'home'|'out'; restaurant_name?: string }
+): Promise<AiMealAnalysis> {
   const e = env();
   const genAI = getClient();
 
@@ -87,12 +91,20 @@ export async function analyzeMealFromText(description: string, mealType?: string
     }
   });
 
+  const ctxLines: string[] = [];
+  if (context?.location_type === 'out') {
+    ctxLines.push(`Contexto: a refeição ocorreu FORA DE CASA${context.restaurant_name ? `, no restaurante "${context.restaurant_name}"` : ''}. Considere porções e preparos típicos de restaurante.`);
+  } else if (context?.location_type === 'home') {
+    ctxLines.push('Contexto: a refeição ocorreu EM CASA.');
+  }
+
   const prompt = `${systemPrompt}
 
 Analise a seguinte descrição de refeição e retorne um JSON estruturado com os alimentos e seus valores nutricionais:
 
 Descrição: ${description}
 ${mealType ? `Tipo sugerido: ${mealType}` : ''}
+${ctxLines.length ? `\n${ctxLines.join('\n')}` : ''}
 
 Para cada alimento, forneça:
 - Nome do alimento
@@ -124,7 +136,11 @@ Retorne apenas o JSON, sem texto adicional.`;
   }
 }
 
-export async function analyzeMealFromImage(bytes: Uint8Array, mediaType: string): Promise<AiMealAnalysis> {
+export async function analyzeMealFromImage(
+  bytes: Uint8Array,
+  mediaType: string,
+  context?: { location_type?: 'home'|'out'; restaurant_name?: string }
+): Promise<AiMealAnalysis> {
   const e = env();
   const genAI = getClient();
 
@@ -137,9 +153,17 @@ export async function analyzeMealFromImage(bytes: Uint8Array, mediaType: string)
     }
   });
 
+  const ctxLines: string[] = [];
+  if (context?.location_type === 'out') {
+    ctxLines.push(`Contexto: a refeição ocorreu FORA DE CASA${context.restaurant_name ? `, no restaurante "${context.restaurant_name}"` : ''}. Considere porções e preparos típicos de restaurante.`);
+  } else if (context?.location_type === 'home') {
+    ctxLines.push('Contexto: a refeição ocorreu EM CASA.');
+  }
+
   const prompt = `${systemPrompt}
 
 Analise a imagem desta refeição e identifique todos os alimentos visíveis.
+${ctxLines.length ? `\n${ctxLines.join('\n')}` : ''}
 
 Para cada alimento identificado, forneça:
 - Nome do alimento
@@ -180,5 +204,111 @@ Retorne apenas o JSON estruturado, sem texto adicional.`;
   } catch (error: any) {
     logger.error('Gemini Vision API error', error);
     throw new Error(`Erro ao analisar imagem: ${error.message}`);
+  }
+}
+
+/**
+ * Analyzes food based on description and optional image in base64 format
+ */
+export async function analyzeFood(
+  description: string,
+  imageBase64?: string
+): Promise<AiMealAnalysis> {
+  const e = env();
+  const genAI = getClient();
+
+  const model = genAI.getGenerativeModel({
+    model: e.GEMINI_MODEL || 'gemini-2.0-flash-exp',
+    generationConfig: {
+      temperature: 0.1,
+      maxOutputTokens: 1024,
+    }
+  });
+
+  const prompt = `Analise esta refeição e retorne os valores nutricionais em JSON válido.
+
+${description}
+
+FORMATO EXATO (copie a estrutura):
+{
+  "meal_type": "lunch",
+  "foods": [
+    {
+      "name": "nome do alimento",
+      "quantity": 100,
+      "unit": "g",
+      "calories": 200,
+      "protein_g": 10.5,
+      "carbs_g": 30.2,
+      "fat_g": 5.1,
+      "fiber_g": 3,
+      "sodium_mg": 150,
+      "sugar_g": 2
+    }
+  ],
+  "notes": "observação breve (max 100 chars)"
+}
+
+REGRAS:
+- Use números inteiros ou decimais com NO MÁXIMO 2 casas (ex: 10.5, não 10.500000)
+- Mantenha valores já informados do banco
+- ESTIME valores nutricionais para alimentos novos (use tabela TACO)
+- meal_type: breakfast, lunch, dinner ou snack
+- notes: ANÁLISE NUTRICIONAL baseada APENAS nos dados fornecidos (máx 200 chars)
+  * Analise os VALORES NUTRICIONAIS reais (calorias, macros, açúcar, sódio)
+  * NÃO faça suposições sobre processamento sem informação clara
+  * Comente sobre equilíbrio de macros, densidade calórica, fibras
+  * Avalie impacto no ganho de peso baseado nos números reais
+- Retorne APENAS o JSON, sem markdown ou texto extra`;
+
+  try {
+    let result;
+
+    if (imageBase64) {
+      // Se tem imagem, usa análise multimodal
+      const [metadata, base64Data] = imageBase64.split(',');
+      const mimeType = metadata.match(/:(.*?);/)?.[1] || 'image/jpeg';
+
+      const imagePart = {
+        inlineData: {
+          data: base64Data,
+          mimeType: mimeType
+        }
+      };
+
+      result = await model.generateContent([prompt, imagePart]);
+    } else {
+      // Sem imagem, apenas texto
+      result = await model.generateContent(prompt);
+    }
+
+    let text = result.response.text();
+
+    // Tenta limpar o JSON caso tenha markdown ou texto extra
+    text = text.trim();
+    if (text.startsWith('```json')) {
+      text = text.replace(/^```json\s*/i, '').replace(/\s*```\s*$/, '');
+    } else if (text.startsWith('```')) {
+      text = text.replace(/^```\s*/, '').replace(/\s*```\s*$/, '');
+    }
+
+    let parsed: AiMealAnalysis;
+    try {
+      parsed = JSON.parse(text);
+    } catch (parseError: any) {
+      // Se der erro de parsing, loga o texto completo para debug
+      logger.error('JSON parse error', { text, error: parseError.message });
+      throw new Error(`Erro ao processar resposta da IA: JSON inválido - ${parseError.message}`);
+    }
+
+    // Trunca notes para evitar erro de limite do banco (500 chars)
+    if (parsed.notes && parsed.notes.length > 490) {
+      parsed.notes = parsed.notes.substring(0, 487) + '...';
+    }
+
+    return parsed;
+  } catch (error: any) {
+    logger.error('Gemini API error', error);
+    throw new Error(`Erro ao analisar alimento: ${error.message}`);
   }
 }

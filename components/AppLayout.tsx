@@ -15,7 +15,10 @@ const navItems: NavItem[] = [
   { href: '/', label: 'Início', icon: '🏠' },
   { href: '/capture', label: 'Capturar', icon: '📸' },
   { href: '/history', label: 'Histórico', icon: '📋' },
+  { href: '/peso', label: 'Peso', icon: '⚖️' },
   { href: '/reports', label: 'Relatórios', icon: '📊' },
+  { href: '/restaurants', label: 'Restaurantes', icon: '🍽️' },
+  { href: '/meus-alimentos', label: 'Meus Alimentos', icon: '🍎' },
   { href: '/account', label: 'Minha Conta', icon: '⚙️' }
 ];
 

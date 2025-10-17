@@ -14,7 +14,10 @@ export async function POST(req: Request) {
     const body = await req.json();
     const input = AnalyzeTextSchema.parse(body);
 
-    const result = await analyzeMealFromText(input.description, input.meal_type);
+    const result = await analyzeMealFromText(input.description, input.meal_type, {
+      location_type: input.location_type,
+      restaurant_name: input.restaurant_name
+    });
     return NextResponse.json({ ok: true, tenant, result });
   } catch (err: any) {
     const status = err instanceof Response ? err.status : 400;

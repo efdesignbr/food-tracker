@@ -3,7 +3,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { requireTenant } from '@/lib/tenant';
-import { analyzeMealFromImage } from '@/lib/ai';
+import { analyzeNutritionLabel } from '@/lib/ai/nutrition-label-analyzer';
 import { init } from '@/lib/init';
 import { UPLOAD, IMAGE } from '@/lib/constants';
 import sharp from 'sharp';
@@ -12,30 +12,21 @@ export async function POST(req: Request) {
   try {
     await init();
     const tenant = await requireTenant(req);
+
     const contentType = req.headers.get('content-type') || '';
     if (!contentType.includes('multipart/form-data')) {
-      return NextResponse.json({ error: 'invalid_content_type' }, { status: 415 });
+      return NextResponse.json({ error: 'Tipo de conteúdo inválido' }, { status: 415 });
     }
+
     const form = await req.formData();
     const image = form.get('image');
-    const contextRaw = form.get('context');
-    let context: { location_type?: 'home'|'out'; restaurant_name?: string } | undefined = undefined;
-    if (typeof contextRaw === 'string') {
-      try {
-        const parsed = JSON.parse(contextRaw);
-        if (parsed && typeof parsed === 'object') {
-          context = {
-            location_type: parsed.location_type,
-            restaurant_name: parsed.restaurant_name
-          };
-        }
-      } catch {}
-    }
+
     if (!(image instanceof File)) {
-      return NextResponse.json({ error: 'image_required' }, { status: 400 });
+      return NextResponse.json({ error: 'Imagem é obrigatória' }, { status: 400 });
     }
+
     if (image.size > Number(process.env.MAX_UPLOAD_BYTES || UPLOAD.MAX_BYTES)) {
-      return NextResponse.json({ error: 'file_too_large' }, { status: 413 });
+      return NextResponse.json({ error: 'Arquivo muito grande' }, { status: 413 });
     }
 
     // Converte e comprime a imagem para JPEG (max 100kb)
@@ -60,11 +51,16 @@ export async function POST(req: Request) {
     }
 
     const bytes = new Uint8Array(processedBuffer);
-    const result = await analyzeMealFromImage(bytes, 'image/jpeg', context);
-    return NextResponse.json({ ok: true, tenant, result });
+    const result = await analyzeNutritionLabel(bytes, 'image/jpeg');
+
+    return NextResponse.json({ ok: true, result });
   } catch (err: any) {
+    console.error('Error analyzing nutrition label:', err);
     const status = err instanceof Response ? err.status : 400;
-    const payload = err instanceof Response ? await err.text() : JSON.stringify({ error: err.message });
-    return new NextResponse(payload, { status });
+    const message = err instanceof Response
+      ? await err.text()
+      : err.message || 'Erro ao analisar tabela nutricional';
+
+    return NextResponse.json({ error: message }, { status });
   }
 }

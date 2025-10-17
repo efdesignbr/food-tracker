@@ -20,6 +20,8 @@ type Meal = {
   consumed_at: string;
   notes: string | null;
   foods: Food[];
+  location_type?: 'home'|'out'|null;
+  restaurant_name?: string | null;
 };
 
 type DayData = {
@@ -703,19 +705,56 @@ export default function CalendarView({
                   )}
 
                   <div style={{ padding: 12 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                      <span style={{ fontSize: 20 }}>{config.icon}</span>
-                      <div>
-                        <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: config.color }}>
-                          {config.label}
-                        </h4>
-                        <div style={{ fontSize: 12, color: '#6b7280' }}>
-                          {new Date(meal.consumed_at).toLocaleTimeString('pt-BR', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 20 }}>{config.icon}</span>
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: config.color }}>
+                            {config.label}
+                          </h4>
+                          <div style={{ fontSize: 12, color: '#6b7280' }}>
+                            {new Date(meal.consumed_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            {meal.location_type && (
+                              <>
+                                {' • '}
+                                {meal.location_type === 'home' ? '🏠 Casa' : `🍽️ ${meal.restaurant_name || 'Fora'}`}
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
+                      <button
+                        onClick={async () => {
+                          if (!confirm('Tem certeza que deseja deletar esta refeição?')) return;
+                          try {
+                            const res = await fetch(`/api/meals/${meal.id}`, {
+                              method: 'DELETE',
+                              credentials: 'include'
+                            });
+                            if (res.ok) {
+                              window.location.reload();
+                            } else {
+                              const data = await res.json();
+                              alert(data.error || 'Erro ao deletar refeição');
+                            }
+                          } catch (e) {
+                            alert('Erro ao deletar refeição');
+                          }
+                        }}
+                        style={{
+                          padding: '6px 10px',
+                          background: '#fee2e2',
+                          border: '1px solid #fca5a5',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                          fontSize: 16,
+                          color: '#dc2626',
+                          flexShrink: 0
+                        }}
+                        title="Deletar refeição"
+                      >
+                        🗑️
+                      </button>
                     </div>
 
                     {meal.notes && (

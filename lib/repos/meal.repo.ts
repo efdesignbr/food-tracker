@@ -10,6 +10,8 @@ export type DbMeal = {
   consumed_at: Date;
   status: 'pending'|'approved'|'rejected';
   notes: string | null;
+  location_type?: 'home'|'out'|null;
+  restaurant_id?: string | null;
   created_at: Date;
   updated_at: Date;
 };
@@ -31,6 +33,8 @@ export async function insertMealWithItems(args: {
   mealType: DbMeal['meal_type'];
   consumedAt: Date;
   notes?: string | null;
+  locationType?: 'home'|'out'|null;
+  restaurantId?: string | null;
   foods: Array<{
     name: string;
     quantity: number;
@@ -52,9 +56,18 @@ export async function insertMealWithItems(args: {
     // Use set_config which supports parameters (SET LOCAL doesn't accept $1)
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
     const mealRes = await client.query<DbMeal>(
-      `INSERT INTO meals (user_id, tenant_id, image_url, meal_type, consumed_at, status, notes)
-       VALUES ($1,$2,$3,$4,$5,'approved',$6) RETURNING *`,
-      [args.userId, args.tenantId, args.imageUrl, args.mealType, args.consumedAt, args.notes || null]
+      `INSERT INTO meals (user_id, tenant_id, image_url, meal_type, consumed_at, status, notes, location_type, restaurant_id)
+       VALUES ($1,$2,$3,$4,$5,'approved',$6,$7,$8) RETURNING *`,
+      [
+        args.userId,
+        args.tenantId,
+        args.imageUrl,
+        args.mealType,
+        args.consumedAt,
+        args.notes || null,
+        args.locationType ?? null,
+        args.restaurantId ?? null
+      ]
     );
     const meal = mealRes.rows[0];
 
@@ -91,11 +104,11 @@ export async function insertMealWithItems(args: {
             [
               foodItem.id,
               args.tenantId,
-              f.calories ?? null,
-              (f as any).protein_g ?? null,
-              (f as any).carbs_g ?? null,
-              (f as any).fat_g ?? null,
-              (f as any).fiber_g ?? null,
+              f.calories ?? 0,
+              (f as any).protein_g ?? 0,
+              (f as any).carbs_g ?? 0,
+              (f as any).fat_g ?? 0,
+              (f as any).fiber_g ?? 0,
               (f as any).sodium_mg ?? null,
               (f as any).sugar_g ?? null
             ]
@@ -124,6 +137,8 @@ export async function insertMealWithItemsTx(client: PoolClient, args: {
   mealType: DbMeal['meal_type'];
   consumedAt: Date;
   notes?: string | null;
+  locationType?: 'home'|'out'|null;
+  restaurantId?: string | null;
   foods: Array<{
     name: string;
     quantity: number;
@@ -139,9 +154,18 @@ export async function insertMealWithItemsTx(client: PoolClient, args: {
   }>;
 }) {
   const mealRes = await client.query<DbMeal>(
-    `INSERT INTO meals (user_id, tenant_id, image_url, meal_type, consumed_at, status, notes)
-     VALUES ($1,$2,$3,$4,$5,'approved',$6) RETURNING *`,
-    [args.userId, args.tenantId, args.imageUrl, args.mealType, args.consumedAt, args.notes || null]
+    `INSERT INTO meals (user_id, tenant_id, image_url, meal_type, consumed_at, status, notes, location_type, restaurant_id)
+     VALUES ($1,$2,$3,$4,$5,'approved',$6,$7,$8) RETURNING *`,
+    [
+      args.userId,
+      args.tenantId,
+      args.imageUrl,
+      args.mealType,
+      args.consumedAt,
+      args.notes || null,
+      args.locationType ?? null,
+      args.restaurantId ?? null
+    ]
   );
   const meal = mealRes.rows[0];
   for (const f of args.foods) {
@@ -175,11 +199,11 @@ export async function insertMealWithItemsTx(client: PoolClient, args: {
         [
           foodItem.id,
           args.tenantId,
-          f.calories ?? null,
-          (f as any).protein_g ?? null,
-          (f as any).carbs_g ?? null,
-          (f as any).fat_g ?? null,
-          (f as any).fiber_g ?? null,
+          f.calories ?? 0,
+          (f as any).protein_g ?? 0,
+          (f as any).carbs_g ?? 0,
+          (f as any).fat_g ?? 0,
+          (f as any).fiber_g ?? 0,
           (f as any).sodium_mg ?? null,
           (f as any).sugar_g ?? null
         ]
@@ -203,13 +227,15 @@ export async function findMealsWithFoodsByDateRange(args: {
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
     const { rows } = await client.query(
       `SELECT m.id as meal_id, m.image_url, m.meal_type, m.consumed_at, m.notes,
-            fi.id as food_id, fi.name as food_name, fi.quantity, fi.unit,
-            nd.calories, nd.protein_g, nd.carbs_g, nd.fat_g, nd.fiber_g, nd.sodium_mg, nd.sugar_g
-     FROM meals m
-     LEFT JOIN food_items fi ON fi.meal_id = m.id
-     LEFT JOIN nutrition_data nd ON nd.food_item_id = fi.id
-     WHERE m.tenant_id = $1 AND m.user_id = $2 AND m.consumed_at::date BETWEEN $3::date AND $4::date
-     ORDER BY m.consumed_at DESC`,
+              m.location_type, m.restaurant_id, r.name as restaurant_name,
+              fi.id as food_id, fi.name as food_name, fi.quantity, fi.unit,
+              nd.calories, nd.protein_g, nd.carbs_g, nd.fat_g, nd.fiber_g, nd.sodium_mg, nd.sugar_g
+       FROM meals m
+       LEFT JOIN restaurants r ON r.id = m.restaurant_id AND r.tenant_id = m.tenant_id
+       LEFT JOIN food_items fi ON fi.meal_id = m.id
+       LEFT JOIN nutrition_data nd ON nd.food_item_id = fi.id
+       WHERE m.tenant_id = $1 AND m.user_id = $2 AND m.consumed_at::date BETWEEN $3::date AND $4::date
+       ORDER BY m.consumed_at DESC`,
       [args.tenantId, args.userId, args.start, args.end]
     );
     // group
@@ -223,6 +249,9 @@ export async function findMealsWithFoodsByDateRange(args: {
           meal_type: r.meal_type,
           consumed_at: r.consumed_at,
           notes: r.notes,
+          location_type: r.location_type ?? null,
+          restaurant_id: r.restaurant_id ?? null,
+          restaurant_name: r.restaurant_name ?? null,
           foods: [] as any[]
         };
         map.set(r.meal_id, m);

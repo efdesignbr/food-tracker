@@ -24,6 +24,8 @@ type Meal = {
   consumed_at: string;
   notes: string | null;
   foods: Food[];
+  location_type?: 'home'|'out'|null;
+  restaurant_name?: string | null;
 };
 
 type WaterRecord = {

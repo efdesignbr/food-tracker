@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "apply:migrations": "tsx scripts/apply-migrations.ts",
-    "rls:check": "tsx scripts/rls-check.ts"
+    "rls:check": "tsx scripts/rls-check.ts",
+    "db:schema": "tsx scripts/extract-schema.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

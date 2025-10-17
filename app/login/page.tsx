@@ -18,20 +18,29 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
+      console.log('Tentando login com:', { email });
       const res = await signIn('credentials', {
         email,
         password,
         redirect: false
       });
 
+      console.log('Resposta do signIn:', res);
+
       if (res?.error) {
+        console.error('Erro no login:', res.error);
         setError('Email ou senha incorretos');
       } else if (res?.ok) {
+        console.log('Login bem-sucedido, redirecionando para:', callbackUrl);
         router.push(callbackUrl);
         router.refresh();
+      } else {
+        console.warn('Resposta inesperada:', res);
+        setError('Erro inesperado ao fazer login');
       }
     } catch (e: any) {
-      setError('Erro ao fazer login');
+      console.error('Exceção ao fazer login:', e);
+      setError('Erro ao fazer login: ' + e.message);
     } finally {
       setLoading(false);
     }

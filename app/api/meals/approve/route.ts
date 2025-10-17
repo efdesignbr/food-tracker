@@ -44,6 +44,9 @@ export async function POST(req: Request) {
       imageUrl = null;
     }
     const data = ApproveMealSchema.parse(input);
+    if (data.location_type === 'out' && !data.restaurant_id) {
+      return NextResponse.json({ error: 'restaurant_required' }, { status: 400 });
+    }
 
     // Persist
     // Use route-level transaction and tenant context
@@ -61,17 +64,19 @@ export async function POST(req: Request) {
         mealType: data.meal_type,
         consumedAt: data.consumed_at,
         notes: data.notes || null,
+        locationType: data.location_type ?? null,
+        restaurantId: (data.location_type === 'out' ? (data.restaurant_id ?? null) : null),
         foods: data.foods.map((f: any) => ({
           name: f.name,
           quantity: f.quantity,
           unit: f.unit,
-          calories: f.calories,
-          protein_g: f.protein_g,
-          carbs_g: f.carbs_g,
-          fat_g: f.fat_g,
-          fiber_g: f.fiber_g,
-          sodium_mg: f.sodium_mg,
-          sugar_g: f.sugar_g
+          calories: f.calories ?? undefined,
+          protein_g: f.protein_g ?? undefined,
+          carbs_g: f.carbs_g ?? undefined,
+          fat_g: f.fat_g ?? undefined,
+          fiber_g: f.fiber_g ?? undefined,
+          sodium_mg: f.sodium_mg ?? undefined,
+          sugar_g: f.sugar_g ?? undefined
         }))
       });
       await client.query('COMMIT');
