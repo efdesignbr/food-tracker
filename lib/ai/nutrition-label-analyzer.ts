@@ -74,21 +74,44 @@ const nutritionLabelSchema = {
 };
 
 const systemPrompt = `Você é um assistente especializado em leitura de tabelas nutricionais de alimentos.
-Sua tarefa é extrair informações precisas de fotos de embalagens e tabelas nutricionais.
+Sua tarefa é extrair informações precisas de fotos de embalagens e tabelas nutricionais brasileiras.
 
-IMPORTANTE:
-- Leia com atenção todos os valores da tabela nutricional
+IMPORTANTE - VALORES POR PORÇÃO:
+- Leia com atenção TODOS os campos da tabela nutricional
 - Preste atenção especial ao tamanho da porção (serving size)
 - Todos os valores devem ser POR PORÇÃO, não por 100g
 - Se a tabela mostrar valores por 100g E por porção, use os valores POR PORÇÃO
-- Para sódio, converta para miligramas (mg) se estiver em gramas
 - Retorne apenas valores que você conseguir ler claramente na imagem
 - Se algum valor não estiver visível, omita esse campo do JSON
 
-CONVERSÕES COMUNS:
-- Se sódio estiver em g, multiplique por 1000 para ter mg
-- Se a porção estiver em ml e o produto for líquido, mantenha em ml
-- Se a porção estiver descrita como "X colheres (Yg)", use "Yg" como serving_size`;
+CAMPOS OBRIGATÓRIOS (quando visíveis):
+- Nome do produto (obrigatório)
+- Marca (se visível)
+- Tamanho da porção
+- Calorias/Valor energético
+- Proteínas
+- Carboidratos totais
+- Gorduras totais
+
+CAMPOS OPCIONAIS (quando visíveis na tabela):
+- Fibras alimentares
+- Sódio (em mg)
+- Açúcares
+- Gorduras saturadas
+- Gorduras trans
+- Colesterol
+
+CONVERSÕES IMPORTANTES:
+- Sódio: se estiver em g, multiplique por 1000 para ter mg
+- Calorias: aceite tanto kcal quanto kJ (se for kJ, divida por 4.184)
+- Porção: se descrita como "X colheres (Yg)", use "Yg" como serving_size
+- Porção: mantenha a unidade original (g, ml, unidade, etc)
+
+ATENÇÃO ESPECIAL:
+- Procure TODOS os nutrientes listados, não apenas os principais
+- Gorduras saturadas geralmente aparecem como sub-item de gorduras totais
+- Açúcares geralmente aparecem como sub-item de carboidratos
+- Fibras podem estar separadas ou como sub-item de carboidratos`;
 
 export async function analyzeNutritionLabel(
   bytes: Uint8Array,
@@ -108,22 +131,32 @@ export async function analyzeNutritionLabel(
 
   const prompt = `${systemPrompt}
 
-Analise a imagem desta embalagem ou tabela nutricional e extraia todas as informações nutricionais visíveis.
+Analise a imagem desta embalagem ou tabela nutricional brasileira e extraia TODAS as informações nutricionais visíveis.
 
-Retorne um JSON com:
-- name: Nome do produto
-- brand: Marca (se visível)
-- serving_size: Tamanho da porção (ex: "30g", "200ml", "1 unidade")
-- calories: Calorias por porção
+Retorne um JSON com TODOS os campos que conseguir identificar:
+
+CAMPOS PRINCIPAIS (obrigatórios quando visíveis):
+- name: Nome do produto (OBRIGATÓRIO)
+- brand: Marca do produto (se visível)
+- serving_size: Tamanho da porção exata (ex: "30g", "200ml", "1 unidade (50g)")
+- calories: Valor energético/calorias em kcal por porção
 - protein: Proteínas em gramas por porção
-- carbs: Carboidratos em gramas por porção
+- carbs: Carboidratos totais em gramas por porção
 - fat: Gorduras totais em gramas por porção
-- fiber: Fibras em gramas por porção (se disponível)
-- sodium: Sódio em MILIGRAMAS por porção
-- sugar: Açúcares em gramas por porção (se disponível)
-- saturated_fat: Gorduras saturadas em gramas por porção (se disponível)
 
-LEMBRE-SE: Todos os valores devem ser POR PORÇÃO, conforme indicado no campo "Porção" da tabela.
+CAMPOS ADICIONAIS (incluir quando disponíveis na tabela):
+- fiber: Fibras alimentares em gramas por porção
+- sodium: Sódio em MILIGRAMAS por porção (não gramas!)
+- sugar: Açúcares em gramas por porção
+- saturated_fat: Gorduras saturadas em gramas por porção
+
+INSTRUÇÕES CRÍTICAS:
+1. LEIA TODOS OS ITENS da tabela nutricional, não apenas os principais
+2. Todos os valores devem ser POR PORÇÃO (não por 100g)
+3. Se houver duas colunas (100g e porção), use sempre a coluna da PORÇÃO
+4. Para sódio, se o valor estiver em gramas, converta para miligramas (multiplique por 1000)
+5. Retorne apenas campos que você conseguir ler com clareza
+6. Valores decimais são aceitáveis (ex: 2.5g, 150.3mg)
 
 Retorne apenas o JSON, sem texto adicional.`;
 
