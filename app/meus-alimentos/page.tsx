@@ -385,9 +385,9 @@ export default function MeusAlimentosPage() {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
                   Marca (opcional)
                 </label>
                 <input
@@ -397,16 +397,17 @@ export default function MeusAlimentosPage() {
                   placeholder="Ex: Growth"
                   style={{
                     width: '100%',
-                    padding: 12,
-                    fontSize: 16,
+                    padding: 10,
+                    fontSize: 15,
                     border: '2px solid #e5e7eb',
-                    borderRadius: 8
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
                   Porção (opcional)
                 </label>
                 <input
@@ -416,21 +417,30 @@ export default function MeusAlimentosPage() {
                   placeholder="Ex: 30g, 1 scoop"
                   style={{
                     width: '100%',
-                    padding: 12,
-                    fontSize: 16,
+                    padding: 10,
+                    fontSize: 15,
                     border: '2px solid #e5e7eb',
-                    borderRadius: 8
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
             </div>
 
-            <h3 style={{ fontSize: 16, fontWeight: 700, marginTop: 8, marginBottom: 12, color: '#6b7280' }}>
+            <h3 style={{
+              fontSize: 15,
+              fontWeight: 700,
+              marginTop: 20,
+              marginBottom: 12,
+              color: '#374151',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
               Macronutrientes
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
                   Calorias
                 </label>
                 <input
@@ -441,16 +451,17 @@ export default function MeusAlimentosPage() {
                   placeholder="kcal"
                   style={{
                     width: '100%',
-                    padding: 12,
-                    fontSize: 16,
+                    padding: 10,
+                    fontSize: 15,
                     border: '2px solid #e5e7eb',
-                    borderRadius: 8
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
                   Proteína (g)
                 </label>
                 <input
@@ -461,16 +472,17 @@ export default function MeusAlimentosPage() {
                   placeholder="g"
                   style={{
                     width: '100%',
-                    padding: 12,
-                    fontSize: 16,
+                    padding: 10,
+                    fontSize: 15,
                     border: '2px solid #e5e7eb',
-                    borderRadius: 8
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
                   Carboidratos (g)
                 </label>
                 <input
@@ -481,16 +493,17 @@ export default function MeusAlimentosPage() {
                   placeholder="g"
                   style={{
                     width: '100%',
-                    padding: 12,
-                    fontSize: 16,
+                    padding: 10,
+                    fontSize: 15,
                     border: '2px solid #e5e7eb',
-                    borderRadius: 8
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
                   Gorduras (g)
                 </label>
                 <input
@@ -501,21 +514,30 @@ export default function MeusAlimentosPage() {
                   placeholder="g"
                   style={{
                     width: '100%',
-                    padding: 12,
-                    fontSize: 16,
+                    padding: 10,
+                    fontSize: 15,
                     border: '2px solid #e5e7eb',
-                    borderRadius: 8
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
             </div>
 
-            <h3 style={{ fontSize: 16, fontWeight: 700, marginTop: 16, marginBottom: 12, color: '#6b7280' }}>
-              Detalhes Nutricionais (Opcional)
+            <h3 style={{
+              fontSize: 15,
+              fontWeight: 700,
+              marginTop: 20,
+              marginBottom: 12,
+              color: '#374151',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              Detalhes Nutricionais <span style={{ fontSize: 12, color: '#9ca3af', fontWeight: 400 }}>(Opcional)</span>
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
                   Fibras (g)
                 </label>
                 <input
@@ -526,16 +548,17 @@ export default function MeusAlimentosPage() {
                   placeholder="g"
                   style={{
                     width: '100%',
-                    padding: 12,
-                    fontSize: 16,
+                    padding: 10,
+                    fontSize: 15,
                     border: '2px solid #e5e7eb',
-                    borderRadius: 8
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
                   Sódio (mg)
                 </label>
                 <input
@@ -546,16 +569,17 @@ export default function MeusAlimentosPage() {
                   placeholder="mg"
                   style={{
                     width: '100%',
-                    padding: 12,
-                    fontSize: 16,
+                    padding: 10,
+                    fontSize: 15,
                     border: '2px solid #e5e7eb',
-                    borderRadius: 8
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
                   Açúcares (g)
                 </label>
                 <input
@@ -566,17 +590,18 @@ export default function MeusAlimentosPage() {
                   placeholder="g"
                   style={{
                     width: '100%',
-                    padding: 12,
-                    fontSize: 16,
+                    padding: 10,
+                    fontSize: 15,
                     border: '2px solid #e5e7eb',
-                    borderRadius: 8
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                  Gord. Saturadas (g)
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
+                  Gord. Sat. (g)
                 </label>
                 <input
                   type="number"
@@ -586,10 +611,11 @@ export default function MeusAlimentosPage() {
                   placeholder="g"
                   style={{
                     width: '100%',
-                    padding: 12,
-                    fontSize: 16,
+                    padding: 10,
+                    fontSize: 15,
                     border: '2px solid #e5e7eb',
-                    borderRadius: 8
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
@@ -600,14 +626,16 @@ export default function MeusAlimentosPage() {
               disabled={loading}
               style={{
                 width: '100%',
-                padding: 16,
+                marginTop: 20,
+                padding: 14,
                 background: loading ? '#9ca3af' : '#2196F3',
                 color: 'white',
                 border: 'none',
                 borderRadius: 12,
                 fontSize: 16,
                 fontWeight: 600,
-                cursor: loading ? 'not-allowed' : 'pointer'
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s'
               }}
             >
               {loading ? '💾 Salvando...' : '✅ Salvar Alimento'}
