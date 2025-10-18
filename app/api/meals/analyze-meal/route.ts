@@ -47,7 +47,26 @@ export async function POST(req: NextRequest) {
     const foodsDescription = foods.map((f: any) => {
       if (f.calories && f.protein_g) {
         // Alimento do banco - já tem valores nutricionais
-        return `${f.name} (${f.quantity} ${f.unit}) - Do banco de alimentos: ${f.calories} kcal, ${f.protein_g}g proteína, ${f.carbs_g}g carboidrato, ${f.fat_g}g gordura`;
+        const parts = [
+          `${f.name} (${f.quantity} ${f.unit}) - Do banco de alimentos:`,
+          `${f.calories} kcal`,
+          `${f.protein_g}g proteína`,
+          `${f.carbs_g}g carboidrato`,
+          `${f.fat_g}g gordura`
+        ];
+
+        // Adiciona fibras, sódio e açúcar se existirem
+        if (f.fiber_g !== undefined && f.fiber_g !== null) {
+          parts.push(`${f.fiber_g}g fibras`);
+        }
+        if (f.sodium_mg !== undefined && f.sodium_mg !== null) {
+          parts.push(`${f.sodium_mg}mg sódio`);
+        }
+        if (f.sugar_g !== undefined && f.sugar_g !== null) {
+          parts.push(`${f.sugar_g}g açúcar`);
+        }
+
+        return parts.join(', ');
       } else {
         // Alimento novo - precisa estimar
         return `${f.name} (${f.quantity} ${f.unit}) - Novo alimento, precisa estimar valores nutricionais`;

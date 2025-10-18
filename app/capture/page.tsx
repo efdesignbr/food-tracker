@@ -627,7 +627,8 @@ export default function CapturePage() {
                           fontSize: 14,
                           border: '1px solid #d1d5db',
                           borderRadius: 6,
-                          outline: 'none'
+                          outline: 'none',
+                          boxSizing: 'border-box'
                         }}
                         placeholder="0"
                       />
@@ -652,7 +653,8 @@ export default function CapturePage() {
                           fontSize: 14,
                           border: '1px solid #d1d5db',
                           borderRadius: 6,
-                          outline: 'none'
+                          outline: 'none',
+                          boxSizing: 'border-box'
                         }}
                         placeholder="0"
                       />
@@ -677,7 +679,8 @@ export default function CapturePage() {
                           fontSize: 14,
                           border: '1px solid #d1d5db',
                           borderRadius: 6,
-                          outline: 'none'
+                          outline: 'none',
+                          boxSizing: 'border-box'
                         }}
                         placeholder="0"
                       />
@@ -702,7 +705,86 @@ export default function CapturePage() {
                           fontSize: 14,
                           border: '1px solid #d1d5db',
                           borderRadius: 6,
-                          outline: 'none'
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                        placeholder="0"
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>
+                        🌾 Fibras (g)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={food.fiber_g || ''}
+                        onChange={e => {
+                          const updated = [...analysis.foods];
+                          updated[i].fiber_g = Number(e.target.value) || undefined;
+                          setAnalysis({ ...analysis, foods: updated });
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '6px 8px',
+                          fontSize: 14,
+                          border: '1px solid #d1d5db',
+                          borderRadius: 6,
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                        placeholder="0"
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>
+                        🧂 Sódio (mg)
+                      </label>
+                      <input
+                        type="number"
+                        step="1"
+                        value={food.sodium_mg || ''}
+                        onChange={e => {
+                          const updated = [...analysis.foods];
+                          updated[i].sodium_mg = Number(e.target.value) || undefined;
+                          setAnalysis({ ...analysis, foods: updated });
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '6px 8px',
+                          fontSize: 14,
+                          border: '1px solid #d1d5db',
+                          borderRadius: 6,
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                        placeholder="0"
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>
+                        🍬 Açúcar (g)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={food.sugar_g || ''}
+                        onChange={e => {
+                          const updated = [...analysis.foods];
+                          updated[i].sugar_g = Number(e.target.value) || undefined;
+                          setAnalysis({ ...analysis, foods: updated });
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '6px 8px',
+                          fontSize: 14,
+                          border: '1px solid #d1d5db',
+                          borderRadius: 6,
+                          outline: 'none',
+                          boxSizing: 'border-box'
                         }}
                         placeholder="0"
                       />
@@ -728,7 +810,8 @@ export default function CapturePage() {
                   fontSize: 16,
                   border: mealType ? '2px solid #e5e7eb' : '2px solid #ef4444',
                   borderRadius: 8,
-                  backgroundColor: 'white'
+                  backgroundColor: 'white',
+                  boxSizing: 'border-box'
                 }}
               >
                 <option value="">Selecione o tipo...</option>
@@ -752,7 +835,8 @@ export default function CapturePage() {
                   padding: 12,
                   fontSize: 16,
                   border: '2px solid #e5e7eb',
-                  borderRadius: 8
+                  borderRadius: 8,
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
@@ -771,7 +855,8 @@ export default function CapturePage() {
                   padding: 12,
                   fontSize: 16,
                   border: '2px solid #e5e7eb',
-                  borderRadius: 8
+                  borderRadius: 8,
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
@@ -851,7 +936,8 @@ export default function CapturePage() {
                       fontSize: 16,
                       border: '2px solid #fbbf24',
                       borderRadius: '8px 8px 0 0',
-                      outline: 'none'
+                      outline: 'none',
+                      boxSizing: 'border-box'
                     }}
                   />
                   {(restaurantLoading || restaurantResults.length > 0) && (
@@ -1021,7 +1107,8 @@ export default function CapturePage() {
                 border: '2px solid #10b981',
                 borderRadius: 8,
                 outline: 'none',
-                marginBottom: 16
+                marginBottom: 16,
+                boxSizing: 'border-box'
               }}
             />
 
@@ -1116,7 +1203,8 @@ export default function CapturePage() {
                 border: '2px solid #3b82f6',
                 borderRadius: 8,
                 outline: 'none',
-                marginBottom: 16
+                marginBottom: 16,
+                boxSizing: 'border-box'
               }}
               onKeyDown={e => { if (e.key === 'Enter') addNewFood(); }}
               autoFocus

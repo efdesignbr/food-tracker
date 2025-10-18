@@ -365,27 +365,29 @@ export default function MeusAlimentosPage() {
           <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>✍️ Cadastro Manual</h2>
 
           <div style={{ display: 'grid', gap: 16 }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                Nome do Alimento *
-              </label>
-              <input
-                type="text"
-                value={manualName}
-                onChange={e => setManualName(e.target.value)}
-                placeholder="Ex: Whey Protein"
-                required
-                style={{
-                  width: '100%',
-                  padding: 12,
-                  fontSize: 16,
-                  border: '2px solid #e5e7eb',
-                  borderRadius: 8
-                }}
-              />
-            </div>
-
+            {/* Nome, Marca e Porção - Grid responsivo unificado */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
+                  Nome do Alimento *
+                </label>
+                <input
+                  type="text"
+                  value={manualName}
+                  onChange={e => setManualName(e.target.value)}
+                  placeholder="Ex: Whey Protein"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: 10,
+                    fontSize: 15,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
               <div>
                 <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
                   Marca (opcional)
@@ -723,35 +725,30 @@ export default function MeusAlimentosPage() {
                     <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>📝 Revisar e Editar:</h3>
 
                     <div style={{ display: 'grid', gap: 16 }}>
-                      {/* Nome (editável) */}
-                      <div>
-                        <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14, color: '#374151' }}>
-                          Nome do Alimento *
-                        </label>
-                        <input
-                          type="text"
-                          value={customName}
-                          onChange={e => setCustomName(e.target.value)}
-                          placeholder="Ex: Whey Protein"
-                          required
-                          style={{
-                            width: '100%',
-                            padding: 12,
-                            fontSize: 16,
-                            border: '2px solid #d1d5db',
-                            borderRadius: 8,
-                            background: 'white',
-                            boxSizing: 'border-box'
-                          }}
-                        />
-                      </div>
+                      {/* Nome, Marca e Porção - Grid responsivo unificado */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14, color: '#374151' }}>
+                            Nome do Alimento *
+                          </label>
+                          <input
+                            type="text"
+                            value={customName}
+                            onChange={e => setCustomName(e.target.value)}
+                            placeholder="Ex: Whey Protein"
+                            required
+                            style={{
+                              width: '100%',
+                              padding: 10,
+                              fontSize: 15,
+                              border: '2px solid #d1d5db',
+                              borderRadius: 8,
+                              background: 'white',
+                              boxSizing: 'border-box'
+                            }}
+                          />
+                        </div>
 
-                      {/* Marca e Porção - responsivo */}
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr',
-                        gap: 16
-                      }}>
                         <div>
                           <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14, color: '#374151' }}>
                             Marca
@@ -763,8 +760,8 @@ export default function MeusAlimentosPage() {
                             placeholder="Ex: Growth"
                             style={{
                               width: '100%',
-                              padding: 12,
-                              fontSize: 16,
+                              padding: 10,
+                              fontSize: 15,
                               border: '2px solid #d1d5db',
                               borderRadius: 8,
                               background: 'white',
@@ -772,6 +769,7 @@ export default function MeusAlimentosPage() {
                             }}
                           />
                         </div>
+
                         <div>
                           <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14, color: '#374151' }}>
                             Porção
@@ -783,8 +781,8 @@ export default function MeusAlimentosPage() {
                             placeholder="Ex: 30g"
                             style={{
                               width: '100%',
-                              padding: 12,
-                              fontSize: 16,
+                              padding: 10,
+                              fontSize: 15,
                               border: '2px solid #d1d5db',
                               borderRadius: 8,
                               background: 'white',
@@ -801,7 +799,7 @@ export default function MeusAlimentosPage() {
                         </h4>
                         <div style={{
                           display: 'grid',
-                          gridTemplateColumns: window.innerWidth < 640 ? '1fr 1fr' : 'repeat(4, 1fr)',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
                           gap: 12
                         }}>
                           <div>
@@ -898,7 +896,7 @@ export default function MeusAlimentosPage() {
                         </h4>
                         <div style={{
                           display: 'grid',
-                          gridTemplateColumns: window.innerWidth < 640 ? '1fr 1fr' : 'repeat(4, 1fr)',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
                           gap: 12
                         }}>
                           <div>
@@ -1060,11 +1058,15 @@ export default function MeusAlimentosPage() {
                         Porção: {item.serving_size}
                       </div>
                     )}
-                    <div style={{ display: 'flex', gap: 16, fontSize: 14, color: '#374151' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, fontSize: 13, color: '#374151', lineHeight: '1.8' }}>
                       {item.calories && <span>⚡ {parseFloat(item.calories.toString()).toFixed(1)} kcal</span>}
                       {item.protein && <span>🥩 {parseFloat(item.protein.toString()).toFixed(1)}g prot</span>}
                       {item.carbs && <span>🍞 {parseFloat(item.carbs.toString()).toFixed(1)}g carb</span>}
                       {item.fat && <span>🥑 {parseFloat(item.fat.toString()).toFixed(1)}g gord</span>}
+                      {item.fiber && <span>🌾 {parseFloat(item.fiber.toString()).toFixed(1)}g fibra</span>}
+                      {item.sodium && <span>🧂 {parseFloat(item.sodium.toString()).toFixed(0)}mg sódio</span>}
+                      {item.sugar && <span>🍬 {parseFloat(item.sugar.toString()).toFixed(1)}g açúcar</span>}
+                      {item.saturated_fat && <span>🔴 {parseFloat(item.saturated_fat.toString()).toFixed(1)}g gord.sat</span>}
                     </div>
                     {item.usage_count > 0 && (
                       <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 8 }}>
