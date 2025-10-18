@@ -47,6 +47,8 @@ export default function HomePage() {
   const [addingWater, setAddingWater] = useState(false);
   const [showBowelForm, setShowBowelForm] = useState(false);
   const [selectedBristol, setSelectedBristol] = useState<number | null>(null);
+  const [bowelNotes, setBowelNotes] = useState('');
+  const [hadBlood, setHadBlood] = useState(false);
   const [addingBowel, setAddingBowel] = useState(false);
 
   useEffect(() => {
@@ -126,10 +128,20 @@ export default function HomePage() {
   const addBowelMovement = async (bristolType: number) => {
     try {
       setAddingBowel(true);
+
+      // Monta as observações
+      let notes = bowelNotes.trim();
+      if (hadBlood) {
+        notes = notes ? `⚠️ SANGUE: Sim\n${notes}` : '⚠️ SANGUE: Sim';
+      }
+
       const res = await fetch('/api/bowel-movements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bristol_type: bristolType }),
+        body: JSON.stringify({
+          bristol_type: bristolType,
+          notes: notes || null
+        }),
         credentials: 'include',
         cache: 'no-store'
       });
@@ -139,6 +151,8 @@ export default function HomePage() {
         setBowelMovementsCount(data.count_today);
         setShowBowelForm(false);
         setSelectedBristol(null);
+        setBowelNotes('');
+        setHadBlood(false);
       }
     } catch (err) {
       console.error('Erro ao adicionar evacuação:', err);
@@ -526,11 +540,92 @@ export default function HomePage() {
               ))}
             </div>
 
+            {/* Campo de presença de sangue */}
+            <div style={{
+              padding: '12px 16px',
+              background: hadBlood ? '#fef2f2' : '#f9fafb',
+              border: `2px solid ${hadBlood ? '#ef4444' : '#e5e7eb'}`,
+              borderRadius: 10,
+              marginBottom: 12
+            }}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                cursor: 'pointer',
+                fontSize: 14,
+                fontWeight: 600,
+                color: hadBlood ? '#991b1b' : '#374151'
+              }}>
+                <input
+                  type="checkbox"
+                  checked={hadBlood}
+                  onChange={(e) => setHadBlood(e.target.checked)}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    cursor: 'pointer'
+                  }}
+                />
+                <span>🩸 Presença de sangue</span>
+              </label>
+              {hadBlood && (
+                <p style={{
+                  fontSize: 11,
+                  color: '#dc2626',
+                  margin: '8px 0 0 32px',
+                  lineHeight: '1.4'
+                }}>
+                  ⚠️ Sangue nas fezes pode indicar problemas sérios. Consulte um médico.
+                </p>
+              )}
+            </div>
+
+            {/* Campo de observações adicionais */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{
+                display: 'block',
+                fontSize: 13,
+                fontWeight: 600,
+                color: '#374151',
+                marginBottom: 8
+              }}>
+                Observações adicionais (opcional):
+              </label>
+              <textarea
+                value={bowelNotes}
+                onChange={(e) => setBowelNotes(e.target.value)}
+                placeholder="Ex: dor, urgência, cor anormal, etc."
+                maxLength={200}
+                style={{
+                  width: '100%',
+                  minHeight: 60,
+                  padding: 12,
+                  fontSize: 14,
+                  border: '2px solid #e5e7eb',
+                  borderRadius: 10,
+                  resize: 'vertical',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <div style={{
+                fontSize: 11,
+                color: '#9ca3af',
+                textAlign: 'right',
+                marginTop: 4
+              }}>
+                {bowelNotes.length}/200
+              </div>
+            </div>
+
             <div style={{ display: 'flex', gap: 12 }}>
               <button
                 onClick={() => {
                   setShowBowelForm(false);
                   setSelectedBristol(null);
+                  setBowelNotes('');
+                  setHadBlood(false);
                 }}
                 style={{
                   flex: 1,

@@ -51,6 +51,10 @@ export default function MeusAlimentosPage() {
   const [manualProtein, setManualProtein] = useState('');
   const [manualCarbs, setManualCarbs] = useState('');
   const [manualFat, setManualFat] = useState('');
+  const [manualFiber, setManualFiber] = useState('');
+  const [manualSodium, setManualSodium] = useState('');
+  const [manualSugar, setManualSugar] = useState('');
+  const [manualSaturatedFat, setManualSaturatedFat] = useState('');
 
   // Formulário com IA
   const [showAiForm, setShowAiForm] = useState(false);
@@ -99,6 +103,10 @@ export default function MeusAlimentosPage() {
       if (manualProtein) payload.protein = parseFloat(manualProtein);
       if (manualCarbs) payload.carbs = parseFloat(manualCarbs);
       if (manualFat) payload.fat = parseFloat(manualFat);
+      if (manualFiber) payload.fiber = parseFloat(manualFiber);
+      if (manualSodium) payload.sodium = parseFloat(manualSodium);
+      if (manualSugar) payload.sugar = parseFloat(manualSugar);
+      if (manualSaturatedFat) payload.saturated_fat = parseFloat(manualSaturatedFat);
 
       const res = await fetch('/api/food-bank', {
         method: 'POST',
@@ -122,6 +130,10 @@ export default function MeusAlimentosPage() {
       setManualProtein('');
       setManualCarbs('');
       setManualFat('');
+      setManualFiber('');
+      setManualSodium('');
+      setManualSugar('');
+      setManualSaturatedFat('');
       setShowManualForm(false);
       await fetchItems();
     } catch (err: any) {
@@ -159,11 +171,24 @@ export default function MeusAlimentosPage() {
         credentials: 'include'
       });
 
-      const json = await res.json();
-
       if (!res.ok) {
-        throw new Error(json.error || 'Erro ao analisar imagem');
+        // Tenta fazer parse do JSON se possível, senão usa mensagem genérica
+        let errorMessage = 'Erro ao analisar imagem';
+        try {
+          const json = await res.json();
+          errorMessage = json.error || errorMessage;
+        } catch {
+          // Se não conseguir fazer parse (ex: erro 413 retorna HTML), usa mensagem baseada no status
+          if (res.status === 413) {
+            errorMessage = 'Imagem muito grande. Por favor, use uma imagem menor que 5MB.';
+          } else {
+            errorMessage = `Erro ao analisar imagem (${res.status})`;
+          }
+        }
+        throw new Error(errorMessage);
       }
+
+      const json = await res.json();
 
       const result = json.result;
       // Limitar casas decimais nos valores nutricionais
@@ -400,6 +425,9 @@ export default function MeusAlimentosPage() {
               </div>
             </div>
 
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginTop: 8, marginBottom: 12, color: '#6b7280' }}>
+              Macronutrientes
+            </h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 16 }}>
               <div>
                 <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
@@ -470,6 +498,91 @@ export default function MeusAlimentosPage() {
                   step="0.1"
                   value={manualFat}
                   onChange={e => setManualFat(e.target.value)}
+                  placeholder="g"
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    fontSize: 16,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8
+                  }}
+                />
+              </div>
+            </div>
+
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginTop: 16, marginBottom: 12, color: '#6b7280' }}>
+              Detalhes Nutricionais (Opcional)
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 16 }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                  Fibras (g)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={manualFiber}
+                  onChange={e => setManualFiber(e.target.value)}
+                  placeholder="g"
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    fontSize: 16,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                  Sódio (mg)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={manualSodium}
+                  onChange={e => setManualSodium(e.target.value)}
+                  placeholder="mg"
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    fontSize: 16,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                  Açúcares (g)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={manualSugar}
+                  onChange={e => setManualSugar(e.target.value)}
+                  placeholder="g"
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    fontSize: 16,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                  Gord. Saturadas (g)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={manualSaturatedFat}
+                  onChange={e => setManualSaturatedFat(e.target.value)}
                   placeholder="g"
                   style={{
                     width: '100%',
