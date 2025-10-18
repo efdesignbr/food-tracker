@@ -64,6 +64,10 @@ export default function MeusAlimentosPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [customName, setCustomName] = useState('');
 
+  // Edição de alimento
+  const [editingItem, setEditingItem] = useState<FoodBankItem | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -253,6 +257,60 @@ export default function MeusAlimentosPage() {
       setImagePreview(null);
       setAnalyzedData(null);
       setCustomName('');
+      await fetchItems();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleEditClick(item: FoodBankItem) {
+    setEditingItem(item);
+    setShowEditModal(true);
+    setError(null);
+    setSuccess(null);
+  }
+
+  async function handleSaveEdit() {
+    if (!editingItem) return;
+
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+
+    try {
+      const payload: any = {
+        id: editingItem.id,
+        name: editingItem.name,
+        brand: editingItem.brand || undefined,
+        serving_size: editingItem.serving_size || undefined,
+        calories: typeof editingItem.calories === 'number' ? editingItem.calories : undefined,
+        protein: typeof editingItem.protein === 'number' ? editingItem.protein : undefined,
+        carbs: typeof editingItem.carbs === 'number' ? editingItem.carbs : undefined,
+        fat: typeof editingItem.fat === 'number' ? editingItem.fat : undefined,
+        fiber: typeof editingItem.fiber === 'number' ? editingItem.fiber : undefined,
+        sodium: typeof editingItem.sodium === 'number' ? editingItem.sodium : undefined,
+        sugar: typeof editingItem.sugar === 'number' ? editingItem.sugar : undefined,
+        saturated_fat: typeof editingItem.saturated_fat === 'number' ? editingItem.saturated_fat : undefined
+      };
+
+      const res = await fetch('/api/food-bank', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'include'
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json.error || 'Erro ao atualizar alimento');
+      }
+
+      setSuccess('Alimento atualizado com sucesso!');
+      setShowEditModal(false);
+      setEditingItem(null);
       await fetchItems();
     } catch (err: any) {
       setError(err.message);
@@ -1075,27 +1133,388 @@ export default function MeusAlimentosPage() {
                     )}
                   </div>
 
-                  <button
-                    onClick={() => handleDelete(item.id, item.name)}
-                    style={{
-                      padding: '8px 12px',
-                      background: '#fee2e2',
-                      color: '#dc2626',
-                      border: 'none',
-                      borderRadius: 8,
-                      cursor: 'pointer',
-                      fontSize: 14,
-                      fontWeight: 600
-                    }}
-                  >
-                    🗑️
-                  </button>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      onClick={() => handleEditClick(item)}
+                      style={{
+                        padding: '8px 12px',
+                        background: '#dbeafe',
+                        color: '#1e40af',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontSize: 14,
+                        fontWeight: 600
+                      }}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => handleDelete(item.id, item.name)}
+                      style={{
+                        padding: '8px 12px',
+                        background: '#fee2e2',
+                        color: '#dc2626',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontSize: 14,
+                        fontWeight: 600
+                      }}
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Modal de Edição */}
+      {showEditModal && editingItem && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: 20
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            padding: 24,
+            maxWidth: 800,
+            width: '100%',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700 }}>✏️ Editar Alimento</h2>
+              <button
+                onClick={() => { setShowEditModal(false); setEditingItem(null); }}
+                style={{
+                  padding: 8,
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: 24,
+                  cursor: 'pointer',
+                  color: '#666'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gap: 16 }}>
+              {/* Nome, Marca e Porção */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
+                    Nome do Alimento *
+                  </label>
+                  <input
+                    type="text"
+                    value={editingItem.name}
+                    onChange={e => setEditingItem({ ...editingItem, name: e.target.value })}
+                    placeholder="Ex: Whey Protein"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
+                    Marca
+                  </label>
+                  <input
+                    type="text"
+                    value={editingItem.brand || ''}
+                    onChange={e => setEditingItem({ ...editingItem, brand: e.target.value })}
+                    placeholder="Ex: Growth"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
+                    Porção
+                  </label>
+                  <input
+                    type="text"
+                    value={editingItem.serving_size || ''}
+                    onChange={e => setEditingItem({ ...editingItem, serving_size: e.target.value })}
+                    placeholder="Ex: 30g, 1 scoop"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Macronutrientes */}
+              <h3 style={{
+                fontSize: 15,
+                fontWeight: 700,
+                marginTop: 20,
+                marginBottom: 12,
+                color: '#374151',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                Macronutrientes
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
+                    Calorias
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={editingItem.calories || ''}
+                    onChange={e => setEditingItem({ ...editingItem, calories: e.target.value ? parseFloat(e.target.value) : null })}
+                    placeholder="kcal"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
+                    Proteína (g)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={editingItem.protein || ''}
+                    onChange={e => setEditingItem({ ...editingItem, protein: e.target.value ? parseFloat(e.target.value) : null })}
+                    placeholder="g"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
+                    Carboidratos (g)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={editingItem.carbs || ''}
+                    onChange={e => setEditingItem({ ...editingItem, carbs: e.target.value ? parseFloat(e.target.value) : null })}
+                    placeholder="g"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
+                    Gorduras (g)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={editingItem.fat || ''}
+                    onChange={e => setEditingItem({ ...editingItem, fat: e.target.value ? parseFloat(e.target.value) : null })}
+                    placeholder="g"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Micronutrientes */}
+              <h3 style={{
+                fontSize: 15,
+                fontWeight: 700,
+                marginTop: 20,
+                marginBottom: 12,
+                color: '#374151',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                Detalhes Nutricionais
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
+                    Fibras (g)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={editingItem.fiber || ''}
+                    onChange={e => setEditingItem({ ...editingItem, fiber: e.target.value ? parseFloat(e.target.value) : null })}
+                    placeholder="g"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
+                    Sódio (mg)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={editingItem.sodium || ''}
+                    onChange={e => setEditingItem({ ...editingItem, sodium: e.target.value ? parseFloat(e.target.value) : null })}
+                    placeholder="mg"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
+                    Açúcares (g)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={editingItem.sugar || ''}
+                    onChange={e => setEditingItem({ ...editingItem, sugar: e.target.value ? parseFloat(e.target.value) : null })}
+                    placeholder="g"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
+                    Gord. Sat. (g)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={editingItem.saturated_fat || ''}
+                    onChange={e => setEditingItem({ ...editingItem, saturated_fat: e.target.value ? parseFloat(e.target.value) : null })}
+                    placeholder="g"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+                <button
+                  onClick={() => { setShowEditModal(false); setEditingItem(null); }}
+                  disabled={loading}
+                  style={{
+                    flex: 1,
+                    padding: 14,
+                    background: '#6b7280',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 12,
+                    fontSize: 16,
+                    fontWeight: 600,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.6 : 1
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={loading || !editingItem.name.trim()}
+                  style={{
+                    flex: 2,
+                    padding: 14,
+                    background: loading || !editingItem.name.trim() ? '#9ca3af' : '#2196F3',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 12,
+                    fontSize: 16,
+                    fontWeight: 600,
+                    cursor: loading || !editingItem.name.trim() ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {loading ? '💾 Salvando...' : '✅ Salvar Alterações'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
