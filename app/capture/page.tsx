@@ -910,7 +910,10 @@ export default function CapturePage() {
                     onChange={async (e) => {
                       const q = e.target.value;
                       setRestaurantQuery(q);
-                      setSelectedRestaurant(null);
+                      // Limpa a seleção quando começar a digitar
+                      if (selectedRestaurant) {
+                        setSelectedRestaurant(null);
+                      }
                       if (q.trim().length < 2) {
                         setRestaurantResults([]);
                         return;
@@ -935,12 +938,12 @@ export default function CapturePage() {
                       padding: 12,
                       fontSize: 16,
                       border: '2px solid #fbbf24',
-                      borderRadius: '8px 8px 0 0',
+                      borderRadius: selectedRestaurant ? '8px' : '8px 8px 0 0',
                       outline: 'none',
                       boxSizing: 'border-box'
                     }}
                   />
-                  {(restaurantLoading || restaurantResults.length > 0 || (restaurantQuery.trim().length >= 2 && restaurantResults.length === 0)) && (
+                  {!selectedRestaurant && (restaurantLoading || restaurantResults.length > 0 || (restaurantQuery.trim().length >= 2 && restaurantResults.length === 0)) && (
                     <div style={{
                       position: 'absolute',
                       top: '100%',
@@ -996,9 +999,15 @@ export default function CapturePage() {
                                 });
                                 const json = await res.json();
                                 if (res.ok) {
-                                  setSelectedRestaurant({ id: json.restaurant.id, name: json.restaurant.name });
+                                  const restaurantName = json.restaurant.name;
+                                  setSelectedRestaurant({ id: json.restaurant.id, name: restaurantName });
+                                  setRestaurantQuery(restaurantName);
                                   setRestaurantResults([]);
+                                } else {
+                                  alert(json.error || 'Erro ao cadastrar restaurante');
                                 }
+                              } catch (e: any) {
+                                alert('Erro ao cadastrar restaurante: ' + e.message);
                               } finally {
                                 setRestaurantLoading(false);
                               }
