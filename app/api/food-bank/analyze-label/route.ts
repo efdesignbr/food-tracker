@@ -4,6 +4,11 @@ import { analyzeNutritionLabel } from '@/lib/ai/nutrition-label-analyzer';
 import { init } from '@/lib/init';
 import { UPLOAD, IMAGE } from '@/lib/constants';
 import sharp from 'sharp';
+import { auth } from '@/lib/auth';
+import { getSessionData } from '@/lib/types/auth';
+import { getPool } from '@/lib/db';
+import { checkQuota, incrementQuota } from '@/lib/quota';
+import type { Plan } from '@/lib/types/subscription';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,6 +21,15 @@ export async function POST(req: Request) {
     await init();
     const tenant = await requireTenant(req);
     console.log('✅ [API] Tenant autenticado:', tenant.id);
+
+    // Autenticação
+    const session = getSessionData(await auth());
+    if (!session) {
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+    }
+    if (session.tenantId !== tenant.id) {
+      return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+    }
 
     const contentType = req.headers.get('content-type') || '';
     if (!contentType.includes('multipart/form-data')) {
@@ -40,6 +54,48 @@ export async function POST(req: Request) {
     if (image.size > Number(process.env.MAX_UPLOAD_BYTES || UPLOAD.MAX_BYTES)) {
       console.error('❌ [API] Imagem muito grande:', image.size);
       return NextResponse.json({ error: 'Arquivo muito grande' }, { status: 413 });
+    }
+
+    // 🔒 PAYWALL: Verificar quota de OCR
+    const pool = getPool();
+    const { rows: userData } = await pool.query<{ plan: Plan }>(
+      'SELECT plan FROM users WHERE id = $1',
+      [session.userId]
+    );
+    const userPlan = (userData[0]?.plan || 'free') as Plan;
+
+    // FREE não pode usar OCR de tabelas
+    if (userPlan === 'free') {
+      return NextResponse.json(
+        {
+          error: 'upgrade_required',
+          message: 'OCR de tabelas nutricionais é um recurso PREMIUM',
+          feature: 'ocr_analysis',
+          currentPlan: 'free',
+          upgradeTo: 'premium',
+        },
+        { status: 403 }
+      );
+    }
+
+    // PREMIUM: verificar quota
+    const quota = await checkQuota(session.userId, tenant.id, userPlan, 'ocr');
+    if (!quota.allowed) {
+      // Calcular próximo reset (dia 1º do próximo mês)
+      const now = new Date();
+      const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0));
+
+      return NextResponse.json(
+        {
+          error: 'quota_exceeded',
+          message: `Você atingiu o limite de ${quota.limit} análises de tabelas este mês`,
+          used: quota.used,
+          limit: quota.limit,
+          remaining: 0,
+          resetDate: nextMonth.toISOString(),
+        },
+        { status: 429 }
+      );
     }
 
     // Processa e comprime a imagem
@@ -74,6 +130,12 @@ export async function POST(req: Request) {
     const result = await analyzeNutritionLabel(bytes, 'image/jpeg');
 
     console.log('✅ [API] Análise concluída:', result);
+
+    // ✅ Incrementar quota de OCR APÓS sucesso
+    if (userPlan === 'premium') {
+      await incrementQuota(session.userId, tenant.id, 'ocr');
+    }
+
     return NextResponse.json({ ok: true, result });
 
   } catch (err: any) {

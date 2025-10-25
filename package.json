@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "apply:migrations": "tsx scripts/apply-migrations.ts",
     "rls:check": "tsx scripts/rls-check.ts",
-    "db:schema": "tsx scripts/extract-schema.ts"
+    "db:schema": "tsx scripts/extract-schema.ts",
+    "test:subscriptions": "tsx scripts/test-subscriptions.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

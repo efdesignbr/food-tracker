@@ -1,8 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeFood } from '@/lib/ai';
+import { requireTenant } from '@/lib/tenant';
+import { auth } from '@/lib/auth';
+import { getSessionData } from '@/lib/types/auth';
+import { init } from '@/lib/init';
+import { getPool } from '@/lib/db';
+import { checkQuota, incrementQuota } from '@/lib/quota';
+import type { Plan } from '@/lib/types/subscription';
 
 export async function POST(req: NextRequest) {
   try {
+    // Autenticação
+    await init();
+    const tenant = await requireTenant(req);
+    const session = getSessionData(await auth());
+
+    if (!session) {
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+    }
+
+    if (session.tenantId !== tenant.id) {
+      return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+    }
+
     const contentType = req.headers.get('content-type') || '';
 
     let foods: any[] = [];
@@ -41,6 +61,55 @@ export async function POST(req: NextRequest) {
         { error: 'Nenhum alimento fornecido' },
         { status: 400 }
       );
+    }
+
+    // Buscar plano do usuário (necessário para verificação de quota)
+    let userPlan: Plan = 'free';
+    if (imageBase64) {
+      const pool = getPool();
+      const { rows: userData } = await pool.query<{ plan: Plan }>(
+        'SELECT plan FROM users WHERE id = $1',
+        [session.userId]
+      );
+      userPlan = (userData[0]?.plan || 'free') as Plan;
+    }
+
+    // 🔒 PAYWALL: Verificar quota se tem foto
+    if (imageBase64) {
+      // FREE não pode usar fotos
+      if (userPlan === 'free') {
+        return NextResponse.json(
+          {
+            error: 'upgrade_required',
+            message: 'Análise de foto é um recurso PREMIUM',
+            feature: 'photo_analysis',
+            currentPlan: 'free',
+            upgradeTo: 'premium',
+          },
+          { status: 403 }
+        );
+      }
+
+      // PREMIUM: verificar quota
+      const quota = await checkQuota(session.userId, tenant.id, userPlan, 'photo');
+
+      if (!quota.allowed) {
+        // Calcular próximo reset (dia 1º do próximo mês)
+        const now = new Date();
+        const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0));
+
+        return NextResponse.json(
+          {
+            error: 'quota_exceeded',
+            message: `Você atingiu o limite de ${quota.limit} análises de foto este mês`,
+            used: quota.used,
+            limit: quota.limit,
+            remaining: 0,
+            resetDate: nextMonth.toISOString(),
+          },
+          { status: 429 }
+        );
+      }
     }
 
     // Montar prompt para IA
@@ -85,6 +154,11 @@ export async function POST(req: NextRequest) {
 
     // Chamar IA
     const result = await analyzeFood(description, imageBase64);
+
+    // ✅ Incrementar quota APÓS sucesso (só se usou foto e é PREMIUM)
+    if (imageBase64 && userPlan === 'premium') {
+      await incrementQuota(session.userId, tenant.id, 'photo');
+    }
 
     return NextResponse.json({ result });
   } catch (error: any) {

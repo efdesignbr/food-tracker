@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import PlanBadge from '@/components/subscription/PlanBadge';
+import { useUserPlan } from '@/hooks/useUserPlan';
 
 type NavItem = {
   href: string;
@@ -30,6 +32,7 @@ export default function AppLayout({ children, tenantName, userName }: {
   const router = useRouter();
   const pathname = usePathname();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const { plan, isLoading: isPlanLoading } = useUserPlan();
 
   async function handleLogout() {
     await signOut({ redirect: false });
@@ -55,25 +58,28 @@ export default function AppLayout({ children, tenantName, userName }: {
         }}>
           {/* Logo */}
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <div>
-              <h1 style={{
-                fontSize: 18,
-                fontWeight: 700,
-                margin: 0,
-                color: '#2196F3',
-                cursor: 'pointer'
-              }}>
-                Food Tracker
-              </h1>
-              {tenantName && (
-                <p style={{
-                  fontSize: 10,
-                  color: '#666',
-                  margin: 0
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div>
+                <h1 style={{
+                  fontSize: 18,
+                  fontWeight: 700,
+                  margin: 0,
+                  color: '#2196F3',
+                  cursor: 'pointer'
                 }}>
-                  {tenantName}
-                </p>
-              )}
+                  Food Tracker
+                </h1>
+                {tenantName && (
+                  <p style={{
+                    fontSize: 10,
+                    color: '#666',
+                    margin: 0
+                  }}>
+                    {tenantName}
+                  </p>
+                )}
+              </div>
+              {!isPlanLoading && <PlanBadge plan={plan} size="sm" />}
             </div>
           </Link>
 

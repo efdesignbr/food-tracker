@@ -46,3 +46,65 @@ export const PERIOD = {
   /** Month filter period */
   MONTH_DAYS: 30,
 } as const;
+
+// 💎 Subscription Plans & Quotas
+export const PLAN_LIMITS = {
+  free: {
+    /** Análises de foto de refeições por mês (FREE não tem acesso) */
+    photo_analyses_per_month: 0,
+
+    /** Análises de tabela nutricional (OCR) por mês (FREE não tem acesso) */
+    ocr_analyses_per_month: 0,
+
+    /** Dias de histórico disponível (FREE limitado a 30 dias) */
+    history_days: 30,
+
+    /** Coach IA disponível? */
+    coach_ai: false,
+
+    /** Relatórios avançados disponíveis? */
+    advanced_reports: false,
+
+    /** Exportação de dados disponível? */
+    data_export: false,
+  },
+  premium: {
+    /** Análises de foto de refeições por mês (3 por dia de média) */
+    photo_analyses_per_month: 90,
+
+    /** Análises de tabela nutricional (OCR) por mês (1 por dia de média) */
+    ocr_analyses_per_month: 30,
+
+    /** Dias de histórico disponível (null = ilimitado) */
+    history_days: null,
+
+    /** Coach IA disponível? */
+    coach_ai: true,
+
+    /** Relatórios avançados disponíveis? */
+    advanced_reports: true,
+
+    /** Exportação de dados disponível? */
+    data_export: true,
+  },
+  unlimited: {
+    /** Análises ilimitadas (para admins/owners) */
+    photo_analyses_per_month: 999999,
+
+    /** Análises ilimitadas (para admins/owners) */
+    ocr_analyses_per_month: 999999,
+
+    /** Histórico ilimitado */
+    history_days: null,
+
+    /** Todos recursos disponíveis */
+    coach_ai: true,
+    advanced_reports: true,
+    data_export: true,
+  },
+} as const;
+
+export const QUOTA_TYPES = {
+  PHOTO: 'photo_analyses' as const,
+  OCR: 'ocr_analyses' as const,
+} as const;

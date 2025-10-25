@@ -43,11 +43,16 @@ export async function GET(req: Request) {
         goal_carbs_g: number;
         goal_fat_g: number;
         goal_water_ml: number;
+        plan: string;
+        subscription_status: string;
+        subscription_started_at: string | null;
+        subscription_expires_at: string | null;
         created_at: string;
       }>(
         `SELECT
           id, email, name, phone, role,
           goal_calories, goal_protein_g, goal_carbs_g, goal_fat_g, goal_water_ml,
+          plan, subscription_status, subscription_started_at, subscription_expires_at,
           created_at
         FROM users
         WHERE id = $1 AND tenant_id = $2`,
@@ -68,6 +73,10 @@ export async function GET(req: Request) {
           name: user.name,
           phone: user.phone,
           role: user.role,
+          plan: user.plan,
+          subscription_status: user.subscription_status,
+          subscription_started_at: user.subscription_started_at,
+          subscription_expires_at: user.subscription_expires_at,
           goals: {
             calories: user.goal_calories,
             protein: user.goal_protein_g,
@@ -169,6 +178,7 @@ export async function PATCH(req: Request) {
         RETURNING
           id, email, name, phone, role,
           goal_calories, goal_protein_g, goal_carbs_g, goal_fat_g, goal_water_ml,
+          plan, subscription_status, subscription_started_at, subscription_expires_at,
           created_at
       `;
 
@@ -188,6 +198,10 @@ export async function PATCH(req: Request) {
           name: user.name,
           phone: user.phone,
           role: user.role,
+          plan: user.plan,
+          subscription_status: user.subscription_status,
+          subscription_started_at: user.subscription_started_at,
+          subscription_expires_at: user.subscription_expires_at,
           goals: {
             calories: user.goal_calories,
             protein: user.goal_protein_g,
