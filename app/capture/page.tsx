@@ -940,7 +940,7 @@ export default function CapturePage() {
                       boxSizing: 'border-box'
                     }}
                   />
-                  {(restaurantLoading || restaurantResults.length > 0) && (
+                  {(restaurantLoading || restaurantResults.length > 0 || (restaurantQuery.trim().length >= 2 && restaurantResults.length === 0)) && (
                     <div style={{
                       position: 'absolute',
                       top: '100%',
