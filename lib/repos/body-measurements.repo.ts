@@ -21,6 +21,28 @@ export interface BodyMeasurement {
   updated_at: Date;
 }
 
+// Tipo que representa os dados como vêm do banco (DECIMAL vem como string)
+interface BodyMeasurementRow {
+  id: string;
+  tenant_id: string;
+  user_id: string;
+  measurement_date: string;
+  measurement_time: string;
+  waist: string | null;
+  neck: string | null;
+  chest: string | null;
+  hips: string | null;
+  left_thigh: string | null;
+  right_thigh: string | null;
+  left_bicep: string | null;
+  right_bicep: string | null;
+  left_calf: string | null;
+  right_calf: string | null;
+  notes: string | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface InsertBodyMeasurementParams {
   tenantId: string;
   userId: string;
@@ -49,7 +71,7 @@ export async function insertBodyMeasurement(params: InsertBodyMeasurementParams)
     await client.query('BEGIN');
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [params.tenantId]);
 
-    const result = await client.query<BodyMeasurement>(
+    const result = await client.query<BodyMeasurementRow>(
       `INSERT INTO body_measurements (
         tenant_id, user_id, measurement_date, measurement_time,
         waist, neck, chest, hips,
@@ -119,7 +141,7 @@ export async function getBodyMeasurementsByDateRange(params: {
     await client.query('BEGIN');
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [params.tenantId]);
 
-    const result = await client.query<BodyMeasurement>(
+    const result = await client.query<BodyMeasurementRow>(
       `SELECT * FROM body_measurements
        WHERE tenant_id = $1 AND user_id = $2
          AND measurement_date BETWEEN $3 AND $4
@@ -166,7 +188,7 @@ export async function getLatestBodyMeasurement(params: {
     await client.query('BEGIN');
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [params.tenantId]);
 
-    const result = await client.query<BodyMeasurement>(
+    const result = await client.query<BodyMeasurementRow>(
       `SELECT * FROM body_measurements
        WHERE tenant_id = $1 AND user_id = $2
        ORDER BY measurement_date DESC, measurement_time DESC
