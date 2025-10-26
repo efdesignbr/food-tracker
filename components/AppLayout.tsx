@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
   { href: '/capture', label: 'Capturar', icon: '📸' },
   { href: '/history', label: 'Histórico', icon: '📋' },
   { href: '/peso', label: 'Peso', icon: '⚖️' },
+  { href: '/coach', label: 'Coach IA', icon: '🤖' },
   { href: '/reports', label: 'Relatórios', icon: '📊' },
   { href: '/restaurants', label: 'Restaurantes', icon: '🍽️' },
   { href: '/meus-alimentos', label: 'Meus Alimentos', icon: '🍎' },

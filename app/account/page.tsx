@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
+import { PlanBadge, UpgradeButton, QuotaCard } from '@/components/subscription';
+import { useUserPlan } from '@/hooks/useUserPlan';
+import { useQuota } from '@/hooks/useQuota';
 
 type UserProfile = {
   id: string;
@@ -38,7 +41,11 @@ export default function AccountPage() {
   const [goalWater, setGoalWater] = useState(2000);
 
   // Expanded sections
-  const [expandedSection, setExpandedSection] = useState<string | null>('personal');
+  const [expandedSection, setExpandedSection] = useState<string | null>('plan');
+
+  // Health goals state
+  const [healthGoals, setHealthGoals] = useState<any>(null);
+  const [loadingGoals, setLoadingGoals] = useState(false);
 
   // Delete account states
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -49,8 +56,13 @@ export default function AccountPage() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  // Subscription hooks
+  const { plan, quota, isLoading: planLoading } = useUserPlan();
+  const { canUseFeature, getQuotaInfo, hasQuota } = useQuota(plan, quota);
+
   useEffect(() => {
     fetchProfile();
+    fetchHealthGoals();
   }, []);
 
   async function fetchProfile() {
@@ -74,6 +86,21 @@ export default function AccountPage() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchHealthGoals() {
+    try {
+      setLoadingGoals(true);
+      const res = await fetch('/api/user/goals', { credentials: 'include', cache: 'no-store' });
+      if (!res.ok) return;
+
+      const data = await res.json();
+      setHealthGoals(data.goals);
+    } catch (err) {
+      console.error('Erro ao carregar objetivos:', err);
+    } finally {
+      setLoadingGoals(false);
     }
   }
 
@@ -273,7 +300,299 @@ export default function AccountPage() {
 
       {/* Accordion Sections */}
       <div style={{ display: 'grid', gap: 12 }}>
-        {/* 1. Dados Pessoais */}
+        {/* 0. Plano Atual */}
+        <div style={{
+          background: 'white',
+          borderRadius: 16,
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          border: expandedSection === 'plan' ? '2px solid #8b5cf6' : '1px solid #e5e7eb'
+        }}>
+          <button
+            onClick={() => toggleSection('plan')}
+            style={{
+              width: '100%',
+              padding: 20,
+              border: 'none',
+              background: expandedSection === 'plan' ? '#f5f3ff' : 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontWeight: 700,
+              fontSize: 16,
+              color: expandedSection === 'plan' ? '#8b5cf6' : '#374151'
+            }}
+          >
+            <span>💎 Plano Atual</span>
+            <span style={{ fontSize: 20 }}>{expandedSection === 'plan' ? '▼' : '▶'}</span>
+          </button>
+
+          {expandedSection === 'plan' && (
+            <div style={{ padding: 20, borderTop: '1px solid #e5e7eb' }}>
+              {planLoading ? (
+                <div style={{ textAlign: 'center', padding: 32 }}>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>⏳</div>
+                  <p style={{ color: '#6b7280', fontSize: 14 }}>Carregando informações do plano...</p>
+                </div>
+              ) : (
+                <div>
+                  {/* Badge do Plano */}
+                  <div style={{ marginBottom: 24, textAlign: 'center' }}>
+                    <div style={{ marginBottom: 12 }}>
+                      <PlanBadge plan={plan} size="lg" />
+                    </div>
+                    <p style={{ fontSize: 14, color: '#6b7280' }}>
+                      {plan === 'free' && 'Plano gratuito com recursos básicos'}
+                      {plan === 'premium' && 'Plano pago com recursos avançados'}
+                      {plan === 'unlimited' && 'Acesso ilimitado a todos os recursos'}
+                    </p>
+                  </div>
+
+                  {/* Conteúdo baseado no plano */}
+                  {plan === 'free' && (
+                    <div>
+                      <div style={{
+                        padding: 16,
+                        background: '#fef3c7',
+                        border: '2px solid #fbbf24',
+                        borderRadius: 12,
+                        marginBottom: 16
+                      }}>
+                        <p style={{ fontSize: 14, color: '#92400e', margin: 0, fontWeight: 600 }}>
+                          🔒 Desbloqueie recursos premium como análise de fotos e OCR de nutrição!
+                        </p>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <UpgradeButton currentPlan={plan} size="lg" />
+                      </div>
+                    </div>
+                  )}
+
+                  {plan === 'premium' && hasQuota && quota && (
+                    <div>
+                      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
+                        📊 Uso Mensal
+                      </h3>
+                      <div style={{ display: 'grid', gap: 12 }}>
+                        <QuotaCard
+                          quotaType="photo"
+                          used={getQuotaInfo('photo').used}
+                          limit={getQuotaInfo('photo').limit}
+                          percentage={getQuotaInfo('photo').percentage}
+                          remaining={getQuotaInfo('photo').remaining}
+                          resetDate={quota.resetDate}
+                        />
+                        <QuotaCard
+                          quotaType="ocr"
+                          used={getQuotaInfo('ocr').used}
+                          limit={getQuotaInfo('ocr').limit}
+                          percentage={getQuotaInfo('ocr').percentage}
+                          remaining={getQuotaInfo('ocr').remaining}
+                          resetDate={quota.resetDate}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {plan === 'unlimited' && (
+                    <div style={{
+                      padding: 20,
+                      background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+                      borderRadius: 12,
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: 48, marginBottom: 8 }}>✨</div>
+                      <h3 style={{ fontSize: 18, fontWeight: 700, color: 'white', marginBottom: 8 }}>
+                        Acesso Ilimitado
+                      </h3>
+                      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.9)', margin: 0 }}>
+                        Você tem acesso ilimitado a todos os recursos sem restrições
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 1. Objetivos de Saúde */}
+        <div style={{
+          background: 'white',
+          borderRadius: 16,
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          border: expandedSection === 'health' ? '2px solid #f59e0b' : '1px solid #e5e7eb'
+        }}>
+          <button
+            onClick={() => toggleSection('health')}
+            style={{
+              width: '100%',
+              padding: 20,
+              border: 'none',
+              background: expandedSection === 'health' ? '#fffbeb' : 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontWeight: 700,
+              fontSize: 16,
+              color: expandedSection === 'health' ? '#f59e0b' : '#374151'
+            }}
+          >
+            <span>🎯 Objetivos de Saúde</span>
+            <span style={{ fontSize: 20 }}>{expandedSection === 'health' ? '▼' : '▶'}</span>
+          </button>
+
+          {expandedSection === 'health' && (
+            <div style={{ padding: 20, borderTop: '1px solid #e5e7eb' }}>
+              {loadingGoals ? (
+                <div style={{ textAlign: 'center', padding: 32 }}>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>⏳</div>
+                  <p style={{ color: '#6b7280', fontSize: 14 }}>Carregando objetivos...</p>
+                </div>
+              ) : !healthGoals || !healthGoals.goal_type ? (
+                <div>
+                  <div style={{
+                    padding: 16,
+                    background: '#fef3c7',
+                    border: '2px solid #fbbf24',
+                    borderRadius: 12,
+                    marginBottom: 16,
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: 32, marginBottom: 8 }}>🎯</div>
+                    <p style={{ fontSize: 14, color: '#92400e', margin: '0 0 8px 0', fontWeight: 600 }}>
+                      Configure seus objetivos de saúde
+                    </p>
+                    <p style={{ fontSize: 12, color: '#92400e', margin: 0 }}>
+                      Defina seu objetivo, altura, idade e nível de atividade para receber análises personalizadas do Coach IA
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => router.push('/objetivos')}
+                    style={{
+                      width: '100%',
+                      padding: 14,
+                      border: 'none',
+                      background: '#f59e0b',
+                      color: 'white',
+                      borderRadius: 12,
+                      fontWeight: 700,
+                      fontSize: 16,
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
+                    }}
+                  >
+                    🎯 Configurar Objetivos
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ display: 'grid', gap: 16, marginBottom: 20 }}>
+                    {/* Objetivo Principal */}
+                    <div style={{
+                      padding: 16,
+                      background: '#f0fdf4',
+                      border: '2px solid #86efac',
+                      borderRadius: 12
+                    }}>
+                      <div style={{ fontSize: 12, color: '#166534', fontWeight: 600, marginBottom: 4 }}>
+                        OBJETIVO PRINCIPAL
+                      </div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#15803d' }}>
+                        {healthGoals.goal_type === 'lose_weight' && '🔻 Perder Peso (Emagrecimento)'}
+                        {healthGoals.goal_type === 'gain_weight' && '🔺 Ganhar Peso (Ganho de Massa)'}
+                        {healthGoals.goal_type === 'maintain_weight' && '⚖️ Manter Peso (Manutenção)'}
+                      </div>
+                      {healthGoals.target_weight_kg && (
+                        <div style={{ fontSize: 13, color: '#166534', marginTop: 8 }}>
+                          🎯 Peso alvo: <strong>{healthGoals.target_weight_kg} kg</strong>
+                        </div>
+                      )}
+                      {healthGoals.weekly_goal_kg && (
+                        <div style={{ fontSize: 13, color: '#166534', marginTop: 4 }}>
+                          📈 Meta semanal: <strong>{healthGoals.weekly_goal_kg > 0 ? '+' : ''}{healthGoals.weekly_goal_kg} kg/semana</strong>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Dados Pessoais */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+                      <div>
+                        <div style={{ fontSize: 12, color: '#6b7280', fontWeight: 600, marginBottom: 4 }}>
+                          ALTURA
+                        </div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
+                          📏 {healthGoals.height_cm} cm
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: '#6b7280', fontWeight: 600, marginBottom: 4 }}>
+                          IDADE
+                        </div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
+                          🎂 {healthGoals.age} anos
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: '#6b7280', fontWeight: 600, marginBottom: 4 }}>
+                          GÊNERO
+                        </div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
+                          {healthGoals.gender === 'male' && '👨 Masculino'}
+                          {healthGoals.gender === 'female' && '👩 Feminino'}
+                          {healthGoals.gender === 'other' && '🧑 Outro'}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: '#6b7280', fontWeight: 600, marginBottom: 4 }}>
+                          ATIVIDADE
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#374151' }}>
+                          {healthGoals.activity_level === 'sedentary' && '🪑 Sedentário'}
+                          {healthGoals.activity_level === 'light' && '🚶 Leve'}
+                          {healthGoals.activity_level === 'moderate' && '🏃 Moderado'}
+                          {healthGoals.activity_level === 'active' && '💪 Ativo'}
+                          {healthGoals.activity_level === 'very_active' && '🔥 Muito Ativo'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => router.push('/objetivos')}
+                    style={{
+                      width: '100%',
+                      padding: 14,
+                      border: '2px solid #f59e0b',
+                      background: 'white',
+                      color: '#f59e0b',
+                      borderRadius: 12,
+                      fontWeight: 700,
+                      fontSize: 16,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#f59e0b';
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'white';
+                      e.currentTarget.style.color = '#f59e0b';
+                    }}
+                  >
+                    ✏️ Editar Objetivos
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 2. Dados Pessoais */}
         <div style={{
           background: 'white',
           borderRadius: 16,
@@ -394,7 +713,7 @@ export default function AccountPage() {
           )}
         </div>
 
-        {/* 2. Metas Diárias */}
+        {/* 3. Metas Diárias */}
         <div style={{
           background: 'white',
           borderRadius: 16,
@@ -570,7 +889,7 @@ export default function AccountPage() {
           )}
         </div>
 
-        {/* 3. Informações da Conta */}
+        {/* 4. Informações da Conta */}
         <div style={{
           background: 'white',
           borderRadius: 16,
@@ -626,7 +945,7 @@ export default function AccountPage() {
           )}
         </div>
 
-        {/* 4. Zona de Perigo - Excluir Conta */}
+        {/* 5. Zona de Perigo - Excluir Conta */}
         <div style={{
           background: 'white',
           borderRadius: 16,

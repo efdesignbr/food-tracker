@@ -1,6 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useUserPlan } from '@/hooks/useUserPlan';
+import { useQuota } from '@/hooks/useQuota';
+import { PaywallModal, QuotaCard } from '@/components/subscription';
 
 function nowSaoPauloLocalInput() {
   try {
@@ -32,6 +35,11 @@ const mealTypeLabels: Record<string, string> = {
 };
 
 export default function CapturePage() {
+  // Subscription
+  const { plan, quota, isLoading: isPlanLoading } = useUserPlan();
+  const { hasQuota } = useQuota(plan, quota);
+  const [showPaywall, setShowPaywall] = useState(false);
+
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -116,6 +124,13 @@ export default function CapturePage() {
   }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    // Bloquear para FREE
+    if (plan === 'free') {
+      setShowPaywall(true);
+      e.target.value = ''; // Limpa o input
+      return;
+    }
+
     const f = e.target.files?.[0];
     if (f) {
       setLoading(true);
@@ -271,7 +286,14 @@ export default function CapturePage() {
       }
 
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Erro ao analisar');
+      if (!res.ok) {
+        // Se for 403, é bloqueio de plano
+        if (res.status === 403) {
+          setShowPaywall(true);
+          return;
+        }
+        throw new Error(json.error || 'Erro ao analisar');
+      }
       setAnalysis(json.result);
     } catch (e) {
       setError((e as Error).message);
@@ -369,14 +391,35 @@ export default function CapturePage() {
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
       <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>📸 Capturar Refeição</h1>
 
+      {/* Paywall Modal */}
+      <PaywallModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        feature="photo_analysis"
+        currentPlan={plan}
+      />
+
+      {/* Quota Card - Apenas para PREMIUM */}
+      {hasQuota && quota && (
+        <QuotaCard
+          quotaType="photo"
+          used={quota.photo_analyses.used}
+          limit={quota.photo_analyses.limit}
+          percentage={quota.photo_analyses.percentage}
+          remaining={quota.photo_analyses.remaining}
+          resetDate={quota.resetDate}
+        />
+      )}
+
       {/* Foto (opcional) */}
       <div style={{
-        border: '2px dashed #d1d5db',
+        border: plan === 'free' ? '2px dashed #fbbf24' : '2px dashed #d1d5db',
         borderRadius: 16,
         padding: 24,
         textAlign: 'center',
-        background: '#f9fafb',
-        marginBottom: 24
+        background: plan === 'free' ? '#fffbeb' : '#f9fafb',
+        marginBottom: 24,
+        position: 'relative'
       }}>
         {previewUrl ? (
           <div>
@@ -396,27 +439,41 @@ export default function CapturePage() {
             </button>
           </div>
         ) : (
-          <label style={{ cursor: 'pointer' }}>
-            <div style={{ fontSize: 40, marginBottom: 8 }}>📷</div>
-            <div style={{ fontSize: 14, color: '#666', marginBottom: 12 }}>
-              Adicionar foto da refeição (opcional)
+          <label style={{ cursor: plan === 'free' ? 'not-allowed' : 'pointer' }}>
+            <div style={{ fontSize: 40, marginBottom: 8 }}>
+              {plan === 'free' ? '🔒' : '📷'}
+            </div>
+            <div style={{ fontSize: 14, color: plan === 'free' ? '#92400e' : '#666', marginBottom: 12 }}>
+              {plan === 'free'
+                ? '⭐ Análise de foto disponível apenas para usuários PREMIUM'
+                : 'Adicionar foto da refeição (opcional)'}
             </div>
             <input
               type="file"
               accept="image/*"
               onChange={handleFileChange}
               style={{ display: 'none' }}
+              disabled={plan === 'free'}
             />
-            <div style={{
-              display: 'inline-block',
-              padding: '10px 20px',
-              background: '#2196F3',
-              color: 'white',
-              borderRadius: 8,
-              fontWeight: 600,
-              fontSize: 14
-            }}>
-              Selecionar Foto
+            <div
+              onClick={(e) => {
+                if (plan === 'free') {
+                  e.preventDefault();
+                  setShowPaywall(true);
+                }
+              }}
+              style={{
+                display: 'inline-block',
+                padding: '10px 20px',
+                background: plan === 'free' ? '#fbbf24' : '#2196F3',
+                color: 'white',
+                borderRadius: 8,
+                fontWeight: 600,
+                fontSize: 14,
+                cursor: plan === 'free' ? 'pointer' : 'default'
+              }}
+            >
+              {plan === 'free' ? '🔓 Desbloquear Premium' : 'Selecionar Foto'}
             </div>
           </label>
         )}

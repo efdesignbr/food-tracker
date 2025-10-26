@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useUserPlan } from '@/hooks/useUserPlan';
+import { useQuota } from '@/hooks/useQuota';
+import { PaywallModal, QuotaCard } from '@/components/subscription';
 
 interface FoodBankItem {
   id: string;
@@ -37,6 +40,11 @@ interface NutritionAnalysis {
 }
 
 export default function MeusAlimentosPage() {
+  // Subscription
+  const { plan, quota, isLoading: isPlanLoading } = useUserPlan();
+  const { hasQuota } = useQuota(plan, quota);
+  const [showPaywall, setShowPaywall] = useState(false);
+
   const [items, setItems] = useState<FoodBankItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -162,6 +170,12 @@ export default function MeusAlimentosPage() {
   async function handleAnalyzeImage() {
     if (!selectedImage) return;
 
+    // Bloquear para FREE
+    if (plan === 'free') {
+      setShowPaywall(true);
+      return;
+    }
+
     setError(null);
     setAnalyzing(true);
 
@@ -176,6 +190,12 @@ export default function MeusAlimentosPage() {
       });
 
       if (!res.ok) {
+        // Se for 403, é bloqueio de plano
+        if (res.status === 403) {
+          setShowPaywall(true);
+          return;
+        }
+
         // Tenta fazer parse do JSON se possível, senão usa mensagem genérica
         let errorMessage = 'Erro ao analisar imagem';
         try {
@@ -341,6 +361,26 @@ export default function MeusAlimentosPage() {
     <div style={{ maxWidth: 1000, margin: '0 auto', padding: 24 }}>
       <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>🍎 Meus Alimentos</h1>
 
+      {/* Paywall Modal */}
+      <PaywallModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        feature="ocr_analysis"
+        currentPlan={plan}
+      />
+
+      {/* Quota Card - Apenas para PREMIUM */}
+      {hasQuota && quota && (
+        <QuotaCard
+          quotaType="ocr"
+          used={quota.ocr_analyses.used}
+          limit={quota.ocr_analyses.limit}
+          percentage={quota.ocr_analyses.percentage}
+          remaining={quota.ocr_analyses.remaining}
+          resetDate={quota.resetDate}
+        />
+      )}
+
       {/* Mensagens */}
       {error && (
         <div style={{
@@ -392,13 +432,17 @@ export default function MeusAlimentosPage() {
 
         <button
           onClick={() => {
+            if (plan === 'free' && !showAiForm) {
+              setShowPaywall(true);
+              return;
+            }
             setShowAiForm(!showAiForm);
             setShowManualForm(false);
           }}
           style={{
             flex: 1,
             padding: 16,
-            background: showAiForm ? '#6b7280' : '#10b981',
+            background: showAiForm ? '#6b7280' : (plan === 'free' ? '#fbbf24' : '#10b981'),
             color: 'white',
             border: 'none',
             borderRadius: 12,
@@ -407,7 +451,7 @@ export default function MeusAlimentosPage() {
             cursor: 'pointer'
           }}
         >
-          {showAiForm ? '❌ Cancelar' : '📸 Analisar com IA'}
+          {showAiForm ? '❌ Cancelar' : (plan === 'free' ? '🔒 Analisar com IA (Premium)' : '📸 Analisar com IA')}
         </button>
       </div>
 
