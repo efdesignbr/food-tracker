@@ -112,19 +112,53 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Montar prompt para IA
-    const foodsDescription = foods.map((f: any) => {
-      if (f.calories && f.protein_g) {
-        // Alimento do banco - já tem valores nutricionais
+    // Separar alimentos do banco (já tem valores) dos novos (precisam estimar)
+    const foodsFromBank: any[] = [];
+    const foodsToEstimate: any[] = [];
+
+    for (const f of foods) {
+      // Considera do banco se tem todos os valores nutricionais principais
+      if (f.calories !== undefined && f.protein_g !== undefined && f.carbs_g !== undefined) {
+        foodsFromBank.push(f);
+      } else {
+        foodsToEstimate.push(f);
+      }
+    }
+
+    let result: any;
+
+    if (foodsToEstimate.length > 0) {
+      // Tem alimentos para estimar - chamar IA
+      const foodsDescription = foodsToEstimate.map((f: any) => {
+        return `${f.name} (${f.quantity} ${f.unit}) - Novo alimento, precisa estimar valores nutricionais`;
+      }).join('\n');
+
+      let description = `Analise esta refeição e estime os valores nutricionais:\n\n${foodsDescription}`;
+
+      if (locationType === 'out' && restaurantName) {
+        description += `\n\nLocal: ${restaurantName}`;
+      }
+
+      if (imageBase64) {
+        description += '\n\n(Foto da refeição anexada para contexto adicional)';
+      }
+
+      // Chamar IA apenas para estimar os novos
+      result = await analyzeFood(description, imageBase64);
+
+      // Combinar alimentos do banco com os estimados pela IA
+      result.foods = [...foodsFromBank, ...result.foods];
+    } else {
+      // Todos são do banco - não precisa estimar, apenas gerar análise nutricional
+      const allFoodsDescription = foodsFromBank.map((f: any) => {
         const parts = [
-          `${f.name} (${f.quantity} ${f.unit}) - Do banco de alimentos:`,
+          `${f.name} (${f.quantity} ${f.unit}):`,
           `${f.calories} kcal`,
           `${f.protein_g}g proteína`,
           `${f.carbs_g}g carboidrato`,
-          `${f.fat_g}g gordura`
+          `${f.fat_g || 0}g gordura`
         ];
 
-        // Adiciona fibras, sódio e açúcar se existirem
         if (f.fiber_g !== undefined && f.fiber_g !== null) {
           parts.push(`${f.fiber_g}g fibras`);
         }
@@ -136,24 +170,24 @@ export async function POST(req: NextRequest) {
         }
 
         return parts.join(', ');
-      } else {
-        // Alimento novo - precisa estimar
-        return `${f.name} (${f.quantity} ${f.unit}) - Novo alimento, precisa estimar valores nutricionais`;
+      }).join('\n');
+
+      let description = `Gere uma análise nutricional breve (máx 200 chars) para esta refeição:\n\n${allFoodsDescription}`;
+
+      if (locationType === 'out' && restaurantName) {
+        description += `\n\nLocal: ${restaurantName}`;
       }
-    }).join('\n');
 
-    let description = `Analise esta refeição:\n\n${foodsDescription}`;
+      // Chamar IA apenas para gerar as notes
+      const aiResponse = await analyzeFood(description, imageBase64);
 
-    if (locationType === 'out' && restaurantName) {
-      description += `\n\nLocal: ${restaurantName}`;
+      // Montar resultado mantendo valores do banco
+      result = {
+        meal_type: aiResponse.meal_type,
+        foods: foodsFromBank,
+        notes: aiResponse.notes
+      };
     }
-
-    if (imageBase64) {
-      description += '\n\n(Foto da refeição anexada para contexto adicional)';
-    }
-
-    // Chamar IA
-    const result = await analyzeFood(description, imageBase64);
 
     // ✅ Incrementar quota APÓS sucesso (só se usou foto e é PREMIUM)
     if (imageBase64 && userPlan === 'premium') {
