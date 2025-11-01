@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { getCurrentDateBR, toDateBR } from '@/lib/datetime';
 
 type Food = {
   id: string;
@@ -351,8 +352,8 @@ export default function ReportsPage() {
             break;
         }
 
-        start_date = startDate.toISOString().split('T')[0];
-        end_date = now.toISOString().split('T')[0];
+        start_date = toDateBR(startDate);
+        end_date = getCurrentDateBR();
       }
 
       const response = await fetch('/api/reports/analysis', {

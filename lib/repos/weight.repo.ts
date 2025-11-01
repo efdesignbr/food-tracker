@@ -1,4 +1,5 @@
 import { getPool } from '@/lib/db';
+import { getDefaultTimeBR } from '@/lib/datetime';
 
 export interface WeightLog {
   id: string;
@@ -35,7 +36,7 @@ export async function insertWeightLog(args: {
         args.userId,
         args.weight,
         args.logDate,
-        args.logTime || new Date().toTimeString().split(' ')[0],
+        args.logTime || getDefaultTimeBR(),
         args.notes || null
       ]
     );

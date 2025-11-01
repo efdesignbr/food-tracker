@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { getCurrentDateTimeBR } from '@/lib/datetime';
 
 interface MeasurementFormProps {
   onSuccess: () => void;
@@ -35,9 +36,7 @@ export default function MeasurementForm({ onSuccess }: MeasurementFormProps) {
     setLoading(true);
 
     try {
-      const now = new Date();
-      const measurementDate = now.toISOString().split('T')[0];
-      const measurementTime = now.toTimeString().split(' ')[0];
+      const { date: measurementDate, time: measurementTime } = getCurrentDateTimeBR();
 
       // Converter valores para números, apenas os preenchidos
       const payload: any = {

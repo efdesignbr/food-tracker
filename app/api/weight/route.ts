@@ -6,6 +6,7 @@ import { requireTenant } from '@/lib/tenant';
 import { auth } from '@/lib/auth';
 import { init } from '@/lib/init';
 import { getSessionData } from '@/lib/types/auth';
+import { getCurrentDateBR, toDateBR } from '@/lib/datetime';
 import {
   insertWeightLog,
   getWeightLogsByDateRange,
@@ -94,8 +95,8 @@ export async function GET(req: Request) {
       const logs = await getWeightLogsByDateRange({
         tenantId: tenant.id,
         userId: session.userId,
-        startDate: start.toISOString().split('T')[0],
-        endDate: end.toISOString().split('T')[0]
+        startDate: toDateBR(start),
+        endDate: getCurrentDateBR()
       });
 
       return NextResponse.json({ ok: true, logs });

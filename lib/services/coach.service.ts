@@ -186,15 +186,18 @@ export async function gatherUserContext(params: {
   }
 
   context.meals = {
-    recent: meals.map(m => ({
-      date: new Date(m.consumed_at).toISOString().split('T')[0],
-      time: new Date(m.consumed_at).toTimeString().split(' ')[0],
-      foods: m.foods || [],
-      calories: parseFloat(m.total_calories) || 0,
-      protein: parseFloat(m.total_protein) || 0,
-      carbs: parseFloat(m.total_carbs) || 0,
-      fat: parseFloat(m.total_fat) || 0
-    }))
+    recent: meals.map(m => {
+      const consumedDate = new Date(m.consumed_at);
+      return {
+        date: consumedDate.toISOString().split('T')[0],
+        time: consumedDate.toTimeString().split(' ')[0],
+        foods: m.foods || [],
+        calories: parseFloat(m.total_calories) || 0,
+        protein: parseFloat(m.total_protein) || 0,
+        carbs: parseFloat(m.total_carbs) || 0,
+        fat: parseFloat(m.total_fat) || 0
+      };
+    })
   };
 
   // 4. Buscar objetivos e metas do usuário

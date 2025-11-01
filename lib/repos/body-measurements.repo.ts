@@ -1,4 +1,5 @@
 import { getPool } from '@/lib/db';
+import { getDefaultTimeBR } from '@/lib/datetime';
 
 export interface BodyMeasurement {
   id: string;
@@ -83,7 +84,7 @@ export async function insertBodyMeasurement(params: InsertBodyMeasurementParams)
         params.tenantId,
         params.userId,
         params.measurementDate,
-        params.measurementTime ?? new Date().toTimeString().split(' ')[0],
+        params.measurementTime ?? getDefaultTimeBR(),
         params.waist ?? null,
         params.neck ?? null,
         params.chest ?? null,

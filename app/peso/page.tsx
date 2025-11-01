@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import MeasurementForm from '@/components/body-measurements/MeasurementForm';
 import MeasurementTimeline from '@/components/body-measurements/MeasurementTimeline';
 import { BodyMeasurement } from '@/lib/repos/body-measurements.repo';
+import { getCurrentDateTimeBR } from '@/lib/datetime';
 
 interface WeightLog {
   id: string;
@@ -115,9 +116,7 @@ export default function WeightPage() {
         return;
       }
 
-      const now = new Date();
-      const logDate = now.toISOString().split('T')[0];
-      const logTime = now.toTimeString().split(' ')[0];
+      const { date: logDate, time: logTime } = getCurrentDateTimeBR();
 
       const res = await fetch('/api/weight', {
         method: 'POST',
