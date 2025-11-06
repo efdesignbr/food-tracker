@@ -314,9 +314,12 @@ export default function CapturePage() {
     setError(null);
     setSuccess(false);
     try {
+      // Garante que o timezone é America/Sao_Paulo ao enviar para o backend
+      const consumedAtWithTz = consumedAt + ':00-03:00'; // YYYY-MM-DDTHH:mm:ss-03:00
+
       const payload: any = {
         meal_type: mealType,
-        consumed_at: new Date(consumedAt).toISOString(),
+        consumed_at: consumedAtWithTz,
         notes: notes || analysis.notes || '',
         foods: (analysis.foods || []).map((f: any) => ({
           name: f.name,

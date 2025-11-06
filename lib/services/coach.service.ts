@@ -4,6 +4,7 @@ import { env } from '@/lib/env';
 import { logger } from '@/lib/logger';
 import { getLatestWeightLog } from '@/lib/repos/weight.repo';
 import { getLatestBodyMeasurement } from '@/lib/repos/body-measurements.repo';
+import { toDateBR, toTimeBR } from '@/lib/datetime';
 
 function getClient() {
   const e = env();
@@ -189,8 +190,8 @@ export async function gatherUserContext(params: {
     recent: meals.map(m => {
       const consumedDate = new Date(m.consumed_at);
       return {
-        date: consumedDate.toISOString().split('T')[0],
-        time: consumedDate.toTimeString().split(' ')[0],
+        date: toDateBR(consumedDate),
+        time: toTimeBR(consumedDate),
         foods: m.foods || [],
         calories: parseFloat(m.total_calories) || 0,
         protein: parseFloat(m.total_protein) || 0,

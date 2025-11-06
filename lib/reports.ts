@@ -1,3 +1,5 @@
+import { toDateBR } from './datetime';
+
 const INFLAMMATORY_KEYWORDS = [
   'leite', 'queijo', 'iogurte', 'manteiga', 'lactose', 'nata', 'creme',
   'pão', 'massa', 'macarrão', 'bolo', 'biscoito', 'glúten', 'trigo',
@@ -12,7 +14,8 @@ export function buildInflammationReport(meals: Array<{ consumed_at: string | Dat
   const allFoods: Array<{ name: string; date: string }> = [];
   for (const m of meals) {
     for (const f of m.foods) {
-      allFoods.push({ name: f.name.toLowerCase(), date: (m.consumed_at instanceof Date ? m.consumed_at : new Date(m.consumed_at)).toISOString().split('T')[0] });
+      const consumedDate = m.consumed_at instanceof Date ? m.consumed_at : new Date(m.consumed_at);
+      allFoods.push({ name: f.name.toLowerCase(), date: toDateBR(consumedDate) });
     }
   }
   const triggerMap = new Map<string, { occurrences: number; dates: string[] }>();

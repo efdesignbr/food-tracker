@@ -8,6 +8,7 @@ import { findMealsWithFoodsByDateRange } from '@/lib/repos/meal.repo';
 import { init } from '@/lib/init';
 import { logger } from '@/lib/logger';
 import { getSessionData } from '@/lib/types/auth';
+import { getCurrentDateBR } from '@/lib/datetime';
 
 export async function GET(req: Request) {
   try {
@@ -25,8 +26,16 @@ export async function GET(req: Request) {
     const startParam = url.searchParams.get('start');
     const endParam = url.searchParams.get('end');
 
-    // Default to last 30 days
-    const end = endParam ? new Date(endParam) : new Date();
+    // Default to last 30 days (using America/Sao_Paulo timezone)
+    let end: Date;
+    if (endParam) {
+      end = new Date(endParam);
+    } else {
+      // Usa a data atual em America/Sao_Paulo
+      const todayBR = getCurrentDateBR();
+      end = new Date(todayBR + 'T23:59:59-03:00');
+    }
+
     const start = startParam ? new Date(startParam) : new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     const meals = await findMealsWithFoodsByDateRange({

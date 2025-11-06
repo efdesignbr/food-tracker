@@ -96,14 +96,20 @@ export default function CalendarView({
     endDate.setDate(endDate.getDate() + (6 - lastDay.getDay()));
 
     const days: DayData[] = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
-    // Agrupa refeições por dia
+    // Data de hoje em America/Sao_Paulo
+    const now = new Date();
+    const todayString = now.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+    const [todayYear, todayMonth, todayDay] = todayString.split('-').map(Number);
+
+    // Agrupa refeições por dia (timezone-aware)
     const mealsByDay = new Map<string, Meal[]>();
     meals.forEach(meal => {
       const mealDate = new Date(meal.consumed_at);
-      const key = `${mealDate.getFullYear()}-${mealDate.getMonth()}-${mealDate.getDate()}`;
+      // Converte para America/Sao_Paulo timezone
+      const mealDateString = mealDate.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+      const [y, m, d] = mealDateString.split('-').map(Number);
+      const key = `${y}-${m - 1}-${d}`; // month - 1 porque JS usa 0-indexed
       if (!mealsByDay.has(key)) {
         mealsByDay.set(key, []);
       }
@@ -139,12 +145,14 @@ export default function CalendarView({
         sum + meal.foods.reduce((s, f) => s + (f.fat_g || 0), 0), 0
       );
 
-      const dayDate = new Date(current);
-      dayDate.setHours(0, 0, 0, 0);
+      // Verifica se é hoje comparando ano/mês/dia
+      const isToday = current.getFullYear() === todayYear &&
+                      current.getMonth() === (todayMonth - 1) &&
+                      current.getDate() === todayDay;
 
       days.push({
         date: new Date(current),
-        dateString: current.toLocaleDateString('pt-BR'),
+        dateString: current.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
         calories,
         protein,
         carbs,
@@ -152,7 +160,7 @@ export default function CalendarView({
         meals: dayMeals,
         waterIntake: dayWater,
         isCurrentMonth: current.getMonth() === month,
-        isToday: dayDate.getTime() === today.getTime()
+        isToday
       });
 
       current.setDate(current.getDate() + 1);

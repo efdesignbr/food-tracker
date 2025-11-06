@@ -12,12 +12,12 @@ import { PLAN_LIMITS } from './constants';
 import type { Plan, UsageQuota, QuotaCheck } from './types/subscription';
 
 /**
- * Obtém o mês atual no formato YYYY-MM
+ * Obtém o mês atual no formato YYYY-MM em America/Sao_Paulo
  */
 function getCurrentMonth(): string {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const dateString = now.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+  const [year, month] = dateString.split('-');
   return `${year}-${month}`;
 }
 
@@ -218,9 +218,13 @@ export async function getUsageStats(
   const photoLimit = limits.photo_analyses_per_month;
   const ocrLimit = limits.ocr_analyses_per_month;
 
-  // Calcula data do próximo reset (dia 1º do próximo mês às 00:00 UTC)
+  // Calcula data do próximo reset (dia 1º do próximo mês às 00:00 America/Sao_Paulo)
   const now = new Date();
-  const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0));
+  const dateString = now.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+  const [year, month] = dateString.split('-');
+  const nextMonthNum = parseInt(month) === 12 ? 1 : parseInt(month) + 1;
+  const nextYear = parseInt(month) === 12 ? parseInt(year) + 1 : parseInt(year);
+  const nextMonth = new Date(`${nextYear}-${String(nextMonthNum).padStart(2, '0')}-01T00:00:00-03:00`);
 
   return {
     photoAnalyses: {

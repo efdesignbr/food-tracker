@@ -161,14 +161,15 @@ export default function HomePage() {
     }
   };
 
-  // Stats do dia atual
+  // Stats do dia atual (America/Sao_Paulo)
   const todayStats = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const todayString = now.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
 
     const todayMeals = meals.filter(meal => {
       const mealDate = new Date(meal.consumed_at);
-      return mealDate >= today;
+      const mealDateString = mealDate.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+      return mealDateString === todayString;
     });
 
     const calories = todayMeals.reduce((sum, meal) =>
