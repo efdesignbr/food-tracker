@@ -372,7 +372,7 @@ export default function CalendarView({
           gap: 3
         }}>
           {calendarDays.map((day, idx) => {
-            const hasData = day.meals.length > 0;
+            const hasData = day.meals.length > 0 || day.waterIntake > 0;
             const isSelected = selectedDay?.dateString === day.dateString;
 
             // Calcula o percentual da meta atingido
@@ -564,7 +564,7 @@ export default function CalendarView({
       </div>
 
       {/* Detalhes do Dia Selecionado */}
-      {selectedDay && selectedDay.meals.length > 0 && (
+      {selectedDay && (selectedDay.meals.length > 0 || selectedDay.waterIntake > 0) && (
         <div style={{
           background: 'white',
           borderRadius: 16,

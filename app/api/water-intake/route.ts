@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getPool } from '@/lib/db';
 import { getSessionData } from '@/lib/types/auth';
-import { toDateBR } from '@/lib/datetime';
 
 // GET: Buscar registros de água por data ou histórico agregado
 export async function GET(req: NextRequest) {
@@ -34,10 +33,13 @@ export async function GET(req: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        history: rows.map(row => ({
-          date: toDateBR(row.date), // Format as YYYY-MM-DD in America/Sao_Paulo
-          total_ml: parseInt(row.total_ml)
-        }))
+        history: rows.map((row: any) => {
+          const d = row.date;
+          const dateStr = typeof d === 'string'
+            ? d
+            : (d instanceof Date ? d.toISOString().slice(0, 10) : String(d));
+          return { date: dateStr, total_ml: parseInt(row.total_ml) };
+        })
       });
     }
 
