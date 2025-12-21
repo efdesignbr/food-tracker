@@ -1,27 +1,38 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import AppLayout from './AppLayout';
 
 export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    // Verificação de segurança no cliente para Mobile
-    // Se não tiver token, manda pro login e não renderiza nada
+    // Rotas públicas que não precisam de auth
+    const publicRoutes = ['/login', '/signup'];
+    if (publicRoutes.some(route => pathname?.startsWith(route))) {
+      setIsAuthorized(true);
+      return;
+    }
+
     const token = localStorage.getItem('auth_token');
     if (!token) {
       router.push('/login');
     } else {
       setIsAuthorized(true);
     }
-  }, [router]);
+  }, [router, pathname]);
 
-  // Enquanto verifica, não mostra nada (evita flash da Home)
   if (!isAuthorized) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Carregando...</div>;
+  }
+
+  // Se for rota pública, renderiza sem o layout do app (header, menu)
+  const publicRoutes = ['/login', '/signup'];
+  if (publicRoutes.some(route => pathname?.startsWith(route))) {
+    return <>{children}</>;
   }
 
   return (
