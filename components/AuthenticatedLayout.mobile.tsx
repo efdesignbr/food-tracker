@@ -26,13 +26,27 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
   }, [router, pathname]);
 
   if (!isAuthorized) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Carregando...</div>;
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        paddingTop: 'env(safe-area-inset-top)'
+      }}>
+        Carregando...
+      </div>
+    );
   }
 
   // Se for rota pública, renderiza sem o layout do app (header, menu)
   const publicRoutes = ['/login', '/signup'];
   if (publicRoutes.some(route => pathname?.startsWith(route))) {
-    return <>{children}</>;
+    return (
+      <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        {children}
+      </div>
+    );
   }
 
   return (
