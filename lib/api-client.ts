@@ -29,6 +29,12 @@ export async function apiClient(
   // Add token if exists
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+  } else if (isMobile && typeof window !== 'undefined') {
+    // Mobile: Try to get token from localStorage
+    const storedToken = localStorage.getItem('auth_token');
+    if (storedToken) {
+      headers['Authorization'] = `Bearer ${storedToken}`;
+    }
   }
 
   // Add Content-Type if JSON
@@ -47,11 +53,24 @@ export async function apiClient(
   });
 
   try {
-    return await fetch(url, {
+    const response = await fetch(url, {
       ...fetchOptions,
       headers,
       credentials: 'include', // Important for cookies/sessions
     });
+
+    // Handle 401 Unauthorized -> Redirect to login
+    if (response.status === 401 && isMobile && typeof window !== 'undefined') {
+      // Evita loop infinito se já estiver no login
+      if (!window.location.pathname.includes('/login')) {
+        console.warn('401 Unauthorized - Redirecting to login');
+        // Limpa token inválido
+        localStorage.removeItem('auth_token');
+        window.location.href = '/login';
+      }
+    }
+
+    return response;
   } catch (error) {
     console.error('[API Client Error]', error);
     throw error;

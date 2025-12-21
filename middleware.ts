@@ -29,6 +29,18 @@ export function middleware(req: NextRequest) {
     res.headers.set('Access-Control-Allow-Methods', 'GET,DELETE,PATCH,POST,PUT,OPTIONS');
     res.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization');
     
+    // --- AUTH TOKEN INJECTION ---
+    // Se vier Authorization Bearer, injetar como cookie para NextAuth ler
+    const authHeader = req.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      // Injeta no request que vai para o backend
+      res.cookies.set('__Secure-next-auth.session-token', token);
+      // Também precisamos definir no request original para que o `auth()` leia
+      req.cookies.set('__Secure-next-auth.session-token', token);
+    }
+    // ----------------------------
+
     return res;
   }
   // -------------------------------------

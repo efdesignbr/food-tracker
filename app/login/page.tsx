@@ -3,6 +3,9 @@
 import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { api } from '@/lib/api-client';
+
+const isMobile = process.env.NEXT_PUBLIC_IS_MOBILE === 'true';
 
 function LoginForm() {
   const [email, setEmail] = useState('');
@@ -18,25 +21,45 @@ function LoginForm() {
     setError(null);
     setLoading(true);
     try {
-      console.log('Tentando login com:', { email });
-      const res = await signIn('credentials', {
-        email,
-        password,
-        redirect: false
-      });
+      console.log('Tentando login com:', { email, isMobile });
 
-      console.log('Resposta do signIn:', res);
+      if (isMobile) {
+        // Fluxo Mobile: Token JWT
+        const res = await api.post('/api/auth/mobile-login', { email, password });
+        const data = await res.json();
 
-      if (res?.error) {
-        console.error('Erro no login:', res.error);
-        setError('Email ou senha incorretos');
-      } else if (res?.ok) {
-        console.log('Login bem-sucedido, redirecionando para:', callbackUrl);
-        router.push(callbackUrl);
-        router.refresh();
+        if (!res.ok) {
+          setError(data.error || 'Erro no login');
+        } else {
+          // Salva token e redireciona
+          if (data.token) {
+            localStorage.setItem('auth_token', data.token);
+            console.log('Token salvo, redirecionando...');
+            router.push('/');
+            router.refresh();
+          } else {
+            setError('Erro: Token não recebido');
+          }
+        }
       } else {
-        console.warn('Resposta inesperada:', res);
-        setError('Erro inesperado ao fazer login');
+        // Fluxo Web: Cookie NextAuth
+        const res = await signIn('credentials', {
+          email,
+          password,
+          redirect: false
+        });
+
+        if (res?.error) {
+          console.error('Erro no login:', res.error);
+          setError('Email ou senha incorretos');
+        } else if (res?.ok) {
+          console.log('Login bem-sucedido, redirecionando para:', callbackUrl);
+          router.push(callbackUrl);
+          router.refresh();
+        } else {
+          console.warn('Resposta inesperada:', res);
+          setError('Erro inesperado ao fazer login');
+        }
       }
     } catch (e: any) {
       console.error('Exceção ao fazer login:', e);
