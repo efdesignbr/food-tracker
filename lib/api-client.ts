@@ -59,6 +59,8 @@ export async function apiClient(
       credentials: 'include', // Important for cookies/sessions
     });
 
+    console.log(`[API Client] Response ${endpoint}:`, { status: response.status });
+
     // Handle 401 Unauthorized -> Redirect to login
     if (response.status === 401 && isMobile && typeof window !== 'undefined') {
       // Evita loop infinito se já estiver no login

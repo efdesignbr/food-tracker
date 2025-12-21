@@ -34,10 +34,27 @@ export function middleware(req: NextRequest) {
     const authHeader = req.headers.get('authorization');
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
-      // Injeta no request que vai para o backend
-      res.cookies.set('__Secure-next-auth.session-token', token);
-      // Também precisamos definir no request original para que o `auth()` leia
-      req.cookies.set('__Secure-next-auth.session-token', token);
+      
+      // Para passar o cookie para o backend, precisamos modificar os headers do request
+      const requestHeaders = new Headers(req.headers);
+      const existingCookies = req.headers.get('cookie') || '';
+      // Adiciona o cookie de sessão do NextAuth (JWE)
+      // Importante: Adicionamos no início para garantir precedência
+      requestHeaders.set('Cookie', `__Secure-next-auth.session-token=${token}; ${existingCookies}`);
+
+      const res = NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        }
+      });
+
+      // Reaplica headers de CORS na resposta (pois criamos um novo res)
+      res.headers.set('Access-Control-Allow-Origin', origin || '*');
+      res.headers.set('Access-Control-Allow-Credentials', 'true');
+      res.headers.set('Access-Control-Allow-Methods', 'GET,DELETE,PATCH,POST,PUT,OPTIONS');
+      res.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization');
+      
+      return res;
     }
     // ----------------------------
 
