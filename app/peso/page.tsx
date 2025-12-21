@@ -6,6 +6,7 @@ import MeasurementForm from '@/components/body-measurements/MeasurementForm';
 import MeasurementTimeline from '@/components/body-measurements/MeasurementTimeline';
 import { BodyMeasurement } from '@/lib/repos/body-measurements.repo';
 import { getCurrentDateTimeBR } from '@/lib/datetime';
+import { api } from '@/lib/api-client';
 
 interface WeightLog {
   id: string;
@@ -45,10 +46,7 @@ export default function WeightPage() {
 
   async function fetchLatest() {
     try {
-      const res = await fetch('/api/weight?latest=true', {
-        credentials: 'include',
-        cache: 'no-store'
-      });
+      const res = await api.get('/api/weight?latest=true');
       const json = await res.json();
       if (res.ok && json.weightLog) {
         setLatest(json.weightLog);
@@ -60,10 +58,7 @@ export default function WeightPage() {
 
   async function fetchLogs() {
     try {
-      const res = await fetch('/api/weight', {
-        credentials: 'include',
-        cache: 'no-store'
-      });
+      const res = await api.get('/api/weight');
       const json = await res.json();
       if (res.ok) {
         setLogs(json.logs || []);
@@ -75,10 +70,7 @@ export default function WeightPage() {
 
   async function fetchMeasurements() {
     try {
-      const res = await fetch('/api/body-measurements', {
-        credentials: 'include',
-        cache: 'no-store'
-      });
+      const res = await api.get('/api/body-measurements');
       const json = await res.json();
       if (res.ok) {
         setMeasurements(json.measurements || []);
@@ -90,10 +82,7 @@ export default function WeightPage() {
 
   async function fetchLatestMeasurement() {
     try {
-      const res = await fetch('/api/body-measurements?latest=true', {
-        credentials: 'include',
-        cache: 'no-store'
-      });
+      const res = await api.get('/api/body-measurements?latest=true');
       const json = await res.json();
       if (res.ok && json.measurement) {
         setLatestMeasurement(json.measurement);
@@ -118,17 +107,11 @@ export default function WeightPage() {
 
       const { date: logDate, time: logTime } = getCurrentDateTimeBR();
 
-      const res = await fetch('/api/weight', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          weight: weightNum,
-          log_date: logDate,
-          log_time: logTime,
-          notes: notes || undefined
-        }),
-        credentials: 'include',
-        cache: 'no-store'
+      const res = await api.post('/api/weight', {
+        weight: weightNum,
+        log_date: logDate,
+        log_time: logTime,
+        notes: notes || undefined
       });
 
       const json = await res.json();

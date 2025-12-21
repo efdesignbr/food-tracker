@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api-client';
 
 interface UserGoals {
   goal_type?: string;
@@ -40,10 +41,7 @@ export default function ObjetivosPage() {
 
   async function fetchGoals() {
     try {
-      const res = await fetch('/api/user/goals', {
-        credentials: 'include',
-        cache: 'no-store'
-      });
+      const res = await api.get('/api/user/goals');
       const data = await res.json();
       if (res.ok && data.goals) {
         setFormData(data.goals);
@@ -100,14 +98,7 @@ export default function ObjetivosPage() {
         cleanData.weekly_goal_kg = formData.weekly_goal_kg;
       }
 
-      const res = await fetch('/api/user/goals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cleanData),
-        credentials: 'include',
-        cache: 'no-store'
-      });
-
+      const res = await api.post('/api/user/goals', cleanData);
       const data = await res.json();
 
       if (!res.ok) {
