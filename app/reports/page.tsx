@@ -80,6 +80,12 @@ function filterMealsByPeriod(
   return meals.filter(meal => new Date(meal.consumed_at) >= cutoff);
 }
 
+// Parse 'YYYY-MM-DD' as a local Date (avoid UTC shift)
+function parseLocalDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+}
+
 type WaterRecord = {
   date: string;
   total_ml: number;
@@ -143,8 +149,8 @@ export default function ReportsPage() {
   }, []);
 
   const filteredMeals = useMemo(() => {
-    const start = customStartDate ? new Date(customStartDate) : undefined;
-    const end = customEndDate ? new Date(customEndDate) : undefined;
+    const start = customStartDate ? parseLocalDate(customStartDate) : undefined;
+    const end = customEndDate ? parseLocalDate(customEndDate) : undefined;
     return filterMealsByPeriod(meals, period, start, end);
   }, [meals, period, customStartDate, customEndDate]);
 
@@ -153,19 +159,16 @@ export default function ReportsPage() {
     if (period === 'all') return waterRecords;
 
     if (period === 'custom' && customStartDate && customEndDate) {
-      const start = new Date(customStartDate);
-      const end = new Date(customEndDate);
-      return waterRecords.filter(record => {
-        const recordDate = new Date(record.date);
-        return recordDate >= start && recordDate <= end;
-      });
+      // Compare date-only strings lexicographically (YYYY-MM-DD)
+      return waterRecords.filter(record => record.date >= customStartDate && record.date <= customEndDate);
     }
 
     const cutoff = new Date();
     if (period === 'week') cutoff.setDate(cutoff.getDate() - 7);
     else if (period === 'month') cutoff.setDate(cutoff.getDate() - 30);
 
-    return waterRecords.filter(record => new Date(record.date) >= cutoff);
+    // Compare using date-only strings in BR timezone
+    return waterRecords.filter(record => record.date >= toDateBR(cutoff));
   }, [waterRecords, period, customStartDate, customEndDate]);
 
   const stats = useMemo(() => {
@@ -238,8 +241,8 @@ export default function ReportsPage() {
     let endDate = new Date();
 
     if (period === 'custom' && customStartDate && customEndDate) {
-      startDate = new Date(customStartDate);
-      endDate = new Date(customEndDate);
+      startDate = parseLocalDate(customStartDate);
+      endDate = parseLocalDate(customEndDate);
     } else if (period === 'week') {
       startDate = new Date();
       startDate.setDate(startDate.getDate() - 6); // 7 dias incluindo hoje

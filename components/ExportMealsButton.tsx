@@ -48,8 +48,11 @@ export default function ExportMealsButton() {
             setIsExporting(false);
             return;
           }
-          startDate = new Date(customStartDate);
-          endDate = new Date(customEndDate);
+          // Parse 'YYYY-MM-DD' como data local (evita shift de fuso)
+          const [sy, sm, sd] = customStartDate.split('-').map(Number);
+          const [ey, em, ed] = customEndDate.split('-').map(Number);
+          startDate = new Date(sy, (sm || 1) - 1, sd || 1);
+          endDate = new Date(ey, (em || 1) - 1, ed || 1);
 
           if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
             setError('Datas inválidas');

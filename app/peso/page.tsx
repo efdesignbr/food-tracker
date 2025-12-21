@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import MeasurementForm from '@/components/body-measurements/MeasurementForm';
 import MeasurementTimeline from '@/components/body-measurements/MeasurementTimeline';
 import { BodyMeasurement } from '@/lib/repos/body-measurements.repo';
-import { getCurrentDateTimeBR } from '@/lib/datetime';
+import { getCurrentDateTimeBR, formatDateBR, formatDateLongBR } from '@/lib/datetime';
 import { api } from '@/lib/api-client';
 
 interface WeightLog {
@@ -241,7 +241,7 @@ export default function WeightPage() {
                 {latest.weight} kg
               </div>
               <div style={{ fontSize: 12, color: '#60a5fa' }}>
-                {new Date(latest.log_date).toLocaleDateString('pt-BR')} às {latest.log_time}
+                {formatDateBR(latest.log_date)} às {latest.log_time}
               </div>
             </div>
           )}
@@ -418,11 +418,7 @@ export default function WeightPage() {
                               {log.weight} kg
                             </div>
                             <div style={{ fontSize: 14, color: '#6b7280' }}>
-                              {new Date(log.log_date).toLocaleDateString('pt-BR', {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric'
-                              })} às {log.log_time}
+                              {formatDateLongBR(log.log_date)} às {log.log_time}
                             </div>
                           </div>
 
@@ -566,7 +562,7 @@ export default function WeightPage() {
             }}>
               <div style={{ fontSize: 14, color: '#065f46', marginBottom: 4 }}>Última medida</div>
               <div style={{ fontSize: 16, fontWeight: 600, color: '#065f46' }}>
-                {new Date(latestMeasurement.measurement_date).toLocaleDateString('pt-BR')} às {latestMeasurement.measurement_time}
+                {formatDateBR(latestMeasurement.measurement_date)} às {latestMeasurement.measurement_time}
               </div>
               <div style={{ fontSize: 13, color: '#059669', marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {latestMeasurement.waist && <span>Cintura: {latestMeasurement.waist}cm</span>}

@@ -1,6 +1,7 @@
 'use client';
 
 import { BodyMeasurement } from '@/lib/repos/body-measurements.repo';
+import { formatDateLongBR } from '@/lib/datetime';
 
 interface MeasurementTimelineProps {
   measurements: BodyMeasurement[];
@@ -119,11 +120,7 @@ export default function MeasurementTimeline({ measurements, onDelete }: Measurem
                 }}>
                   <div>
                     <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>
-                      {new Date(measurement.measurement_date).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric'
-                      })} às {measurement.measurement_time}
+                      {formatDateLongBR(measurement.measurement_date)} às {measurement.measurement_time}
                     </div>
                     <div style={{
                       display: 'flex',
