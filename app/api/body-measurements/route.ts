@@ -3,9 +3,8 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { requireTenant } from '@/lib/tenant';
-import { auth } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 import { init } from '@/lib/init';
-import { getSessionData } from '@/lib/types/auth';
 import { getCurrentDateBR, toDateBR } from '@/lib/datetime';
 import {
   insertBodyMeasurement,
@@ -35,7 +34,7 @@ export async function POST(req: Request) {
   try {
     await init();
     const tenant = await requireTenant(req);
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser();
 
     if (!session) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -82,7 +81,7 @@ export async function GET(req: Request) {
   try {
     await init();
     const tenant = await requireTenant(req);
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser();
 
     if (!session) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -140,7 +139,7 @@ export async function DELETE(req: Request) {
   try {
     await init();
     const tenant = await requireTenant(req);
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser();
 
     if (!session) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });

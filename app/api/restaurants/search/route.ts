@@ -3,14 +3,13 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { requireTenant } from '@/lib/tenant';
-import { auth } from '@/lib/auth';
-import { getSessionData } from '@/lib/types/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 import { searchRestaurants } from '@/lib/db/restaurants';
 
 export async function GET(req: Request) {
   try {
     const tenant = await requireTenant(req);
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser();
     if (!session) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     if (session.tenantId !== tenant.id) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
 

@@ -3,9 +3,8 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { requireTenant } from '@/lib/tenant';
-import { auth } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 import { init } from '@/lib/init';
-import { getSessionData } from '@/lib/types/auth';
 import { getPool } from '@/lib/db';
 import { PLAN_LIMITS } from '@/lib/constants';
 import type { Plan } from '@/lib/types/subscription';
@@ -19,7 +18,7 @@ export async function POST(req: Request) {
   try {
     await init();
     const tenant = await requireTenant(req);
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser();
 
     if (!session) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
