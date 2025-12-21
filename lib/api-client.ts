@@ -49,7 +49,8 @@ export async function apiClient(
     isMobile, 
     baseUrl, 
     endpoint, 
-    finalUrl: url
+    finalUrl: url,
+    hasAuthToken: !!headers['Authorization']
   });
 
   try {

@@ -6,8 +6,7 @@ import { requireTenant } from '@/lib/tenant';
 import { init } from '@/lib/init';
 import { getPool } from '@/lib/db';
 import { logger } from '@/lib/logger';
-import { auth } from '@/auth';
-import { getSessionData } from '@/lib/types/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 
 /**
  * GET /api/user/profile
@@ -18,8 +17,7 @@ export async function GET(req: Request) {
     await init();
     const tenant = await requireTenant(req);
 
-    const session = await auth();
-    const sessionData = getSessionData(session);
+    const sessionData = await getCurrentUser() as any;
     if (!sessionData) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -107,8 +105,7 @@ export async function PATCH(req: Request) {
     await init();
     const tenant = await requireTenant(req);
 
-    const session = await auth();
-    const sessionData = getSessionData(session);
+    const sessionData = await getCurrentUser() as any;
     if (!sessionData) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

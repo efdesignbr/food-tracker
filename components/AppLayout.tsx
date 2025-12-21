@@ -36,7 +36,18 @@ export default function AppLayout({ children, tenantName, userName }: {
   const { plan, isLoading: isPlanLoading } = useUserPlan();
 
   async function handleLogout() {
-    await signOut({ redirect: false });
+    // Mobile: Limpa token e redireciona
+    if (typeof window !== 'undefined' && localStorage.getItem('auth_token')) {
+      localStorage.removeItem('auth_token');
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      await signOut({ redirect: false });
+    } catch (e) {
+      console.error('SignOut error:', e);
+    }
     router.push('/login');
   }
 

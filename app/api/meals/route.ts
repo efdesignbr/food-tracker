@@ -3,7 +3,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { requireTenant } from '@/lib/tenant';
-import { auth } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 import { findMealsWithFoodsByDateRange } from '@/lib/repos/meal.repo';
 import { init } from '@/lib/init';
 import { logger } from '@/lib/logger';
@@ -14,7 +14,7 @@ export async function GET(req: Request) {
   try {
     await init();
     const tenant = await requireTenant(req);
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser() as any;
     if (!session) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
     if (session.tenantId !== tenant.id) {

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getPool } from '@/lib/db';
 import bcrypt from 'bcryptjs';
-import { encode } from 'next-auth/jwt';
+import { SignJWT } from 'jose';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,25 +33,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Credenciais inválidas' }, { status: 401 });
     }
 
-    // Gerar JWE compatível com NextAuth
-    const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
-    if (!secret) {
-      console.error('AUTH_SECRET not set');
-      return NextResponse.json({ error: 'Server config error' }, { status: 500 });
-    }
-
-    const token = await encode({
-      token: {
+    // Gerar JWT Padrão (JWS)
+    const secretStr = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'fallback-secret-dev';
+    const secret = new TextEncoder().encode(secretStr);
+    
+    const token = await new SignJWT({ 
         sub: user.id,
         userId: user.id,
         email: user.email,
         role: user.role,
         tenantId: user.tenant_id,
         tenantSlug: user.tenant_slug
-      },
-      secret,
-      salt: '__Secure-next-auth.session-token', // Deve bater com auth.ts
-    });
+      })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('30d')
+      .sign(secret);
 
     return NextResponse.json({ token, user: { id: user.id, name: user.name, email: user.email } });
 

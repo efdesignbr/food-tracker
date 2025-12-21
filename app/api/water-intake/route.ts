@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 import { getPool } from '@/lib/db';
-import { getSessionData } from '@/lib/types/auth';
 
 // GET: Buscar registros de água por data ou histórico agregado
 export async function GET(req: NextRequest) {
   try {
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser() as any;
     if (!session) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
@@ -102,7 +101,7 @@ export async function GET(req: NextRequest) {
 // POST: Adicionar novo registro de água
 export async function POST(req: NextRequest) {
   try {
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser() as any;
     if (!session) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
@@ -162,7 +161,7 @@ export async function POST(req: NextRequest) {
 // DELETE: Remover registro de água
 export async function DELETE(req: NextRequest) {
   try {
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser() as any;
     if (!session) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
