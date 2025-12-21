@@ -10,13 +10,22 @@
     "apply:migrations": "tsx scripts/apply-migrations.ts",
     "rls:check": "tsx scripts/rls-check.ts",
     "db:schema": "tsx scripts/extract-schema.ts",
-    "test:subscriptions": "tsx scripts/test-subscriptions.ts"
+    "test:subscriptions": "tsx scripts/test-subscriptions.ts",
+    "build:mobile": "tsx scripts/mobile-build-prep.ts hide && MOBILE_BUILD=true next build; tsx scripts/mobile-build-prep.ts restore && npx cap sync",
+    "open:ios": "npx cap open ios",
+    "open:android": "npx cap open android"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^7.4.4",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
     "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "2.45.5",
     "bcryptjs": "2.4.3",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "next": "14.2.5",
     "next-auth": "5.0.0-beta.20",
     "next-pwa": "^5.6.0",

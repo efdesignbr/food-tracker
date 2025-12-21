@@ -2,6 +2,7 @@
 // Data: 2025-10-25
 
 import type { Plan, SubscriptionStatus, UsageQuota } from '@/lib/types/subscription';
+import { api } from '@/lib/api-client';
 
 export interface UserPlanResponse {
   plan: Plan;
@@ -40,12 +41,7 @@ export interface QuotaData {
  * Busca o plano do usuário logado
  */
 export async function getUserPlan(): Promise<UserPlanResponse> {
-  const res = await fetch('/api/user/profile', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
+  const res = await api.get('/api/user/profile');
 
   if (!res.ok) {
     throw new Error(`Failed to fetch user plan: ${res.status}`);
@@ -66,12 +62,7 @@ export async function getUserPlan(): Promise<UserPlanResponse> {
  * Busca o uso de quota do usuário
  */
 export async function getQuotaUsage(): Promise<QuotaUsageResponse> {
-  const res = await fetch('/api/subscription/quota', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
+  const res = await api.get('/api/subscription/quota');
 
   if (!res.ok) {
     throw new Error(`Failed to fetch quota usage: ${res.status}`);

@@ -48,7 +48,8 @@ export default function AppLayout({ children, tenantName, userName }: {
         borderBottom: '1px solid #e0e0e0',
         position: 'sticky',
         top: 0,
-        zIndex: 100
+        zIndex: 100,
+        paddingTop: 'env(safe-area-inset-top)', // Safe Area Support
       }}>
         <div style={{
           padding: '0 16px',

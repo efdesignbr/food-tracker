@@ -6,6 +6,7 @@ import { signOut } from 'next-auth/react';
 import { PlanBadge, UpgradeButton, QuotaCard } from '@/components/subscription';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { useQuota } from '@/hooks/useQuota';
+import { api } from '@/lib/api-client';
 
 type UserProfile = {
   id: string;
@@ -68,7 +69,7 @@ export default function AccountPage() {
   async function fetchProfile() {
     try {
       setLoading(true);
-      const res = await fetch('/api/user/profile', { credentials: 'include', cache: 'no-store' });
+      const res = await api.get('/api/user/profile');
       if (!res.ok) throw new Error('Erro ao carregar perfil');
 
       const data = await res.json();
@@ -92,7 +93,7 @@ export default function AccountPage() {
   async function fetchHealthGoals() {
     try {
       setLoadingGoals(true);
-      const res = await fetch('/api/user/goals', { credentials: 'include', cache: 'no-store' });
+      const res = await api.get('/api/user/goals');
       if (!res.ok) return;
 
       const data = await res.json();
@@ -110,13 +111,7 @@ export default function AccountPage() {
       setError(null);
       setSuccess(false);
 
-      const res = await fetch('/api/user/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone: phone || null }),
-        credentials: 'include',
-        cache: 'no-store'
-      });
+      const res = await api.patch('/api/user/profile', { name, phone: phone || null });
 
       if (!res.ok) throw new Error('Erro ao salvar dados');
 
@@ -137,20 +132,14 @@ export default function AccountPage() {
       setError(null);
       setSuccess(false);
 
-      const res = await fetch('/api/user/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          goals: {
-            calories: goalCalories,
-            protein: goalProtein,
-            carbs: goalCarbs,
-            fat: goalFat,
-            water: goalWater,
-          },
-        }),
-        credentials: 'include',
-        cache: 'no-store'
+      const res = await api.patch('/api/user/profile', {
+        goals: {
+          calories: goalCalories,
+          protein: goalProtein,
+          carbs: goalCarbs,
+          fat: goalFat,
+          water: goalWater,
+        },
       });
 
       if (!res.ok) throw new Error('Erro ao salvar metas');
@@ -207,15 +196,9 @@ export default function AccountPage() {
       setDeleting(true);
       setDeleteError(null);
 
-      const res = await fetch('/api/account/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          password: deletePassword,
-          confirmText: deleteConfirmText,
-        }),
-        credentials: 'include',
-        cache: 'no-store'
+      const res = await api.post('/api/account/delete', {
+        password: deletePassword,
+        confirmText: deleteConfirmText,
       });
 
       const data = await res.json();

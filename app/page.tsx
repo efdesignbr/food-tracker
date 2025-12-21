@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api-client';
 
 type Food = {
   id: string;
@@ -58,10 +59,10 @@ export default function HomePage() {
 
         // Fetch meals, user profile, water intake, and bowel movements in parallel
         const [mealsRes, profileRes, waterRes, bowelRes] = await Promise.all([
-          fetch('/api/meals', { credentials: 'include', cache: 'no-store' }),
-          fetch('/api/user/profile', { credentials: 'include', cache: 'no-store' }),
-          fetch('/api/water-intake', { credentials: 'include', cache: 'no-store' }),
-          fetch('/api/bowel-movements', { credentials: 'include', cache: 'no-store' })
+          api.get('/api/meals'),
+          api.get('/api/user/profile'),
+          api.get('/api/water-intake'),
+          api.get('/api/bowel-movements')
         ]);
 
         if (!mealsRes.ok) throw new Error('Erro ao buscar refeições');
@@ -105,13 +106,7 @@ export default function HomePage() {
   const addWater = async (amount: number) => {
     try {
       setAddingWater(true);
-      const res = await fetch('/api/water-intake', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount_ml: amount }),
-        credentials: 'include',
-        cache: 'no-store'
-      });
+      const res = await api.post('/api/water-intake', { amount_ml: amount });
 
       if (res.ok) {
         const data = await res.json();
@@ -135,15 +130,9 @@ export default function HomePage() {
         notes = notes ? `⚠️ SANGUE: Sim\n${notes}` : '⚠️ SANGUE: Sim';
       }
 
-      const res = await fetch('/api/bowel-movements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bristol_type: bristolType,
-          notes: notes || null
-        }),
-        credentials: 'include',
-        cache: 'no-store'
+      const res = await api.post('/api/bowel-movements', {
+        bristol_type: bristolType,
+        notes: notes || null
       });
 
       if (res.ok) {

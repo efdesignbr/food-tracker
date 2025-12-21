@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import CalendarView from '@/components/CalendarView';
+import ExportMealsButton from '@/components/ExportMealsButton';
+import { api } from '@/lib/api-client';
 
 type Food = {
   id: string;
@@ -51,9 +53,9 @@ export default function HistoryPage() {
       try {
         setLoading(true);
         const [mealsRes, profileRes, waterRes] = await Promise.all([
-          fetch('/api/meals', { credentials: 'include', cache: 'no-store' }),
-          fetch('/api/user/profile', { credentials: 'include', cache: 'no-store' }),
-          fetch('/api/water-intake?history=true', { credentials: 'include', cache: 'no-store' })
+          api.get('/api/meals'),
+          api.get('/api/user/profile'),
+          api.get('/api/water-intake?history=true')
         ]);
 
         if (!mealsRes.ok) throw new Error('Erro ao buscar refeições');
@@ -113,6 +115,11 @@ export default function HistoryPage() {
     <div style={{ padding: 16, maxWidth: 800, margin: '0 auto', paddingBottom: 80 }}>
       {/* Header */}
       <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}>📋 Histórico</h1>
+
+      {/* Export Button */}
+      <div style={{ marginBottom: 16 }}>
+        <ExportMealsButton />
+      </div>
 
       {/* Info Card */}
       <div style={{

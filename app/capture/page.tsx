@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { useQuota } from '@/hooks/useQuota';
 import { PaywallModal, QuotaCard } from '@/components/subscription';
+import { api, apiClient } from '@/lib/api-client';
 
 function nowSaoPauloLocalInput() {
   try {
@@ -155,10 +156,7 @@ export default function CapturePage() {
 
     try {
       setFoodBankLoading(true);
-      const res = await fetch(`/api/food-bank?q=${encodeURIComponent(query)}`, {
-        credentials: 'include',
-        cache: 'no-store'
-      });
+      const res = await api.get(`/api/food-bank?q=${encodeURIComponent(query)}`);
       const json = await res.json();
       if (res.ok) {
         setFoodBankResults(json.items || []);
@@ -182,12 +180,7 @@ export default function CapturePage() {
 
     // Incrementar contador de uso
     try {
-      await fetch(`/api/food-bank/increment-usage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: foodItem.id }),
-        credentials: 'include'
-      });
+      await api.post(`/api/food-bank/increment-usage`, { id: foodItem.id });
     } catch (e) {
       console.error('Erro ao incrementar uso:', e);
     }
@@ -269,20 +262,12 @@ export default function CapturePage() {
         const fd = new FormData();
         fd.append('image', file);
         fd.append('data', JSON.stringify(payload));
-        res = await fetch('/api/meals/analyze-meal', {
+        res = await apiClient('/api/meals/analyze-meal', {
           method: 'POST',
           body: fd,
-          credentials: 'include',
-          cache: 'no-store'
         });
       } else {
-        res = await fetch('/api/meals/analyze-meal', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          credentials: 'include',
-          cache: 'no-store'
-        });
+        res = await api.post('/api/meals/analyze-meal', payload);
       }
 
       const json = await res.json();
@@ -350,20 +335,12 @@ export default function CapturePage() {
         const fd = new FormData();
         fd.append('image', file);
         fd.append('payload', JSON.stringify(payload));
-        res = await fetch('/api/meals/approve', {
+        res = await apiClient('/api/meals/approve', {
           method: 'POST',
           body: fd,
-          credentials: 'include',
-          cache: 'no-store'
         });
       } else {
-        res = await fetch('/api/meals/approve', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          credentials: 'include',
-          cache: 'no-store'
-        });
+        res = await api.post('/api/meals/approve', payload);
       }
 
       const json = await res.json();
@@ -980,10 +957,7 @@ export default function CapturePage() {
                       }
                       try {
                         setRestaurantLoading(true);
-                        const res = await fetch(`/api/restaurants/search?q=${encodeURIComponent(q)}`, {
-                          credentials: 'include',
-                          cache: 'no-store'
-                        });
+                        const res = await api.get(`/api/restaurants/search?q=${encodeURIComponent(q)}`);
                         const json = await res.json();
                         if (res.ok) {
                           setRestaurantResults(json.restaurants || []);
@@ -1051,12 +1025,7 @@ export default function CapturePage() {
                               if (!confirm(`Cadastrar o restaurante "${restaurantQuery.trim()}"?`)) return;
                               try {
                                 setRestaurantLoading(true);
-                                const res = await fetch('/api/restaurants', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  credentials: 'include',
-                                  body: JSON.stringify({ name: restaurantQuery.trim() })
-                                });
+                                const res = await api.post('/api/restaurants', { name: restaurantQuery.trim() });
                                 const json = await res.json();
                                 if (res.ok) {
                                   const restaurantName = json.restaurant.name;
