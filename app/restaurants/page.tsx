@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { api } from '@/lib/api-client';
 
 type Restaurant = {
   id: string;
@@ -19,7 +20,7 @@ export default function RestaurantsPage() {
   async function load() {
     try {
       setLoading(true);
-      const res = await fetch('/api/restaurants', { credentials: 'include', cache: 'no-store' });
+      const res = await api.get('/api/restaurants');
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Erro ao carregar');
       setItems(json.restaurants || []);
@@ -37,12 +38,7 @@ export default function RestaurantsPage() {
     if (!name.trim()) return;
     try {
       setSubmitting(true);
-      const res = await fetch('/api/restaurants', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ name: name.trim(), address: address.trim() || null })
-      });
+      const res = await api.post('/api/restaurants', { name: name.trim(), address: address.trim() || null });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Erro ao cadastrar');
       setName('');

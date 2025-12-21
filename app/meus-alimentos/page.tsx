@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { useQuota } from '@/hooks/useQuota';
 import { PaywallModal, QuotaCard } from '@/components/subscription';
+import { api, apiClient } from '@/lib/api-client';
 
 interface FoodBankItem {
   id: string;
@@ -84,10 +85,7 @@ export default function MeusAlimentosPage() {
 
   async function fetchItems() {
     try {
-      const res = await fetch('/api/food-bank?order_by=usage_count', {
-        credentials: 'include',
-        cache: 'no-store'
-      });
+      const res = await api.get('/api/food-bank?order_by=usage_count');
       const json = await res.json();
       if (res.ok) {
         setItems(json.items || []);
@@ -120,14 +118,7 @@ export default function MeusAlimentosPage() {
       if (manualSugar) payload.sugar = parseFloat(manualSugar);
       if (manualSaturatedFat) payload.saturated_fat = parseFloat(manualSaturatedFat);
 
-      const res = await fetch('/api/food-bank', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include',
-        cache: 'no-store'
-      });
-
+      const res = await api.post('/api/food-bank', payload);
       const json = await res.json();
 
       if (!res.ok) {
@@ -183,10 +174,9 @@ export default function MeusAlimentosPage() {
       const formData = new FormData();
       formData.append('image', selectedImage);
 
-      const res = await fetch('/api/food-bank/analyze-label', {
+      const res = await apiClient('/api/food-bank/analyze-label', {
         method: 'POST',
-        body: formData,
-        credentials: 'include'
+        body: formData
       });
 
       if (!res.ok) {
@@ -258,13 +248,7 @@ export default function MeusAlimentosPage() {
       if (analyzedData.sugar) payload.sugar = analyzedData.sugar;
       if (analyzedData.saturated_fat) payload.saturated_fat = analyzedData.saturated_fat;
 
-      const res = await fetch('/api/food-bank', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include'
-      });
-
+      const res = await api.post('/api/food-bank', payload);
       const json = await res.json();
 
       if (!res.ok) {
@@ -315,13 +299,7 @@ export default function MeusAlimentosPage() {
         saturated_fat: typeof editingItem.saturated_fat === 'number' ? editingItem.saturated_fat : undefined
       };
 
-      const res = await fetch('/api/food-bank', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include'
-      });
-
+      const res = await api.patch('/api/food-bank', payload);
       const json = await res.json();
 
       if (!res.ok) {
@@ -343,10 +321,7 @@ export default function MeusAlimentosPage() {
     if (!confirm(`Tem certeza que deseja excluir "${name}"?`)) return;
 
     try {
-      const res = await fetch(`/api/food-bank?id=${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
+      const res = await api.delete(`/api/food-bank?id=${id}`);
 
       if (res.ok) {
         setSuccess('Alimento excluído com sucesso!');
