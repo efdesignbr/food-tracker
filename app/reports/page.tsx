@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { getCurrentDateBR, toDateBR } from '@/lib/datetime';
+import { api } from '@/lib/api-client';
 
 type Food = {
   id: string;
@@ -111,9 +112,9 @@ export default function ReportsPage() {
       try {
         setLoading(true);
         const [mealsRes, profileRes, waterRes] = await Promise.all([
-          fetch('/api/meals', { credentials: 'include', cache: 'no-store' }),
-          fetch('/api/user/profile', { credentials: 'include', cache: 'no-store' }),
-          fetch('/api/water-intake?history=true', { credentials: 'include', cache: 'no-store' })
+          api.get('/api/meals'),
+          api.get('/api/user/profile'),
+          api.get('/api/water-intake?history=true')
         ]);
 
         if (!mealsRes.ok) throw new Error('Erro ao buscar refeições');
@@ -356,17 +357,10 @@ export default function ReportsPage() {
         end_date = getCurrentDateBR();
       }
 
-      const response = await fetch('/api/reports/analysis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          start_date,
-          end_date,
-          goals
-        })
+      const response = await api.post('/api/reports/analysis', {
+        start_date,
+        end_date,
+        goals
       });
 
       if (!response.ok) {

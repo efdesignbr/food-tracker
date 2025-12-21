@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { PaywallModal } from '@/components/subscription';
 import { PLAN_LIMITS } from '@/lib/constants';
+import { api } from '@/lib/api-client';
 
 interface CoachAnalysis {
   id?: string;
@@ -32,10 +33,7 @@ export default function CoachPage() {
 
   async function fetchGoals() {
     try {
-      const res = await fetch('/api/user/goals', {
-        credentials: 'include',
-        cache: 'no-store'
-      });
+      const res = await api.get('/api/user/goals');
       const data = await res.json();
       if (res.ok && data.goals && data.goals.goal_type) {
         setHasGoals(true);
@@ -50,10 +48,7 @@ export default function CoachPage() {
   async function fetchHistory() {
     try {
       setLoadingHistory(true);
-      const res = await fetch('/api/coach/history', {
-        credentials: 'include',
-        cache: 'no-store'
-      });
+      const res = await api.get('/api/coach/history');
       const data = await res.json();
       if (res.ok) {
         setHistory(data.analyses || []);
@@ -85,10 +80,7 @@ export default function CoachPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/coach/analyze', {
-        method: 'POST',
-        credentials: 'include'
-      });
+      const res = await api.post('/api/coach/analyze', {});
       const data = await res.json();
 
       if (!res.ok) {
