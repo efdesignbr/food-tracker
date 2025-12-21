@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeFood } from '@/lib/ai';
 import { requireTenant } from '@/lib/tenant';
-import { auth } from '@/lib/auth';
-import { getSessionData } from '@/lib/types/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 import { init } from '@/lib/init';
 import { getPool } from '@/lib/db';
 import { checkQuota, incrementQuota } from '@/lib/quota';
@@ -13,7 +12,7 @@ export async function POST(req: NextRequest) {
     // Autenticação
     await init();
     const tenant = await requireTenant(req);
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser();
 
     if (!session) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });

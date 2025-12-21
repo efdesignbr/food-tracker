@@ -4,14 +4,13 @@ export const dynamic = 'force-dynamic';
 
 import { ApproveMealSchema } from '@/lib/schemas/meal';
 import { requireTenant } from '@/lib/tenant';
-import { auth } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 import { saveImage, saveImageWebp } from '@/lib/storage';
 import { insertMealWithItems, insertMealWithItemsTx } from '@/lib/repos/meal.repo';
 import { getPool } from '@/lib/db';
 import { init } from '@/lib/init';
 import { placeholderPng } from '@/lib/images';
 import { logger } from '@/lib/logger';
-import { getSessionData } from '@/lib/types/auth';
 
 export async function POST(req: Request) {
   let tenantForDiag: any = null;
@@ -20,7 +19,7 @@ export async function POST(req: Request) {
     await init();
     const tenant = await requireTenant(req);
     tenantForDiag = tenant;
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser();
     if (!session) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     userIdForDiag = session.userId;
     if (session.tenantId !== tenant.id) return NextResponse.json({ error: 'forbidden' }, { status: 403 });

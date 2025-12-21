@@ -4,8 +4,7 @@ import { analyzeNutritionLabel } from '@/lib/ai/nutrition-label-analyzer';
 import { init } from '@/lib/init';
 import { UPLOAD, IMAGE } from '@/lib/constants';
 import sharp from 'sharp';
-import { auth } from '@/lib/auth';
-import { getSessionData } from '@/lib/types/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 import { getPool } from '@/lib/db';
 import { checkQuota, incrementQuota } from '@/lib/quota';
 import type { Plan } from '@/lib/types/subscription';
@@ -23,7 +22,7 @@ export async function POST(req: Request) {
     console.log('✅ [API] Tenant autenticado:', tenant.id);
 
     // Autenticação
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser();
     if (!session) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }

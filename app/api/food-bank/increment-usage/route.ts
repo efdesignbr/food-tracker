@@ -3,16 +3,15 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { requireTenant } from '@/lib/tenant';
-import { auth } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 import { init } from '@/lib/init';
-import { getSessionData } from '@/lib/types/auth';
 import { incrementUsageCount } from '@/lib/repos/food-bank.repo';
 
 export async function POST(req: Request) {
   try {
     await init();
     const tenant = await requireTenant(req);
-    const session = getSessionData(await auth());
+    const session = await getCurrentUser();
 
     if (!session) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
