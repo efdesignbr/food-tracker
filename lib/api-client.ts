@@ -29,9 +29,10 @@ export async function apiClient(
   // Add token if exists
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
-  } else if (isMobile && typeof window !== 'undefined') {
-    // Mobile: Try to get token from localStorage
+  } else if (typeof window !== 'undefined') {
+    // Try to get token from localStorage
     const storedToken = localStorage.getItem('auth_token');
+    console.log('[API Client] localStorage auth_token:', storedToken ? 'exists' : 'null');
     if (storedToken) {
       headers['Authorization'] = `Bearer ${storedToken}`;
     }
