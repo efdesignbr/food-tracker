@@ -92,7 +92,7 @@ export async function GET(req: Request) {
     logger.error('[API] Error fetching user profile', err);
     const status = err instanceof Response ? err.status : 500;
     const payload = err instanceof Response ? await err.text() : JSON.stringify({ error: err.message });
-    return new NextResponse(payload, { status });
+    return new NextResponse(payload, { status, headers: { 'Content-Type': 'application/json' } });
   }
 }
 
@@ -216,6 +216,6 @@ export async function PATCH(req: Request) {
     logger.error('[API] Error updating user profile', err);
     const status = err instanceof Response ? err.status : 500;
     const payload = err instanceof Response ? await err.text() : JSON.stringify({ error: err.message });
-    return new NextResponse(payload, { status });
+    return new NextResponse(payload, { status, headers: { 'Content-Type': 'application/json' } });
   }
 }

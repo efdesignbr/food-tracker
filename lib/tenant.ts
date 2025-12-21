@@ -26,13 +26,19 @@ export async function requireTenant(req: Request | NextRequest): Promise<Tenant>
   const user = await getCurrentUser();
 
   if (!user || !user.tenantId) {
-    throw new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401 });
+    throw new Response(JSON.stringify({ error: 'unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 
   const tenant = await getTenantById(user.tenantId);
 
   if (!tenant) {
-    throw new Response(JSON.stringify({ error: 'tenant_not_found' }), { status: 404 });
+    throw new Response(JSON.stringify({ error: 'tenant_not_found' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 
   return tenant;

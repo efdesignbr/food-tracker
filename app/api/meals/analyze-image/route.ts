@@ -126,6 +126,6 @@ export async function POST(req: Request) {
   } catch (err: any) {
     const status = err instanceof Response ? err.status : 400;
     const payload = err instanceof Response ? await err.text() : JSON.stringify({ error: err.message });
-    return new NextResponse(payload, { status });
+    return new NextResponse(payload, { status, headers: { 'Content-Type': 'application/json' } });
   }
 }
