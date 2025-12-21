@@ -5,6 +5,7 @@ import type { AppSession } from '@/lib/types/auth';
 
 export interface CurrentUser {
   id: string;
+  userId: string; // alias para compatibilidade
   email: string;
   name: string;
   role: string;
@@ -18,6 +19,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   if (session?.userId && session?.tenantId) {
     return {
       id: session.userId,
+      userId: session.userId,
       email: session.user?.email || '',
       name: session.user?.name || '',
       role: session.role || 'member',
@@ -46,6 +48,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
       if (payload && payload.userId) {
         return {
           id: payload.userId as string,
+          userId: payload.userId as string,
           email: payload.email as string || '',
           name: payload.name as string || 'Mobile User',
           role: payload.role as string || 'member',
