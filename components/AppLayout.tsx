@@ -53,32 +53,6 @@ export default function AppLayout({ children, tenantName, userName }: {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      {/* Debug Force Logout Button - Mobile Only - Temporary */}
-      <button
-        onClick={() => {
-          if (confirm('Forçar Logout e Limpar Dados?')) {
-            localStorage.removeItem('auth_token');
-            window.location.href = '/login';
-          }
-        }}
-        style={{
-          position: 'fixed',
-          bottom: 20,
-          right: 20,
-          zIndex: 9999,
-          background: 'red',
-          color: 'white',
-          padding: '10px 20px',
-          borderRadius: 30,
-          border: '2px solid white',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-          fontWeight: 'bold',
-          fontSize: 12
-        }}
-      >
-        🆘 SAIR
-      </button>
-
       {/* Header */}
       <header style={{
         backgroundColor: '#fff',
