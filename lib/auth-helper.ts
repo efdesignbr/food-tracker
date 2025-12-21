@@ -1,27 +1,40 @@
 import { auth } from '@/auth';
 import { headers } from 'next/headers';
+import { jwtVerify } from 'jose';
 
 export async function getCurrentUser() {
-  // 1. Tenta pegar sessão do NextAuth (Web)
+  // 1. Tenta sessão Web (NextAuth Cookie)
   const session = await auth();
   if (session?.user) {
     return session.user;
   }
 
-  // 2. Tenta pegar headers injetados pelo Middleware (Mobile)
+  // 2. Tenta validação manual do Token Bearer (Mobile)
+  // Isso bypassa o middleware e valida o token gerado pelo mobile-login diretamente
   const h = headers();
-  const userId = h.get('x-user-id');
-  
-  if (userId) {
-    // Retorna objeto compatível com a sessão do NextAuth
-    return {
-      id: userId,
-      email: h.get('x-user-email') || '',
-      role: h.get('x-user-role') || 'member',
-      tenantId: h.get('x-tenant-id') || '',
-      tenantSlug: h.get('x-tenant-slug') || '',
-      name: 'Mobile User', // Placeholder, idealmente viria do token se necessário
-    };
+  const authHeader = h.get('authorization');
+
+  if (authHeader?.startsWith('Bearer ')) {
+    try {
+      const token = authHeader.substring(7);
+      const secretStr = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'fallback-secret-dev';
+      const secret = new TextEncoder().encode(secretStr);
+      
+      const { payload } = await jwtVerify(token, secret);
+      
+      if (payload.userId) {
+        return {
+          id: payload.userId as string,
+          email: payload.email as string,
+          role: payload.role as string || 'member',
+          tenantId: payload.tenantId as string,
+          tenantSlug: payload.tenantSlug as string,
+          name: 'Mobile User', 
+        };
+      }
+    } catch (e) {
+      console.error('Auth helper token validation error:', e);
+    }
   }
 
   return null;
