@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { api } from '@/lib/api-client';
 
 type Food = {
   id: string;
@@ -735,10 +736,7 @@ export default function CalendarView({
                         onClick={async () => {
                           if (!confirm('Tem certeza que deseja deletar esta refeição?')) return;
                           try {
-                            const res = await fetch(`/api/meals/${meal.id}`, {
-                              method: 'DELETE',
-                              credentials: 'include'
-                            });
+                            const res = await api.delete(`/api/meals/${meal.id}`);
                             if (res.ok) {
                               window.location.reload();
                             } else {

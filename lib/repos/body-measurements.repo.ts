@@ -1,18 +1,6 @@
 import { getPool } from '@/lib/db';
 import { getDefaultTimeBR } from '@/lib/datetime';
 
-/**
- * Converte campo DATE do PostgreSQL para string YYYY-MM-DD
- * O driver pg retorna DATE como objeto Date JS, que ao serializar para JSON
- * usa UTC, causando erro de -1 dia em timezones negativos como São Paulo.
- */
-function formatDateField(value: Date | string): string {
-  if (value instanceof Date) {
-    return value.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
-  }
-  return value;
-}
-
 export interface BodyMeasurement {
   id: string;
   tenant_id: string;
@@ -91,7 +79,8 @@ export async function insertBodyMeasurement(params: InsertBodyMeasurementParams)
         left_thigh, right_thigh, left_bicep, right_bicep,
         left_calf, right_calf, notes
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-      RETURNING *`,
+      RETURNING id, tenant_id, user_id, measurement_date::text as measurement_date, measurement_time::text as measurement_time,
+        waist, neck, chest, hips, left_thigh, right_thigh, left_bicep, right_bicep, left_calf, right_calf, notes, created_at, updated_at`,
       [
         params.tenantId,
         params.userId,
@@ -113,12 +102,10 @@ export async function insertBodyMeasurement(params: InsertBodyMeasurementParams)
 
     await client.query('COMMIT');
     const row = result.rows[0];
-    console.log('📊 [REPO] Data returned from INSERT (raw):', row);
 
-    // Converter DECIMALs de string para number e DATE para string
-    const converted = {
+    // Converter DECIMALs de string para number
+    return {
       ...row,
-      measurement_date: formatDateField(row.measurement_date as unknown as Date | string),
       waist: row.waist ? parseFloat(row.waist) : null,
       neck: row.neck ? parseFloat(row.neck) : null,
       chest: row.chest ? parseFloat(row.chest) : null,
@@ -130,9 +117,6 @@ export async function insertBodyMeasurement(params: InsertBodyMeasurementParams)
       left_calf: row.left_calf ? parseFloat(row.left_calf) : null,
       right_calf: row.right_calf ? parseFloat(row.right_calf) : null,
     };
-
-    console.log('📊 [REPO] Data converted to numbers:', converted);
-    return converted;
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('📊 [REPO] INSERT ERROR:', e);
@@ -156,7 +140,9 @@ export async function getBodyMeasurementsByDateRange(params: {
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [params.tenantId]);
 
     const result = await client.query<BodyMeasurementRow>(
-      `SELECT * FROM body_measurements
+      `SELECT id, tenant_id, user_id, measurement_date::text as measurement_date, measurement_time::text as measurement_time,
+        waist, neck, chest, hips, left_thigh, right_thigh, left_bicep, right_bicep, left_calf, right_calf, notes, created_at, updated_at
+       FROM body_measurements
        WHERE tenant_id = $1 AND user_id = $2
          AND measurement_date BETWEEN $3 AND $4
        ORDER BY measurement_date DESC, measurement_time DESC`,
@@ -164,12 +150,10 @@ export async function getBodyMeasurementsByDateRange(params: {
     );
 
     await client.query('COMMIT');
-    console.log('📊 [REPO] Data returned from SELECT (first row raw):', result.rows[0]);
 
-    // Converter DECIMALs de string para number e DATE para string em todos os registros
-    const converted = result.rows.map(row => ({
+    // Converter DECIMALs de string para number
+    return result.rows.map(row => ({
       ...row,
-      measurement_date: formatDateField(row.measurement_date as unknown as Date | string),
       waist: row.waist ? parseFloat(row.waist) : null,
       neck: row.neck ? parseFloat(row.neck) : null,
       chest: row.chest ? parseFloat(row.chest) : null,
@@ -181,9 +165,6 @@ export async function getBodyMeasurementsByDateRange(params: {
       left_calf: row.left_calf ? parseFloat(row.left_calf) : null,
       right_calf: row.right_calf ? parseFloat(row.right_calf) : null,
     }));
-
-    console.log('📊 [REPO] Data converted (first row):', converted[0]);
-    return converted;
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
@@ -204,7 +185,9 @@ export async function getLatestBodyMeasurement(params: {
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [params.tenantId]);
 
     const result = await client.query<BodyMeasurementRow>(
-      `SELECT * FROM body_measurements
+      `SELECT id, tenant_id, user_id, measurement_date::text as measurement_date, measurement_time::text as measurement_time,
+        waist, neck, chest, hips, left_thigh, right_thigh, left_bicep, right_bicep, left_calf, right_calf, notes, created_at, updated_at
+       FROM body_measurements
        WHERE tenant_id = $1 AND user_id = $2
        ORDER BY measurement_date DESC, measurement_time DESC
        LIMIT 1`,
@@ -215,11 +198,10 @@ export async function getLatestBodyMeasurement(params: {
 
     if (!result.rows[0]) return null;
 
-    // Converter DECIMALs de string para number e DATE para string
+    // Converter DECIMALs de string para number
     const row = result.rows[0];
     return {
       ...row,
-      measurement_date: formatDateField(row.measurement_date as unknown as Date | string),
       waist: row.waist ? parseFloat(row.waist) : null,
       neck: row.neck ? parseFloat(row.neck) : null,
       chest: row.chest ? parseFloat(row.chest) : null,

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { generateCSVFilename } from '@/lib/utils/csv-export';
+import { api } from '@/lib/api-client';
 
 type ExportPeriod = 'last30days' | 'last3months' | 'last6months' | 'thisMonth' | 'lastMonth' | 'custom';
 
@@ -74,11 +75,8 @@ export default function ExportMealsButton() {
       const startDateStr = format(startDate, 'yyyy-MM-dd');
       const endDateStr = format(endDate, 'yyyy-MM-dd');
 
-      const response = await fetch(
-        `/api/meals/export?start_date=${startDateStr}&end_date=${endDateStr}`,
-        {
-          credentials: 'include',
-        }
+      const response = await api.get(
+        `/api/meals/export?start_date=${startDateStr}&end_date=${endDateStr}`
       );
 
       if (!response.ok) {

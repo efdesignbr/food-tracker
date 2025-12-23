@@ -1,18 +1,6 @@
 import { getPool } from '@/lib/db';
 import { getDefaultTimeBR } from '@/lib/datetime';
 
-/**
- * Converte campo DATE do PostgreSQL para string YYYY-MM-DD
- * O driver pg retorna DATE como objeto Date JS, que ao serializar para JSON
- * usa UTC, causando erro de -1 dia em timezones negativos como São Paulo.
- */
-function formatDateField(value: Date | string): string {
-  if (value instanceof Date) {
-    return value.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
-  }
-  return value;
-}
-
 export interface WeightLog {
   id: string;
   tenant_id: string;
@@ -35,12 +23,6 @@ export async function insertWeightLog(args: {
   const pool = getPool();
   const client = await pool.connect();
 
-  console.log('🔍 [WEIGHT REPO] Args received:', {
-    logDate: args.logDate,
-    logTime: args.logTime,
-    logDateType: typeof args.logDate
-  });
-
   try {
     await client.query('BEGIN');
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
@@ -48,7 +30,7 @@ export async function insertWeightLog(args: {
     const result = await client.query<WeightLog>(
       `INSERT INTO weight_logs (tenant_id, user_id, weight, log_date, log_time, notes)
        VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
+       RETURNING id, tenant_id, user_id, weight, log_date::text as log_date, log_time::text as log_time, notes, created_at`,
       [
         args.tenantId,
         args.userId,
@@ -60,21 +42,7 @@ export async function insertWeightLog(args: {
     );
 
     await client.query('COMMIT');
-    const row = result.rows[0];
-    const rawDate = row.log_date as any;
-    console.log('🔍 [WEIGHT REPO] Row from DB:', {
-      log_date_raw: rawDate,
-      log_date_type: typeof rawDate,
-      log_date_isDate: rawDate instanceof Date,
-      log_date_json: JSON.stringify(rawDate),
-      log_time: row.log_time
-    });
-    const formatted = formatDateField(row.log_date);
-    console.log('🔍 [WEIGHT REPO] After formatDateField:', formatted);
-    return {
-      ...row,
-      log_date: formatted
-    };
+    return result.rows[0];
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
@@ -97,7 +65,8 @@ export async function getWeightLogsByDateRange(args: {
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
 
     const result = await client.query<WeightLog>(
-      `SELECT * FROM weight_logs
+      `SELECT id, tenant_id, user_id, weight, log_date::text as log_date, log_time::text as log_time, notes, created_at
+       FROM weight_logs
        WHERE tenant_id = $1 AND user_id = $2
          AND log_date BETWEEN $3 AND $4
        ORDER BY log_date DESC, log_time DESC`,
@@ -105,10 +74,7 @@ export async function getWeightLogsByDateRange(args: {
     );
 
     await client.query('COMMIT');
-    return result.rows.map(row => ({
-      ...row,
-      log_date: formatDateField(row.log_date)
-    }));
+    return result.rows;
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
@@ -129,7 +95,8 @@ export async function getLatestWeightLog(args: {
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
 
     const result = await client.query<WeightLog>(
-      `SELECT * FROM weight_logs
+      `SELECT id, tenant_id, user_id, weight, log_date::text as log_date, log_time::text as log_time, notes, created_at
+       FROM weight_logs
        WHERE tenant_id = $1 AND user_id = $2
        ORDER BY log_date DESC, log_time DESC
        LIMIT 1`,
@@ -137,12 +104,7 @@ export async function getLatestWeightLog(args: {
     );
 
     await client.query('COMMIT');
-    const row = result.rows[0];
-    if (!row) return null;
-    return {
-      ...row,
-      log_date: formatDateField(row.log_date)
-    };
+    return result.rows[0] || null;
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;

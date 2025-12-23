@@ -136,10 +136,7 @@ export default function WeightPage() {
     if (!confirm('Tem certeza que deseja excluir este registro?')) return;
 
     try {
-      const res = await fetch(`/api/weight?id=${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
+      const res = await api.delete(`/api/weight?id=${id}`);
 
       if (res.ok) {
         await fetchLogs();
@@ -154,10 +151,7 @@ export default function WeightPage() {
     if (!confirm('Tem certeza que deseja excluir este registro?')) return;
 
     try {
-      const res = await fetch(`/api/body-measurements?id=${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
+      const res = await api.delete(`/api/body-measurements?id=${id}`);
 
       if (res.ok) {
         await fetchMeasurements();

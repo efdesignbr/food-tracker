@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getCurrentDateTimeBR } from '@/lib/datetime';
+import { api } from '@/lib/api-client';
 
 interface MeasurementFormProps {
   onSuccess: () => void;
@@ -68,14 +69,7 @@ export default function MeasurementForm({ onSuccess }: MeasurementFormProps) {
         return;
       }
 
-      const res = await fetch('/api/body-measurements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include',
-        cache: 'no-store'
-      });
-
+      const res = await api.post('/api/body-measurements', payload);
       const json = await res.json();
 
       if (!res.ok) {
