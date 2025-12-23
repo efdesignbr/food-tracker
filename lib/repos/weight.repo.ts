@@ -35,6 +35,12 @@ export async function insertWeightLog(args: {
   const pool = getPool();
   const client = await pool.connect();
 
+  console.log('🔍 [WEIGHT REPO] Args received:', {
+    logDate: args.logDate,
+    logTime: args.logTime,
+    logDateType: typeof args.logDate
+  });
+
   try {
     await client.query('BEGIN');
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
@@ -55,9 +61,18 @@ export async function insertWeightLog(args: {
 
     await client.query('COMMIT');
     const row = result.rows[0];
+    console.log('🔍 [WEIGHT REPO] Row from DB:', {
+      log_date_raw: row.log_date,
+      log_date_type: typeof row.log_date,
+      log_date_isDate: row.log_date instanceof Date,
+      log_date_json: JSON.stringify(row.log_date),
+      log_time: row.log_time
+    });
+    const formatted = formatDateField(row.log_date);
+    console.log('🔍 [WEIGHT REPO] After formatDateField:', formatted);
     return {
       ...row,
-      log_date: formatDateField(row.log_date)
+      log_date: formatted
     };
   } catch (e) {
     await client.query('ROLLBACK');
