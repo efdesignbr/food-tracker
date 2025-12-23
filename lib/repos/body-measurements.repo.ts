@@ -1,6 +1,18 @@
 import { getPool } from '@/lib/db';
 import { getDefaultTimeBR } from '@/lib/datetime';
 
+/**
+ * Converte campo DATE do PostgreSQL para string YYYY-MM-DD
+ * O driver pg retorna DATE como objeto Date JS, que ao serializar para JSON
+ * usa UTC, causando erro de -1 dia em timezones negativos como São Paulo.
+ */
+function formatDateField(value: Date | string): string {
+  if (value instanceof Date) {
+    return value.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+  }
+  return value;
+}
+
 export interface BodyMeasurement {
   id: string;
   tenant_id: string;
@@ -103,9 +115,10 @@ export async function insertBodyMeasurement(params: InsertBodyMeasurementParams)
     const row = result.rows[0];
     console.log('📊 [REPO] Data returned from INSERT (raw):', row);
 
-    // Converter DECIMALs de string para number
+    // Converter DECIMALs de string para number e DATE para string
     const converted = {
       ...row,
+      measurement_date: formatDateField(row.measurement_date as unknown as Date | string),
       waist: row.waist ? parseFloat(row.waist) : null,
       neck: row.neck ? parseFloat(row.neck) : null,
       chest: row.chest ? parseFloat(row.chest) : null,
@@ -153,9 +166,10 @@ export async function getBodyMeasurementsByDateRange(params: {
     await client.query('COMMIT');
     console.log('📊 [REPO] Data returned from SELECT (first row raw):', result.rows[0]);
 
-    // Converter DECIMALs de string para number em todos os registros
+    // Converter DECIMALs de string para number e DATE para string em todos os registros
     const converted = result.rows.map(row => ({
       ...row,
+      measurement_date: formatDateField(row.measurement_date as unknown as Date | string),
       waist: row.waist ? parseFloat(row.waist) : null,
       neck: row.neck ? parseFloat(row.neck) : null,
       chest: row.chest ? parseFloat(row.chest) : null,
@@ -201,10 +215,11 @@ export async function getLatestBodyMeasurement(params: {
 
     if (!result.rows[0]) return null;
 
-    // Converter DECIMALs de string para number
+    // Converter DECIMALs de string para number e DATE para string
     const row = result.rows[0];
     return {
       ...row,
+      measurement_date: formatDateField(row.measurement_date as unknown as Date | string),
       waist: row.waist ? parseFloat(row.waist) : null,
       neck: row.neck ? parseFloat(row.neck) : null,
       chest: row.chest ? parseFloat(row.chest) : null,

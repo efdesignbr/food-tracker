@@ -1,6 +1,18 @@
 import { getPool } from '@/lib/db';
 import { getDefaultTimeBR } from '@/lib/datetime';
 
+/**
+ * Converte campo DATE do PostgreSQL para string YYYY-MM-DD
+ * O driver pg retorna DATE como objeto Date JS, que ao serializar para JSON
+ * usa UTC, causando erro de -1 dia em timezones negativos como São Paulo.
+ */
+function formatDateField(value: Date | string): string {
+  if (value instanceof Date) {
+    return value.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+  }
+  return value;
+}
+
 export interface WeightLog {
   id: string;
   tenant_id: string;
@@ -42,7 +54,11 @@ export async function insertWeightLog(args: {
     );
 
     await client.query('COMMIT');
-    return result.rows[0];
+    const row = result.rows[0];
+    return {
+      ...row,
+      log_date: formatDateField(row.log_date)
+    };
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
@@ -73,7 +89,10 @@ export async function getWeightLogsByDateRange(args: {
     );
 
     await client.query('COMMIT');
-    return result.rows;
+    return result.rows.map(row => ({
+      ...row,
+      log_date: formatDateField(row.log_date)
+    }));
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
@@ -102,7 +121,12 @@ export async function getLatestWeightLog(args: {
     );
 
     await client.query('COMMIT');
-    return result.rows[0] || null;
+    const row = result.rows[0];
+    if (!row) return null;
+    return {
+      ...row,
+      log_date: formatDateField(row.log_date)
+    };
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
