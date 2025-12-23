@@ -61,11 +61,12 @@ export async function insertWeightLog(args: {
 
     await client.query('COMMIT');
     const row = result.rows[0];
+    const rawDate = row.log_date as any;
     console.log('🔍 [WEIGHT REPO] Row from DB:', {
-      log_date_raw: row.log_date,
-      log_date_type: typeof row.log_date,
-      log_date_isDate: row.log_date instanceof Date,
-      log_date_json: JSON.stringify(row.log_date),
+      log_date_raw: rawDate,
+      log_date_type: typeof rawDate,
+      log_date_isDate: rawDate instanceof Date,
+      log_date_json: JSON.stringify(rawDate),
       log_time: row.log_time
     });
     const formatted = formatDateField(row.log_date);
