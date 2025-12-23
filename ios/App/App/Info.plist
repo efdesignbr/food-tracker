@@ -45,5 +45,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Food Tracker precisa acessar a câmera para fotografar suas refeições e analisar os alimentos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Food Tracker precisa acessar suas fotos para você selecionar imagens de refeições.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Food Tracker pode salvar fotos das suas refeições na sua biblioteca.</string>
 </dict>
 </plist>

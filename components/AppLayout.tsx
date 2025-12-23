@@ -146,11 +146,13 @@ export default function AppLayout({ children, tenantName, userName }: {
                 border: 'none',
                 background: 'none',
                 fontSize: 24,
-                cursor: 'pointer'
+                cursor: 'pointer',
+                lineHeight: 1
               }}
               className="mobile-menu-btn"
+              aria-label={showMobileMenu ? 'Fechar menu' : 'Abrir menu'}
             >
-              {showMobileMenu ? '' : ''}
+              {showMobileMenu ? '✕' : '☰'}
             </button>
           </nav>
         </div>
