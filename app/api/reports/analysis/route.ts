@@ -9,6 +9,7 @@ import { init } from '@/lib/init';
 import { analyzeReportPeriod } from '@/lib/ai/reports-analyzer';
 import { z } from 'zod';
 import { getPool } from '@/lib/db';
+import type { Plan } from '@/lib/types/subscription';
 
 const AnalysisRequestSchema = z.object({
   start_date: z.string().min(1, 'Data inicial é obrigatória'),
@@ -34,6 +35,28 @@ export async function POST(req: Request) {
 
     if (session.tenantId !== tenant.id) {
       return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+    }
+
+    // Verificar plano do usuário
+    const pool = getPool();
+    const { rows: userData } = await pool.query<{ plan: Plan }>(
+      'SELECT plan FROM users WHERE id = $1',
+      [session.userId]
+    );
+    const userPlan = (userData[0]?.plan || 'free') as Plan;
+
+    // FREE não pode usar análise de relatórios com IA
+    if (userPlan === 'free') {
+      return NextResponse.json(
+        {
+          error: 'upgrade_required',
+          message: 'Análise de relatórios com IA é um recurso PREMIUM',
+          feature: 'ai_reports',
+          currentPlan: 'free',
+          upgradeTo: 'premium',
+        },
+        { status: 403 }
+      );
     }
 
     // Parse request body
@@ -77,7 +100,6 @@ export async function POST(req: Request) {
     }
 
     // Buscar dados de água do período
-    const pool = getPool();
     const waterIntakeRows = await pool.query(
       `SELECT
         DATE(consumed_at) as date,

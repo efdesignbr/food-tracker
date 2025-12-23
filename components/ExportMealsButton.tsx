@@ -1,13 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { generateCSVFilename } from '@/lib/utils/csv-export';
 import { api } from '@/lib/api-client';
+import type { Plan } from '@/lib/types/subscription';
 
 type ExportPeriod = 'last30days' | 'last3months' | 'last6months' | 'thisMonth' | 'lastMonth' | 'custom';
 
-export default function ExportMealsButton() {
+interface ExportMealsButtonProps {
+  plan?: Plan;
+}
+
+export default function ExportMealsButton({ plan = 'free' }: ExportMealsButtonProps) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [period, setPeriod] = useState<ExportPeriod>('last30days');
   const [customStartDate, setCustomStartDate] = useState('');
@@ -103,6 +110,35 @@ export default function ExportMealsButton() {
       setIsExporting(false);
     }
   };
+
+  // FREE: botão bloqueado que redireciona para upgrade
+  if (plan === 'free') {
+    return (
+      <button
+        onClick={() => router.push('/upgrade')}
+        style={{
+          background: 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',
+          color: 'white',
+          border: 'none',
+          borderRadius: 12,
+          padding: '12px 20px',
+          fontSize: 15,
+          fontWeight: 600,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          boxShadow: '0 2px 8px rgba(107, 114, 128, 0.3)',
+          transition: 'all 0.2s ease',
+          width: '100%',
+          justifyContent: 'center',
+        }}
+      >
+        <span style={{ fontSize: 20 }}>🔒</span>
+        Exportar para CSV (Premium)
+      </button>
+    );
+  }
 
   return (
     <>

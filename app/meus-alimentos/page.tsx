@@ -77,6 +77,10 @@ export default function MeusAlimentosPage() {
   const [editingItem, setEditingItem] = useState<FoodBankItem | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
+  // Busca e expansão
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -1095,6 +1099,26 @@ export default function MeusAlimentosPage() {
           📋 Alimentos Cadastrados ({items.length})
         </h2>
 
+        {/* Busca rápida */}
+        {items.length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="🔍 Buscar alimento..."
+              style={{
+                width: '100%',
+                padding: 12,
+                fontSize: 15,
+                border: '2px solid #e5e7eb',
+                borderRadius: 12,
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+        )}
+
         {items.length === 0 ? (
           <div style={{
             padding: 32,
@@ -1107,86 +1131,185 @@ export default function MeusAlimentosPage() {
           </div>
         ) : (
           <div style={{ display: 'grid', gap: 12 }}>
-            {items.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  background: 'white',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: 12,
-                  padding: 16
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 18, fontWeight: 700, color: '#1f2937', marginBottom: 4 }}>
-                      {item.name}
-                      {item.source === 'ai_analyzed' && (
-                        <span style={{ marginLeft: 8, fontSize: 14, color: '#10b981' }}>🤖</span>
-                      )}
-                    </div>
-                    {item.brand && (
-                      <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>
-                        Marca: {item.brand}
-                      </div>
-                    )}
-                    {item.serving_size && (
-                      <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 8 }}>
-                        Porção: {item.serving_size}
-                      </div>
-                    )}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, fontSize: 13, color: '#374151', lineHeight: '1.8' }}>
-                      {item.calories && <span>⚡ {parseFloat(item.calories.toString()).toFixed(1)} kcal</span>}
-                      {item.protein && <span>🥩 {parseFloat(item.protein.toString()).toFixed(1)}g prot</span>}
-                      {item.carbs && <span>🍞 {parseFloat(item.carbs.toString()).toFixed(1)}g carb</span>}
-                      {item.fat && <span>🥑 {parseFloat(item.fat.toString()).toFixed(1)}g gord</span>}
-                      {item.fiber && <span>🌾 {parseFloat(item.fiber.toString()).toFixed(1)}g fibra</span>}
-                      {item.sodium && <span>🧂 {parseFloat(item.sodium.toString()).toFixed(0)}mg sódio</span>}
-                      {item.sugar && <span>🍬 {parseFloat(item.sugar.toString()).toFixed(1)}g açúcar</span>}
-                      {item.saturated_fat && <span>🔴 {parseFloat(item.saturated_fat.toString()).toFixed(1)}g gord.sat</span>}
-                    </div>
-                    {item.usage_count > 0 && (
-                      <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 8 }}>
-                        Usado {item.usage_count}x
-                      </div>
-                    )}
-                  </div>
+            {items
+              .filter((item) =>
+                item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase()))
+              )
+              .map((item) => {
+                const isExpanded = expandedItemId === item.id;
 
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button
-                      onClick={() => handleEditClick(item)}
+                return (
+                  <div
+                    key={item.id}
+                    style={{
+                      background: 'white',
+                      border: isExpanded ? '2px solid #2196F3' : '1px solid #e5e7eb',
+                      borderRadius: 12,
+                      overflow: 'hidden',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {/* Header clicável */}
+                    <div
+                      onClick={() => setExpandedItemId(isExpanded ? null : item.id)}
                       style={{
-                        padding: '8px 12px',
-                        background: '#dbeafe',
-                        color: '#1e40af',
-                        border: 'none',
-                        borderRadius: 8,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: 16,
                         cursor: 'pointer',
-                        fontSize: 14,
-                        fontWeight: 600
+                        background: isExpanded ? '#f0f9ff' : 'white'
                       }}
                     >
-                      ✏️
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id, item.name)}
-                      style={{
-                        padding: '8px 12px',
-                        background: '#fee2e2',
-                        color: '#dc2626',
-                        border: 'none',
-                        borderRadius: 8,
-                        cursor: 'pointer',
-                        fontSize: 14,
-                        fontWeight: 600
-                      }}
-                    >
-                      🗑️
-                    </button>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 16, fontWeight: 600, color: '#1f2937' }}>
+                          {item.name}
+                          {item.source === 'ai_analyzed' && (
+                            <span style={{ marginLeft: 8, fontSize: 14, color: '#10b981' }}>🤖</span>
+                          )}
+                        </div>
+                        {item.brand && (
+                          <div style={{ fontSize: 13, color: '#6b7280' }}>{item.brand}</div>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        {item.calories && (
+                          <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>
+                            {parseFloat(item.calories.toString()).toFixed(0)} kcal
+                          </span>
+                        )}
+                        <span style={{
+                          fontSize: 14,
+                          color: '#9ca3af',
+                          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.2s ease'
+                        }}>
+                          ▼
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Detalhes expandidos */}
+                    {isExpanded && (
+                      <div style={{ padding: '0 16px 16px', borderTop: '1px solid #e5e7eb' }}>
+                        {item.serving_size && (
+                          <div style={{ fontSize: 13, color: '#6b7280', marginTop: 12, marginBottom: 8 }}>
+                            Porção: {item.serving_size}
+                          </div>
+                        )}
+
+                        {/* Macros em grid */}
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
+                          gap: 8,
+                          marginTop: 12
+                        }}>
+                          {item.protein !== null && (
+                            <div style={{ textAlign: 'center', padding: 8, background: '#fef3c7', borderRadius: 8 }}>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: '#d97706' }}>
+                                {parseFloat(item.protein.toString()).toFixed(1)}g
+                              </div>
+                              <div style={{ fontSize: 11, color: '#92400e' }}>Proteína</div>
+                            </div>
+                          )}
+                          {item.carbs !== null && (
+                            <div style={{ textAlign: 'center', padding: 8, background: '#dbeafe', borderRadius: 8 }}>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: '#2563eb' }}>
+                                {parseFloat(item.carbs.toString()).toFixed(1)}g
+                              </div>
+                              <div style={{ fontSize: 11, color: '#1e40af' }}>Carbos</div>
+                            </div>
+                          )}
+                          {item.fat !== null && (
+                            <div style={{ textAlign: 'center', padding: 8, background: '#fce7f3', borderRadius: 8 }}>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: '#db2777' }}>
+                                {parseFloat(item.fat.toString()).toFixed(1)}g
+                              </div>
+                              <div style={{ fontSize: 11, color: '#9d174d' }}>Gordura</div>
+                            </div>
+                          )}
+                          {item.fiber !== null && (
+                            <div style={{ textAlign: 'center', padding: 8, background: '#d1fae5', borderRadius: 8 }}>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: '#059669' }}>
+                                {parseFloat(item.fiber.toString()).toFixed(1)}g
+                              </div>
+                              <div style={{ fontSize: 11, color: '#047857' }}>Fibra</div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Detalhes extras */}
+                        {(item.sodium || item.sugar || item.saturated_fat) && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12, fontSize: 12, color: '#6b7280' }}>
+                            {item.sodium && <span>🧂 {parseFloat(item.sodium.toString()).toFixed(0)}mg sódio</span>}
+                            {item.sugar && <span>🍬 {parseFloat(item.sugar.toString()).toFixed(1)}g açúcar</span>}
+                            {item.saturated_fat && <span>🔴 {parseFloat(item.saturated_fat.toString()).toFixed(1)}g gord.sat</span>}
+                          </div>
+                        )}
+
+                        {item.usage_count > 0 && (
+                          <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 8 }}>
+                            Usado {item.usage_count}x
+                          </div>
+                        )}
+
+                        {/* Botões de ação */}
+                        <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleEditClick(item); }}
+                            style={{
+                              flex: 1,
+                              padding: '10px 12px',
+                              background: '#dbeafe',
+                              color: '#1e40af',
+                              border: 'none',
+                              borderRadius: 8,
+                              cursor: 'pointer',
+                              fontSize: 14,
+                              fontWeight: 600
+                            }}
+                          >
+                            ✏️ Editar
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDelete(item.id, item.name); }}
+                            style={{
+                              flex: 1,
+                              padding: '10px 12px',
+                              background: '#fee2e2',
+                              color: '#dc2626',
+                              border: 'none',
+                              borderRadius: 8,
+                              cursor: 'pointer',
+                              fontSize: 14,
+                              fontWeight: 600
+                            }}
+                          >
+                            🗑️ Excluir
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
+                );
+              })}
+            {/* Mensagem quando busca não encontra resultados */}
+            {items.filter((item) =>
+              item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase()))
+            ).length === 0 && searchQuery && (
+              <div style={{
+                padding: 24,
+                textAlign: 'center',
+                color: '#9ca3af',
+                background: '#f9fafb',
+                borderRadius: 12
+              }}>
+                Nenhum alimento encontrado para "{searchQuery}"
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>

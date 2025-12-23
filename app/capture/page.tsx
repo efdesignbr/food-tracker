@@ -229,6 +229,48 @@ export default function CapturePage() {
     setFoodList(updated);
   }
 
+  async function analyzePhotoOnly() {
+    if (!file) {
+      setError('Selecione uma foto para analisar!');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const fd = new FormData();
+      fd.append('image', file);
+      fd.append('context', JSON.stringify({
+        location_type: locationType,
+        restaurant_name: locationType === 'out' ? selectedRestaurant?.name : undefined
+      }));
+
+      const res = await apiClient('/api/meals/analyze-image', {
+        method: 'POST',
+        body: fd,
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        if (res.status === 403) {
+          setShowPaywall(true);
+          return;
+        }
+        throw new Error(json.error || 'Erro ao analisar foto');
+      }
+
+      // Converter resposta para o formato de analysis
+      setAnalysis({
+        foods: json.foods || [],
+        totals: json.totals || { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 }
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao analisar foto');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function analyzeWithAI() {
     if (foodList.length === 0) {
       setError('Adicione pelo menos um alimento para analisar!');
@@ -404,19 +446,38 @@ export default function CapturePage() {
         {previewUrl ? (
           <div>
             <img src={previewUrl} alt="Preview" style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 12, marginBottom: 12 }} />
-            <button
-              onClick={() => { setFile(null); setPreviewUrl(null); }}
-              style={{
-                padding: '8px 16px',
-                background: '#ef4444',
-                color: 'white',
-                border: 'none',
-                borderRadius: 8,
-                cursor: 'pointer'
-              }}
-            >
-              🗑️ Remover Foto
-            </button>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => { setFile(null); setPreviewUrl(null); }}
+                style={{
+                  padding: '8px 16px',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer'
+                }}
+              >
+                🗑️ Remover Foto
+              </button>
+              {!analysis && plan !== 'free' && (
+                <button
+                  onClick={analyzePhotoOnly}
+                  disabled={loading}
+                  style={{
+                    padding: '8px 16px',
+                    background: loading ? '#9ca3af' : '#8b5cf6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    fontWeight: 600
+                  }}
+                >
+                  {loading ? '🔄 Analisando...' : '✨ Analisar Foto com IA'}
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <label style={{ cursor: plan === 'free' ? 'not-allowed' : 'pointer' }}>

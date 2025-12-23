@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import CalendarView from '@/components/CalendarView';
 import ExportMealsButton from '@/components/ExportMealsButton';
 import { api } from '@/lib/api-client';
+import { useUserPlan } from '@/hooks/useUserPlan';
 
 type Food = {
   id: string;
@@ -36,6 +37,7 @@ type WaterRecord = {
 };
 
 export default function HistoryPage() {
+  const { plan } = useUserPlan();
   const [meals, setMeals] = useState<Meal[]>([]);
   const [waterRecords, setWaterRecords] = useState<WaterRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,7 +120,7 @@ export default function HistoryPage() {
 
       {/* Export Button */}
       <div style={{ marginBottom: 16 }}>
-        <ExportMealsButton />
+        <ExportMealsButton plan={plan} />
       </div>
 
       {/* Info Card */}

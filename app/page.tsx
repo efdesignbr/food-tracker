@@ -51,6 +51,7 @@ export default function HomePage() {
   const [bowelNotes, setBowelNotes] = useState('');
   const [hadBlood, setHadBlood] = useState(false);
   const [addingBowel, setAddingBowel] = useState(false);
+  const [expandedMealId, setExpandedMealId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -225,13 +226,10 @@ export default function HomePage() {
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         border: '2px solid #2196F3'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ marginBottom: 16 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#2196F3' }}>
             🎯 Progresso de Hoje
           </h2>
-          <span style={{ fontSize: 13, color: '#666' }}>
-            {todayStats.meals.length} refeição{todayStats.meals.length !== 1 ? 'ões' : ''}
-          </span>
         </div>
 
         {/* Calorias */}
@@ -712,42 +710,128 @@ export default function HomePage() {
           <div style={{ display: 'grid', gap: 12 }}>
             {todayStats.meals.map((meal) => {
               const mealCalories = meal.foods.reduce((s, f) => s + (f.calories || 0), 0);
+              const mealProtein = meal.foods.reduce((s, f) => s + (f.protein_g || 0), 0);
+              const mealCarbs = meal.foods.reduce((s, f) => s + (f.carbs_g || 0), 0);
+              const mealFat = meal.foods.reduce((s, f) => s + (f.fat_g || 0), 0);
               const config = mealTypeConfig[meal.meal_type] || mealTypeConfig.lunch;
+              const isExpanded = expandedMealId === meal.id;
 
               return (
                 <div
                   key={meal.id}
+                  onClick={() => setExpandedMealId(isExpanded ? null : meal.id)}
                   style={{
                     background: 'white',
                     borderRadius: 12,
                     padding: 16,
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                    border: '1px solid #e5e7eb',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
+                    boxShadow: isExpanded ? '0 4px 12px rgba(0,0,0,0.15)' : '0 2px 4px rgba(0,0,0,0.1)',
+                    border: isExpanded ? `2px solid ${config.color}` : '1px solid #e5e7eb',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span style={{ fontSize: 32 }}>{config.icon}</span>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: config.color }}>
-                        {config.label}
-                      </div>
-                      <div style={{ fontSize: 12, color: '#6b7280' }}>
-                        {new Date(meal.consumed_at).toLocaleTimeString('pt-BR', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                  {/* Header do card */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 32 }}>{config.icon}</span>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: config.color }}>
+                          {config.label}
+                        </div>
+                        <div style={{ fontSize: 12, color: '#6b7280' }}>
+                          {new Date(meal.consumed_at).toLocaleTimeString('pt-BR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 18, fontWeight: 700, color: '#374151' }}>
-                      {mealCalories.toFixed(0)}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 18, fontWeight: 700, color: '#374151' }}>
+                          {mealCalories.toFixed(0)}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#6b7280' }}>kcal</div>
+                      </div>
+                      <span style={{
+                        fontSize: 16,
+                        color: '#9ca3af',
+                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease'
+                      }}>
+                        ▼
+                      </span>
                     </div>
-                    <div style={{ fontSize: 11, color: '#6b7280' }}>kcal</div>
                   </div>
+
+                  {/* Detalhes expandidos */}
+                  {isExpanded && (
+                    <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #e5e7eb' }}>
+                      {/* Macros */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: 12,
+                        marginBottom: 16
+                      }}>
+                        <div style={{ textAlign: 'center', padding: 8, background: '#fef3c7', borderRadius: 8 }}>
+                          <div style={{ fontSize: 16, fontWeight: 700, color: '#d97706' }}>{mealProtein.toFixed(0)}g</div>
+                          <div style={{ fontSize: 11, color: '#92400e' }}>Proteína</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: 8, background: '#dbeafe', borderRadius: 8 }}>
+                          <div style={{ fontSize: 16, fontWeight: 700, color: '#2563eb' }}>{mealCarbs.toFixed(0)}g</div>
+                          <div style={{ fontSize: 11, color: '#1e40af' }}>Carbos</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: 8, background: '#fce7f3', borderRadius: 8 }}>
+                          <div style={{ fontSize: 16, fontWeight: 700, color: '#db2777' }}>{mealFat.toFixed(0)}g</div>
+                          <div style={{ fontSize: 11, color: '#9d174d' }}>Gordura</div>
+                        </div>
+                      </div>
+
+                      {/* Lista de alimentos */}
+                      {meal.foods.length > 0 && (
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', marginBottom: 8 }}>
+                            Alimentos ({meal.foods.length})
+                          </div>
+                          <div style={{ display: 'grid', gap: 6 }}>
+                            {meal.foods.map((food) => (
+                              <div
+                                key={food.id}
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  padding: '8px 12px',
+                                  background: '#f9fafb',
+                                  borderRadius: 8,
+                                  fontSize: 13
+                                }}
+                              >
+                                <span style={{ color: '#374151' }}>
+                                  {food.name}
+                                  <span style={{ color: '#9ca3af', marginLeft: 4 }}>
+                                    ({food.quantity} {food.unit})
+                                  </span>
+                                </span>
+                                <span style={{ fontWeight: 600, color: '#6b7280' }}>
+                                  {(food.calories || 0).toFixed(0)} kcal
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Notas */}
+                      {meal.notes && (
+                        <div style={{ marginTop: 12, padding: 12, background: '#fffbeb', borderRadius: 8 }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: '#92400e', marginBottom: 4 }}>Notas</div>
+                          <div style={{ fontSize: 13, color: '#78350f' }}>{meal.notes}</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
