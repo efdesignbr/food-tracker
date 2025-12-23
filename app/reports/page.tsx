@@ -37,17 +37,17 @@ type AiAnalysisResult = {
 };
 
 const mealTypeConfig: Record<string, { label: string; icon: string; color: string }> = {
-  breakfast: { label: 'Café da Manhã', icon: '☀️', color: '#f59e0b' },
-  lunch: { label: 'Almoço', icon: '🍽️', color: '#10b981' },
-  dinner: { label: 'Jantar', icon: '🌙', color: '#6366f1' },
-  snack: { label: 'Lanche', icon: '🍿', color: '#ec4899' }
+  breakfast: { label: 'Café da Manhã', icon: '', color: '#f59e0b' },
+  lunch: { label: 'Almoço', icon: '', color: '#10b981' },
+  dinner: { label: 'Jantar', icon: '', color: '#6366f1' },
+  snack: { label: 'Lanche', icon: '', color: '#ec4899' }
 };
 
 const periodConfig: Record<FilterPeriod, { label: string; icon: string }> = {
-  week: { label: '7 dias', icon: '📊' },
-  month: { label: '30 dias', icon: '📈' },
-  all: { label: 'Tudo', icon: '🗂️' },
-  custom: { label: 'Personalizado', icon: '🗓️' }
+  week: { label: '7 dias', icon: '' },
+  month: { label: '30 dias', icon: '' },
+  all: { label: 'Tudo', icon: '' },
+  custom: { label: 'Personalizado', icon: '' }
 };
 
 function filterMealsByPeriod(
@@ -385,7 +385,7 @@ export default function ReportsPage() {
     return (
       <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', padding: 48 }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
+          <div style={{ fontSize: 48, marginBottom: 16 }}></div>
           <p style={{ color: '#666', fontSize: 16 }}>Carregando...</p>
         </div>
       </div>
@@ -402,7 +402,7 @@ export default function ReportsPage() {
           borderRadius: 12,
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>⚠️</div>
+          <div style={{ fontSize: 48, marginBottom: 8 }}></div>
           <p style={{ color: '#991b1b', margin: 0 }}>{error}</p>
         </div>
       </div>
@@ -412,7 +412,7 @@ export default function ReportsPage() {
   return (
     <div style={{ padding: 16, maxWidth: 1200, margin: '0 auto', paddingBottom: 80 }}>
       {/* Header */}
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}>📊 Relatórios</h1>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}> Relatórios</h1>
 
       {/* Period Filter */}
       <div style={{
@@ -465,7 +465,7 @@ export default function ReportsPage() {
           border: '2px solid #2196F3'
         }}>
           <div style={{ marginBottom: 12, fontWeight: 600, color: '#374151', fontSize: 14 }}>
-            📅 Selecione o Período
+             Selecione o Período
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
@@ -536,12 +536,12 @@ export default function ReportsPage() {
         >
           {aiLoading ? (
             <>
-              <span>⏳</span>
+              <span></span>
               <span>Analisando com IA...</span>
             </>
           ) : (
             <>
-              <span>🤖</span>
+              <span></span>
               <span>Analisar Período com IA</span>
             </>
           )}
@@ -559,7 +559,7 @@ export default function ReportsPage() {
           color: '#991b1b',
           fontSize: 14
         }}>
-          ⚠️ {aiError}
+           {aiError}
         </div>
       )}
 
@@ -580,7 +580,7 @@ export default function ReportsPage() {
             marginBottom: 16
           }}>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: '#8b5cf6', margin: 0 }}>
-              🤖 Análise da IA
+               Análise da IA
             </h2>
             <button
               onClick={() => setShowAiAnalysis(false)}
@@ -593,7 +593,7 @@ export default function ReportsPage() {
                 padding: 4
               }}
             >
-              ✕
+              
             </button>
           </div>
 
@@ -606,7 +606,7 @@ export default function ReportsPage() {
             borderLeft: '4px solid #8b5cf6'
           }}>
             <div style={{ fontWeight: 600, fontSize: 14, color: '#374151', marginBottom: 8 }}>
-              📝 Resumo
+               Resumo
             </div>
             <p style={{ margin: 0, fontSize: 14, color: '#4b5563', lineHeight: 1.6 }}>
               {aiAnalysis.summary}
@@ -617,7 +617,7 @@ export default function ReportsPage() {
           <div style={{ display: 'grid', gap: 12, marginBottom: 16 }}>
             <div style={{ padding: 14, background: '#fef3c7', borderRadius: 8 }}>
               <div style={{ fontWeight: 600, fontSize: 13, color: '#92400e', marginBottom: 6 }}>
-                🔥 Balanço Calórico
+                 Balanço Calórico
               </div>
               <p style={{ margin: 0, fontSize: 13, color: '#78350f', lineHeight: 1.5 }}>
                 {aiAnalysis.caloric_balance}
@@ -626,7 +626,7 @@ export default function ReportsPage() {
 
             <div style={{ padding: 14, background: '#dbeafe', borderRadius: 8 }}>
               <div style={{ fontWeight: 600, fontSize: 13, color: '#1e40af', marginBottom: 6 }}>
-                📊 Macronutrientes
+                 Macronutrientes
               </div>
               <p style={{ margin: 0, fontSize: 13, color: '#1e3a8a', lineHeight: 1.5 }}>
                 {aiAnalysis.macronutrient_distribution}
@@ -635,7 +635,7 @@ export default function ReportsPage() {
 
             <div style={{ padding: 14, background: '#fee2e2', borderRadius: 8 }}>
               <div style={{ fontWeight: 600, fontSize: 13, color: '#991b1b', marginBottom: 6 }}>
-                🔴 Alimentos Inflamatórios
+                 Alimentos Inflamatórios
               </div>
               <p style={{ margin: 0, fontSize: 13, color: '#7f1d1d', lineHeight: 1.5 }}>
                 {aiAnalysis.inflammatory_foods}
@@ -644,7 +644,7 @@ export default function ReportsPage() {
 
             <div style={{ padding: 14, background: '#dcfce7', borderRadius: 8 }}>
               <div style={{ fontWeight: 600, fontSize: 13, color: '#166534', marginBottom: 6 }}>
-                ⏰ Regularidade das Refeições
+                 Regularidade das Refeições
               </div>
               <p style={{ margin: 0, fontSize: 13, color: '#14532d', lineHeight: 1.5 }}>
                 {aiAnalysis.meal_regularity}
@@ -653,7 +653,7 @@ export default function ReportsPage() {
 
             <div style={{ padding: 14, background: '#e0f2fe', borderRadius: 8 }}>
               <div style={{ fontWeight: 600, fontSize: 13, color: '#075985', marginBottom: 6 }}>
-                💧 Hidratação
+                 Hidratação
               </div>
               <p style={{ margin: 0, fontSize: 13, color: '#0c4a6e', lineHeight: 1.5 }}>
                 {aiAnalysis.hydration}
@@ -669,7 +669,7 @@ export default function ReportsPage() {
             border: '2px solid #10b981'
           }}>
             <div style={{ fontWeight: 600, fontSize: 14, color: '#166534', marginBottom: 10 }}>
-              💡 Sugestões de Melhoria
+               Sugestões de Melhoria
             </div>
             <ul style={{
               margin: 0,
@@ -742,7 +742,7 @@ export default function ReportsPage() {
               borderRadius: 12,
               color: 'white'
             }}>
-              <div style={{ fontSize: 12, opacity: 0.9 }}>💧 Água Total</div>
+              <div style={{ fontSize: 12, opacity: 0.9 }}> Água Total</div>
               <div style={{ fontSize: 28, fontWeight: 700 }}>{(stats.totalWater / 1000).toFixed(1)}L</div>
               <div style={{ fontSize: 11, opacity: 0.8 }}>{stats.daysWithWater} dias</div>
             </div>
@@ -758,13 +758,13 @@ export default function ReportsPage() {
             border: '2px solid #2196F3'
           }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#2196F3' }}>
-              🎯 Nutrientes no Período
+               Nutrientes no Período
             </h2>
 
             {/* Proteína */}
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>🥩 Proteína</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}> Proteína</span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#ef4444' }}>
                   {stats.totalProtein.toFixed(1)}g total
                 </span>
@@ -788,7 +788,7 @@ export default function ReportsPage() {
             {/* Carboidratos */}
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>🍚 Carboidratos</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}> Carboidratos</span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#f59e0b' }}>
                   {stats.totalCarbs.toFixed(1)}g total
                 </span>
@@ -836,7 +836,7 @@ export default function ReportsPage() {
             {/* Água */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>💧 Água</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}> Água</span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#06b6d4' }}>
                   {(stats.totalWater / 1000).toFixed(1)}L total • {stats.avgWaterPerDay.toFixed(0)}ml/dia
                 </span>
@@ -868,7 +868,7 @@ export default function ReportsPage() {
             border: '1px solid #e5e7eb'
           }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
-              📈 Evolução ({stats.last7Days.length} dias)
+               Evolução ({stats.last7Days.length} dias)
             </h2>
             <div style={{ position: 'relative', height: 200 }}>
               {/* Linha de Meta */}
@@ -966,15 +966,15 @@ export default function ReportsPage() {
               border: '1px solid #e5e7eb'
             }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, color: '#374151' }}>
-                📍 Locais das Refeições
+                 Locais das Refeições
               </h2>
               <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
                 <div style={{ flex: 1, background: '#ecfdf5', border: '1px solid #d1fae5', borderRadius: 12, padding: 12 }}>
-                  <div style={{ fontSize: 12, color: '#065f46', marginBottom: 4 }}>🏠 Casa</div>
+                  <div style={{ fontSize: 12, color: '#065f46', marginBottom: 4 }}> Casa</div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: '#10b981' }}>{stats.locationCounts.home}</div>
                 </div>
                 <div style={{ flex: 1, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: 12 }}>
-                  <div style={{ fontSize: 12, color: '#92400e', marginBottom: 4 }}>🍽️ Fora</div>
+                  <div style={{ fontSize: 12, color: '#92400e', marginBottom: 4 }}> Fora</div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: '#f59e0b' }}>{stats.locationCounts.out}</div>
                 </div>
               </div>
@@ -1001,7 +1001,7 @@ export default function ReportsPage() {
               border: '1px solid #e5e7eb'
             }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
-                🍽️ Calorias por Tipo de Refeição
+                 Calorias por Tipo de Refeição
               </h2>
               <div style={{ display: 'grid', gap: 12 }}>
                 {Object.entries(stats.caloriesByType).map(([type, data]) => {
@@ -1111,7 +1111,7 @@ export default function ReportsPage() {
           borderRadius: 16,
           border: '2px dashed #d1d5db'
         }}>
-          <div style={{ fontSize: 64, marginBottom: 16 }}>📊</div>
+          <div style={{ fontSize: 64, marginBottom: 16 }}></div>
           <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
             Nenhum dado neste período
           </h3>

@@ -13,7 +13,7 @@ interface PaywallModalProps {
 const FEATURE_CONFIG = {
   photo_analysis: {
     title: 'Análise de Foto',
-    icon: '📸',
+    icon: '',
     description: 'A análise de fotos de refeições é exclusiva para usuários PREMIUM',
     benefits: [
       '90 análises de foto por mês',
@@ -24,7 +24,7 @@ const FEATURE_CONFIG = {
   },
   ocr_analysis: {
     title: 'Análise de Tabelas Nutricionais',
-    icon: '📋',
+    icon: '',
     description: 'A leitura de tabelas nutricionais é exclusiva para usuários PREMIUM',
     benefits: [
       '30 análises de tabelas por mês',
@@ -35,7 +35,7 @@ const FEATURE_CONFIG = {
   },
   coach_analysis: {
     title: 'Coach IA',
-    icon: '🤖',
+    icon: '',
     description: 'O Coach IA com insights personalizados é exclusivo para usuários PREMIUM',
     benefits: [
       'Análises ilimitadas do seu progresso',
@@ -112,7 +112,7 @@ export default function PaywallModal({
           }}
           aria-label="Fechar"
         >
-          ✕
+          
         </button>
 
         {/* Icon */}
@@ -193,7 +193,7 @@ export default function PaywallModal({
                 color: '#333'
               }}
             >
-              <span style={{ color: '#10b981', fontSize: 20 }}>✓</span>
+              <span style={{ color: '#10b981', fontSize: 20 }}></span>
               {benefit}
             </li>
           ))}

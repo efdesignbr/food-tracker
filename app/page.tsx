@@ -25,10 +25,10 @@ type Meal = {
 };
 
 const mealTypeConfig: Record<string, { label: string; icon: string; color: string }> = {
-  breakfast: { label: 'Café da Manhã', icon: '☀️', color: '#f59e0b' },
-  lunch: { label: 'Almoço', icon: '🍽️', color: '#10b981' },
-  dinner: { label: 'Jantar', icon: '🌙', color: '#6366f1' },
-  snack: { label: 'Lanche', icon: '🍿', color: '#ec4899' }
+  breakfast: { label: 'Café da Manhã', icon: '', color: '#f59e0b' },
+  lunch: { label: 'Almoço', icon: '', color: '#10b981' },
+  dinner: { label: 'Jantar', icon: '', color: '#6366f1' },
+  snack: { label: 'Lanche', icon: '', color: '#ec4899' }
 };
 
 export default function HomePage() {
@@ -128,7 +128,7 @@ export default function HomePage() {
       // Monta as observações
       let notes = bowelNotes.trim();
       if (hadBlood) {
-        notes = notes ? `⚠️ SANGUE: Sim\n${notes}` : '⚠️ SANGUE: Sim';
+        notes = notes ? `SANGUE: Sim\n${notes}` : 'SANGUE: Sim';
       }
 
       const res = await api.post('/api/bowel-movements', {
@@ -188,7 +188,7 @@ export default function HomePage() {
     return (
       <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', padding: 48 }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
+          <div style={{ fontSize: 48, marginBottom: 16 }}></div>
           <p style={{ color: '#666', fontSize: 16 }}>Carregando...</p>
         </div>
       </div>
@@ -205,7 +205,7 @@ export default function HomePage() {
           borderRadius: 12,
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>⚠️</div>
+          <div style={{ fontSize: 48, marginBottom: 8 }}></div>
           <p style={{ color: '#991b1b', margin: 0 }}>{error}</p>
         </div>
       </div>
@@ -215,7 +215,7 @@ export default function HomePage() {
   return (
     <div style={{ padding: 16, maxWidth: 800, margin: '0 auto', paddingBottom: 80 }}>
       {/* Header */}
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}>🏠 Início</h1>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}> Início</h1>
 
       {/* Progresso de Hoje */}
       <div style={{
@@ -228,14 +228,14 @@ export default function HomePage() {
       }}>
         <div style={{ marginBottom: 16 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#2196F3' }}>
-            🎯 Progresso de Hoje
+             Progresso de Hoje
           </h2>
         </div>
 
         {/* Calorias */}
         <div style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>🔥 Calorias</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}> Calorias</span>
             <span style={{ fontSize: 14, fontWeight: 700, color: todayStats.calories > goals.calories ? '#ef4444' : '#2196F3' }}>
               {todayStats.calories.toFixed(0)} / {goals.calories} kcal
             </span>
@@ -258,12 +258,12 @@ export default function HomePage() {
           </div>
           {todayStats.calories > goals.calories && (
             <p style={{ fontSize: 11, color: '#ef4444', margin: '4px 0 0 0' }}>
-              ⚠️ Acima da meta em {(todayStats.calories - goals.calories).toFixed(0)} kcal
+               Acima da meta em {(todayStats.calories - goals.calories).toFixed(0)} kcal
             </p>
           )}
           {todayStats.calories < goals.calories && todayStats.calories > 0 && (
             <p style={{ fontSize: 11, color: '#10b981', margin: '4px 0 0 0' }}>
-              ✅ Restam {(goals.calories - todayStats.calories).toFixed(0)} kcal
+               Restam {(goals.calories - todayStats.calories).toFixed(0)} kcal
             </p>
           )}
         </div>
@@ -272,7 +272,7 @@ export default function HomePage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
           {/* Proteína */}
           <div>
-            <div style={{ fontSize: 11, color: '#666', marginBottom: 4 }}>🥩 Proteína</div>
+            <div style={{ fontSize: 11, color: '#666', marginBottom: 4 }}> Proteína</div>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
               {todayStats.protein.toFixed(0)}g
             </div>
@@ -283,7 +283,7 @@ export default function HomePage() {
 
           {/* Carboidratos */}
           <div>
-            <div style={{ fontSize: 11, color: '#666', marginBottom: 4 }}>🍚 Carbos</div>
+            <div style={{ fontSize: 11, color: '#666', marginBottom: 4 }}> Carbos</div>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
               {todayStats.carbs.toFixed(0)}g
             </div>
@@ -316,7 +316,7 @@ export default function HomePage() {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#06b6d4' }}>
-            💧 Hidratação
+             Hidratação
           </h2>
           <span style={{ fontSize: 13, color: '#666' }}>
             {Math.floor(waterIntake / 250)} {Math.floor(waterIntake / 250) === 1 ? 'copo' : 'copos'}
@@ -326,7 +326,7 @@ export default function HomePage() {
         {/* Barra de progresso */}
         <div style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>💦 Água</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}> Água</span>
             <span style={{ fontSize: 14, fontWeight: 700, color: waterIntake >= goals.water ? '#06b6d4' : '#0891b2' }}>
               {waterIntake} / {goals.water} ml
             </span>
@@ -347,7 +347,7 @@ export default function HomePage() {
           </div>
           {waterIntake >= goals.water && (
             <p style={{ fontSize: 11, color: '#06b6d4', margin: '4px 0 0 0' }}>
-              ✅ Meta atingida! Parabéns!
+               Meta atingida! Parabéns!
             </p>
           )}
           {waterIntake < goals.water && waterIntake > 0 && (
@@ -392,7 +392,7 @@ export default function HomePage() {
               }
             }}
           >
-            <span style={{ fontSize: 20 }}>🥤</span>
+            <span style={{ fontSize: 20 }}></span>
             <span>+ 250ml</span>
           </button>
 
@@ -444,7 +444,7 @@ export default function HomePage() {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#f59e0b' }}>
-            🚻 Saúde Intestinal
+             Saúde Intestinal
           </h2>
           <span style={{ fontSize: 13, color: '#666' }}>
             {bowelMovementsCount} {bowelMovementsCount === 1 ? 'vez' : 'vezes'} hoje
@@ -480,7 +480,7 @@ export default function HomePage() {
               e.currentTarget.style.boxShadow = '0 2px 8px rgba(245, 158, 11, 0.3)';
             }}
           >
-            <span style={{ fontSize: 20 }}>➕</span>
+            <span style={{ fontSize: 20 }}></span>
             <span>Registrar Evacuação</span>
           </button>
         ) : (
@@ -491,13 +491,13 @@ export default function HomePage() {
 
             <div style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
               {[
-                { type: 1, emoji: '🔴', desc: 'Pedaços duros separados' },
-                { type: 2, emoji: '🟤', desc: 'Formato de salsicha irregular' },
-                { type: 3, emoji: '🟤', desc: 'Salsicha com rachaduras (normal)' },
-                { type: 4, emoji: '🟢', desc: 'Salsicha lisa e macia (ideal)' },
-                { type: 5, emoji: '🟡', desc: 'Pedaços macios' },
-                { type: 6, emoji: '🟠', desc: 'Pedaços moles irregulares' },
-                { type: 7, emoji: '🔴', desc: 'Aquoso, líquido' }
+                { type: 1, emoji: '', desc: 'Pedaços duros separados' },
+                { type: 2, emoji: '', desc: 'Formato de salsicha irregular' },
+                { type: 3, emoji: '', desc: 'Salsicha com rachaduras (normal)' },
+                { type: 4, emoji: '', desc: 'Salsicha lisa e macia (ideal)' },
+                { type: 5, emoji: '', desc: 'Pedaços macios' },
+                { type: 6, emoji: '', desc: 'Pedaços moles irregulares' },
+                { type: 7, emoji: '', desc: 'Aquoso, líquido' }
               ].map((item) => (
                 <button
                   key={item.type}
@@ -564,7 +564,7 @@ export default function HomePage() {
                   margin: '8px 0 0 32px',
                   lineHeight: '1.4'
                 }}>
-                  ⚠️ Sangue nas fezes pode indicar problemas sérios. Consulte um médico.
+                   Sangue nas fezes pode indicar problemas sérios. Consulte um médico.
                 </p>
               )}
             </div>
@@ -681,7 +681,7 @@ export default function HomePage() {
           e.currentTarget.style.boxShadow = '0 6px 20px rgba(33, 150, 243, 0.4)';
         }}
       >
-        <span style={{ fontSize: 40 }}>📸</span>
+        <span style={{ fontSize: 40 }}></span>
         <span>Registrar Refeição</span>
       </button>
 
@@ -689,7 +689,7 @@ export default function HomePage() {
       {todayStats.meals.length > 0 && (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>📊 Últimas Refeições</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}> Últimas Refeições</h3>
             <button
               onClick={() => router.push('/history')}
               style={{
@@ -703,7 +703,7 @@ export default function HomePage() {
                 cursor: 'pointer'
               }}
             >
-              Ver Todas →
+              Ver Todas 
             </button>
           </div>
 
@@ -759,7 +759,7 @@ export default function HomePage() {
                         transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                         transition: 'transform 0.2s ease'
                       }}>
-                        ▼
+                        
                       </span>
                     </div>
                   </div>
@@ -848,7 +848,7 @@ export default function HomePage() {
           borderRadius: 16,
           border: '2px dashed #d1d5db'
         }}>
-          <div style={{ fontSize: 64, marginBottom: 16 }}>🍽️</div>
+          <div style={{ fontSize: 64, marginBottom: 16 }}></div>
           <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
             Nenhuma refeição registrada hoje
           </h3>
@@ -868,7 +868,7 @@ export default function HomePage() {
               cursor: 'pointer'
             }}
           >
-            📸 Registrar Agora
+             Registrar Agora
           </button>
         </div>
       )}

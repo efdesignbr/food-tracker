@@ -39,10 +39,10 @@ type DayData = {
 };
 
 const mealTypeConfig: Record<string, { label: string; icon: string; color: string }> = {
-  breakfast: { label: 'Café da Manhã', icon: '☀️', color: '#f59e0b' },
-  lunch: { label: 'Almoço', icon: '🍽️', color: '#10b981' },
-  dinner: { label: 'Jantar', icon: '🌙', color: '#6366f1' },
-  snack: { label: 'Lanche', icon: '🍿', color: '#ec4899' }
+  breakfast: { label: 'Café da Manhã', icon: '', color: '#f59e0b' },
+  lunch: { label: 'Almoço', icon: '', color: '#10b981' },
+  dinner: { label: 'Jantar', icon: '', color: '#6366f1' },
+  snack: { label: 'Lanche', icon: '', color: '#ec4899' }
 };
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -214,7 +214,7 @@ export default function CalendarView({
               color: '#374151'
             }}
           >
-            ←
+            
           </button>
 
           <div style={{ textAlign: 'center' }}>
@@ -250,7 +250,7 @@ export default function CalendarView({
               color: '#374151'
             }}
           >
-            →
+            
           </button>
         </div>
 
@@ -585,7 +585,7 @@ export default function CalendarView({
           }}>
             <div>
               <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#2196F3' }}>
-                📅 {selectedDay.dateString}
+                 {selectedDay.dateString}
               </h3>
               <p style={{ fontSize: 13, color: '#6b7280', margin: '4px 0 0 0' }}>
                 {selectedDay.meals.length} refeição{selectedDay.meals.length !== 1 ? 'ões' : ''}
@@ -603,7 +603,7 @@ export default function CalendarView({
                 color: '#6b7280'
               }}
             >
-              ✕
+              
             </button>
           </div>
 
@@ -618,21 +618,21 @@ export default function CalendarView({
             borderRadius: 12
           }}>
             <div>
-              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>🔥 Calorias</div>
+              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}> Calorias</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#2196F3' }}>
                 {selectedDay.calories.toFixed(0)}
               </div>
               <div style={{ fontSize: 10, color: '#9ca3af' }}>Meta: {calorieGoal}</div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>🥩 Proteína</div>
+              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}> Proteína</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#ef4444' }}>
                 {selectedDay.protein.toFixed(0)}g
               </div>
               <div style={{ fontSize: 10, color: '#9ca3af' }}>Meta: {proteinGoal}g</div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>🍚 Carboidratos</div>
+              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}> Carboidratos</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>
                 {selectedDay.carbs.toFixed(0)}g
               </div>
@@ -652,7 +652,7 @@ export default function CalendarView({
               padding: 12,
               color: 'white'
             }}>
-              <div style={{ fontSize: 11, opacity: 0.9, marginBottom: 4 }}>💧 Água</div>
+              <div style={{ fontSize: 11, opacity: 0.9, marginBottom: 4 }}> Água</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: 18, fontWeight: 700 }}>
                   {selectedDay.waterIntake}ml
@@ -726,7 +726,7 @@ export default function CalendarView({
                             {meal.location_type && (
                               <>
                                 {' • '}
-                                {meal.location_type === 'home' ? '🏠 Casa' : `🍽️ ${meal.restaurant_name || 'Fora'}`}
+                                {meal.location_type === 'home' ? ' Casa' : ` ${meal.restaurant_name || 'Fora'}`}
                               </>
                             )}
                           </div>
@@ -759,7 +759,7 @@ export default function CalendarView({
                         }}
                         title="Deletar refeição"
                       >
-                        🗑️
+                        
                       </button>
                     </div>
 
@@ -809,9 +809,9 @@ export default function CalendarView({
                             </div>
                             {(food.calories || food.protein_g || food.carbs_g || food.fat_g) && (
                               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 10, color: '#6b7280' }}>
-                                {food.calories && <span>🔥 {food.calories.toFixed(0)} kcal</span>}
-                                {food.protein_g && <span>🥩 {food.protein_g.toFixed(1)}g</span>}
-                                {food.carbs_g && <span>🍚 {food.carbs_g.toFixed(1)}g</span>}
+                                {food.calories && <span> {food.calories.toFixed(0)} kcal</span>}
+                                {food.protein_g && <span> {food.protein_g.toFixed(1)}g</span>}
+                                {food.carbs_g && <span> {food.carbs_g.toFixed(1)}g</span>}
                                 {food.fat_g && <span>🧈 {food.fat_g.toFixed(1)}g</span>}
                               </div>
                             )}
@@ -840,8 +840,8 @@ export default function CalendarView({
                           paddingTop: 6,
                           borderTop: '1px solid rgba(255,255,255,0.3)'
                         }}>
-                          {mealProtein > 0 && <span>🥩 {mealProtein.toFixed(1)}g</span>}
-                          {mealCarbs > 0 && <span>🍚 {mealCarbs.toFixed(1)}g</span>}
+                          {mealProtein > 0 && <span> {mealProtein.toFixed(1)}g</span>}
+                          {mealCarbs > 0 && <span> {mealCarbs.toFixed(1)}g</span>}
                           {mealFat > 0 && <span>🧈 {mealFat.toFixed(1)}g</span>}
                         </div>
                       )}

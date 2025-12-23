@@ -134,7 +134,7 @@ export default function ExportMealsButton({ plan = 'free' }: ExportMealsButtonPr
           justifyContent: 'center',
         }}
       >
-        <span style={{ fontSize: 20 }}>🔒</span>
+        <span style={{ fontSize: 20 }}></span>
         Exportar para CSV (Premium)
       </button>
     );
@@ -171,7 +171,7 @@ export default function ExportMealsButton({ plan = 'free' }: ExportMealsButtonPr
           e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
         }}
       >
-        <span style={{ fontSize: 20 }}>📊</span>
+        <span style={{ fontSize: 20 }}></span>
         Exportar para CSV
       </button>
 
@@ -205,7 +205,7 @@ export default function ExportMealsButton({ plan = 'free' }: ExportMealsButtonPr
             onClick={(e) => e.stopPropagation()}
           >
             <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 16, margin: 0 }}>
-              📊 Exportar Histórico
+               Exportar Histórico
             </h2>
 
             <p style={{ color: '#666', fontSize: 14, marginBottom: 20 }}>
@@ -303,7 +303,7 @@ export default function ExportMealsButton({ plan = 'free' }: ExportMealsButtonPr
                   marginBottom: 16,
                 }}
               >
-                <p style={{ color: '#991b1b', fontSize: 14, margin: 0 }}>⚠️ {error}</p>
+                <p style={{ color: '#991b1b', fontSize: 14, margin: 0 }}> {error}</p>
               </div>
             )}
 

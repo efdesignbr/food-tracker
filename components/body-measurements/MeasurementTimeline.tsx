@@ -65,7 +65,7 @@ export default function MeasurementTimeline({ measurements, onDelete }: Measurem
       padding: 24,
       marginBottom: 24
     }}>
-      <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}>📊 Histórico de Medidas</h2>
+      <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}> Histórico de Medidas</h2>
 
       <div style={{ position: 'relative', paddingLeft: 40 }}>
         {/* Linha vertical da timeline */}
@@ -172,7 +172,7 @@ export default function MeasurementTimeline({ measurements, onDelete }: Measurem
                         fontWeight: 600
                       }}
                     >
-                      🗑️
+                      
                     </button>
                   </div>
                 </div>
@@ -188,7 +188,7 @@ export default function MeasurementTimeline({ measurements, onDelete }: Measurem
                     borderRadius: 8,
                     borderLeft: '3px solid #d1d5db'
                   }}>
-                    💬 {measurement.notes}
+                     {measurement.notes}
                   </div>
                 )}
               </div>

@@ -89,7 +89,7 @@ export default function HistoryPage() {
     return (
       <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', padding: 48 }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
+          <div style={{ fontSize: 48, marginBottom: 16 }}></div>
           <p style={{ color: '#666', fontSize: 16 }}>Carregando...</p>
         </div>
       </div>
@@ -106,7 +106,7 @@ export default function HistoryPage() {
           borderRadius: 12,
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>⚠️</div>
+          <div style={{ fontSize: 48, marginBottom: 8 }}></div>
           <p style={{ color: '#991b1b', margin: 0 }}>{error}</p>
         </div>
       </div>
@@ -116,7 +116,7 @@ export default function HistoryPage() {
   return (
     <div style={{ padding: 16, maxWidth: 800, margin: '0 auto', paddingBottom: 80 }}>
       {/* Header */}
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}>📋 Histórico</h1>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}> Histórico</h1>
 
       {/* Export Button */}
       <div style={{ marginBottom: 16 }}>
@@ -132,7 +132,7 @@ export default function HistoryPage() {
         color: 'white',
         boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'
       }}>
-        <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
+        <div style={{ fontSize: 32, marginBottom: 8 }}></div>
         <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, marginBottom: 4 }}>
           Navegue pelo calendário
         </h2>
@@ -150,7 +150,7 @@ export default function HistoryPage() {
           borderRadius: 16,
           border: '2px dashed #d1d5db'
         }}>
-          <div style={{ fontSize: 64, marginBottom: 16 }}>🍽️</div>
+          <div style={{ fontSize: 64, marginBottom: 16 }}></div>
           <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
             Nenhuma refeição registrada ainda
           </h3>

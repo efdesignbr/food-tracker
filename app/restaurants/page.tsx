@@ -53,7 +53,7 @@ export default function RestaurantsPage() {
 
   return (
     <div style={{ padding: 16, maxWidth: 800, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16 }}>🍽️ Restaurantes</h1>
+      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16 }}> Restaurantes</h1>
 
       {/* Create */}
       <form onSubmit={createRestaurant} style={{
@@ -131,7 +131,7 @@ export default function RestaurantsPage() {
                 <div style={{ fontWeight: 700, color: '#374151' }}>{r.name}</div>
                 {r.address && <div style={{ fontSize: 12, color: '#6b7280' }}>{r.address}</div>}
               </div>
-              <div style={{ fontSize: 20 }}>🍽️</div>
+              <div style={{ fontSize: 20 }}></div>
             </div>
           ))}
         </div>

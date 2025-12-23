@@ -87,7 +87,7 @@ export default function UpgradePage() {
 
   const handleSubscribe = (planName: string) => {
     if (plan === 'unlimited') {
-      alert('Você já tem acesso ILIMITADO a todos os recursos! 🎉');
+      alert('Você já tem acesso ILIMITADO a todos os recursos! ');
       return;
     }
 
@@ -104,7 +104,7 @@ export default function UpgradePage() {
       }
 
       // Mock: futuramente será redirect para Stripe Checkout
-      alert('🚧 Checkout em desenvolvimento!\n\nEm breve você poderá assinar o PREMIUM diretamente por aqui. Por enquanto, entre em contato com o suporte.');
+      alert(' Checkout em desenvolvimento!\n\nEm breve você poderá assinar o PREMIUM diretamente por aqui. Por enquanto, entre em contato com o suporte.');
     }
   };
 
@@ -197,7 +197,7 @@ export default function UpgradePage() {
                   fontSize: 11,
                   fontWeight: 700
                 }}>
-                  ✓ ATUAL
+                   ATUAL
                 </div>
               )}
 
@@ -208,7 +208,7 @@ export default function UpgradePage() {
                 margin: '0 0 8px 0',
                 color: '#1a1a1a'
               }}>
-                {planData.name === 'PREMIUM' && '💎 '}
+                {planData.name === 'PREMIUM' && ' '}
                 {planData.name}
               </h3>
 
@@ -265,7 +265,7 @@ export default function UpgradePage() {
                       color: feature.included ? '#10b981' : '#dc2626',
                       lineHeight: 1
                     }}>
-                      {feature.included ? '✓' : '✕'}
+                      {feature.included ? '' : ''}
                     </span>
                     <span>{feature.text}</span>
                   </li>
@@ -336,7 +336,7 @@ export default function UpgradePage() {
           marginBottom: 40,
           color: '#1a1a1a'
         }}>
-          ❓ Perguntas Frequentes
+           Perguntas Frequentes
         </h2>
 
         <div style={{ display: 'grid', gap: 16 }}>
@@ -376,7 +376,7 @@ export default function UpgradePage() {
                     transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 0.2s ease'
                   }}>
-                    ▼
+                    
                   </span>
                 </button>
 

@@ -338,7 +338,7 @@ export default function MeusAlimentosPage() {
 
   return (
     <div style={{ maxWidth: 1000, margin: '0 auto', padding: 24 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>🍎 Meus Alimentos</h1>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}> Meus Alimentos</h1>
 
       {/* Paywall Modal */}
       <PaywallModal
@@ -370,7 +370,7 @@ export default function MeusAlimentosPage() {
           color: '#991b1b',
           marginBottom: 16
         }}>
-          ❌ {error}
+           {error}
         </div>
       )}
 
@@ -383,7 +383,7 @@ export default function MeusAlimentosPage() {
           color: '#065f46',
           marginBottom: 16
         }}>
-          ✅ {success}
+           {success}
         </div>
       )}
 
@@ -406,7 +406,7 @@ export default function MeusAlimentosPage() {
             cursor: 'pointer'
           }}
         >
-          {showManualForm ? '❌ Cancelar' : '✍️ Cadastrar Manualmente'}
+          {showManualForm ? ' Cancelar' : ' Cadastrar Manualmente'}
         </button>
 
         <button
@@ -430,7 +430,7 @@ export default function MeusAlimentosPage() {
             cursor: 'pointer'
           }}
         >
-          {showAiForm ? '❌ Cancelar' : (plan === 'free' ? '🔒 Analisar com IA (Premium)' : '📸 Analisar com IA')}
+          {showAiForm ? ' Cancelar' : (plan === 'free' ? ' Analisar com IA (Premium)' : ' Analisar com IA')}
         </button>
       </div>
 
@@ -443,7 +443,7 @@ export default function MeusAlimentosPage() {
           padding: 24,
           marginBottom: 24
         }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>✍️ Cadastro Manual</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}> Cadastro Manual</h2>
 
           <div style={{ display: 'grid', gap: 16 }}>
             {/* Nome, Marca e Porção - Grid responsivo unificado */}
@@ -721,7 +721,7 @@ export default function MeusAlimentosPage() {
                 transition: 'all 0.2s'
               }}
             >
-              {loading ? '💾 Salvando...' : '✅ Salvar Alimento'}
+              {loading ? ' Salvando...' : ' Salvar Alimento'}
             </button>
           </div>
         </form>
@@ -736,7 +736,7 @@ export default function MeusAlimentosPage() {
           padding: 24,
           marginBottom: 24
         }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>📸 Analisar Tabela Nutricional com IA</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}> Analisar Tabela Nutricional com IA</h2>
 
           <input
             ref={fileInputRef}
@@ -761,7 +761,7 @@ export default function MeusAlimentosPage() {
                 cursor: 'pointer'
               }}
             >
-              📷 Selecionar Foto da Tabela Nutricional
+               Selecionar Foto da Tabela Nutricional
             </button>
           ) : (
             <div>
@@ -793,7 +793,7 @@ export default function MeusAlimentosPage() {
                     cursor: analyzing ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  {analyzing ? '🔍 Analisando...' : '🤖 Analisar com IA'}
+                  {analyzing ? ' Analisando...' : ' Analisar com IA'}
                 </button>
               ) : (
                 <div>
@@ -803,7 +803,7 @@ export default function MeusAlimentosPage() {
                     padding: 16,
                     marginBottom: 16
                   }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>📝 Revisar e Editar:</h3>
+                    <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}> Revisar e Editar:</h3>
 
                     <div style={{ display: 'grid', gap: 16 }}>
                       {/* Nome, Marca e Porção - Grid responsivo unificado */}
@@ -1084,7 +1084,7 @@ export default function MeusAlimentosPage() {
                       cursor: loading || !customName.trim() ? 'not-allowed' : 'pointer'
                     }}
                   >
-                    {loading ? '💾 Salvando...' : '✅ Salvar no Banco de Alimentos'}
+                    {loading ? ' Salvando...' : ' Salvar no Banco de Alimentos'}
                   </button>
                 </div>
               )}
@@ -1096,7 +1096,7 @@ export default function MeusAlimentosPage() {
       {/* Listagem de Alimentos */}
       <div>
         <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>
-          📋 Alimentos Cadastrados ({items.length})
+           Alimentos Cadastrados ({items.length})
         </h2>
 
         {/* Busca rápida */}
@@ -1106,7 +1106,7 @@ export default function MeusAlimentosPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="🔍 Buscar alimento..."
+              placeholder=" Buscar alimento..."
               style={{
                 width: '100%',
                 padding: 12,
@@ -1166,7 +1166,7 @@ export default function MeusAlimentosPage() {
                         <div style={{ fontSize: 16, fontWeight: 600, color: '#1f2937' }}>
                           {item.name}
                           {item.source === 'ai_analyzed' && (
-                            <span style={{ marginLeft: 8, fontSize: 14, color: '#10b981' }}>🤖</span>
+                            <span style={{ marginLeft: 8, fontSize: 14, color: '#10b981' }}></span>
                           )}
                         </div>
                         {item.brand && (
@@ -1185,7 +1185,7 @@ export default function MeusAlimentosPage() {
                           transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                           transition: 'transform 0.2s ease'
                         }}>
-                          ▼
+                          
                         </span>
                       </div>
                     </div>
@@ -1243,9 +1243,9 @@ export default function MeusAlimentosPage() {
                         {/* Detalhes extras */}
                         {(item.sodium || item.sugar || item.saturated_fat) && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12, fontSize: 12, color: '#6b7280' }}>
-                            {item.sodium && <span>🧂 {parseFloat(item.sodium.toString()).toFixed(0)}mg sódio</span>}
-                            {item.sugar && <span>🍬 {parseFloat(item.sugar.toString()).toFixed(1)}g açúcar</span>}
-                            {item.saturated_fat && <span>🔴 {parseFloat(item.saturated_fat.toString()).toFixed(1)}g gord.sat</span>}
+                            {item.sodium && <span> {parseFloat(item.sodium.toString()).toFixed(0)}mg sódio</span>}
+                            {item.sugar && <span> {parseFloat(item.sugar.toString()).toFixed(1)}g açúcar</span>}
+                            {item.saturated_fat && <span> {parseFloat(item.saturated_fat.toString()).toFixed(1)}g gord.sat</span>}
                           </div>
                         )}
 
@@ -1271,7 +1271,7 @@ export default function MeusAlimentosPage() {
                               fontWeight: 600
                             }}
                           >
-                            ✏️ Editar
+                             Editar
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDelete(item.id, item.name); }}
@@ -1287,7 +1287,7 @@ export default function MeusAlimentosPage() {
                               fontWeight: 600
                             }}
                           >
-                            🗑️ Excluir
+                             Excluir
                           </button>
                         </div>
                       </div>
@@ -1339,7 +1339,7 @@ export default function MeusAlimentosPage() {
             overflowY: 'auto'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700 }}>✏️ Editar Alimento</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700 }}> Editar Alimento</h2>
               <button
                 onClick={() => { setShowEditModal(false); setEditingItem(null); }}
                 style={{
@@ -1351,7 +1351,7 @@ export default function MeusAlimentosPage() {
                   color: '#666'
                 }}
               >
-                ×
+                
               </button>
             </div>
 
@@ -1650,7 +1650,7 @@ export default function MeusAlimentosPage() {
                     cursor: loading || !editingItem.name.trim() ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  {loading ? '💾 Salvando...' : '✅ Salvar Alterações'}
+                  {loading ? ' Salvando...' : ' Salvar Alterações'}
                 </button>
               </div>
             </div>

@@ -120,7 +120,7 @@ export default function ObjetivosPage() {
     return (
       <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
         <div style={{ textAlign: 'center', padding: 40 }}>
-          ⏳ Carregando...
+           Carregando...
         </div>
       </div>
     );
@@ -129,7 +129,7 @@ export default function ObjetivosPage() {
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
       <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>
-        🎯 Meus Objetivos
+         Meus Objetivos
       </h1>
       <p style={{ fontSize: 16, color: '#6b7280', marginBottom: 24 }}>
         Configure seus objetivos para receber análises personalizadas do Coach IA
@@ -145,7 +145,7 @@ export default function ObjetivosPage() {
           marginBottom: 24
         }}>
           <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>
-            📊 Objetivo Principal
+             Objetivo Principal
           </h2>
 
           <label style={{ display: 'block', marginBottom: 12, fontWeight: 600 }}>
@@ -165,9 +165,9 @@ export default function ObjetivosPage() {
             }}
           >
             <option value="">Selecione...</option>
-            <option value="lose_weight">🔻 Perder Peso (Emagrecimento)</option>
-            <option value="gain_weight">🔺 Ganhar Peso (Ganho de Massa)</option>
-            <option value="maintain_weight">⚖️ Manter Peso (Manutenção)</option>
+            <option value="lose_weight"> Perder Peso (Emagrecimento)</option>
+            <option value="gain_weight"> Ganhar Peso (Ganho de Massa)</option>
+            <option value="maintain_weight"> Manter Peso (Manutenção)</option>
           </select>
 
           {formData.goal_type && formData.goal_type !== 'maintain_weight' && (
@@ -241,7 +241,7 @@ export default function ObjetivosPage() {
           marginBottom: 24
         }}>
           <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>
-            👤 Dados Pessoais
+             Dados Pessoais
           </h2>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
@@ -351,7 +351,7 @@ export default function ObjetivosPage() {
             color: '#991b1b',
             marginBottom: 16
           }}>
-            ❌ {error}
+             {error}
           </div>
         )}
 
@@ -364,7 +364,7 @@ export default function ObjetivosPage() {
             color: '#065f46',
             marginBottom: 16
           }}>
-            ✅ Objetivos salvos com sucesso! Redirecionando...
+             Objetivos salvos com sucesso! Redirecionando...
           </div>
         )}
 
@@ -401,7 +401,7 @@ export default function ObjetivosPage() {
               cursor: saving ? 'not-allowed' : 'pointer'
             }}
           >
-            {saving ? '💾 Salvando...' : '✅ Salvar Objetivos'}
+            {saving ? ' Salvando...' : ' Salvar Objetivos'}
           </button>
         </div>
       </form>

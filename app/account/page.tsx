@@ -222,7 +222,7 @@ export default function AccountPage() {
     return (
       <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', padding: 48 }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
+          <div style={{ fontSize: 48, marginBottom: 16 }}></div>
           <p style={{ color: '#666', fontSize: 16 }}>Carregando...</p>
         </div>
       </div>
@@ -239,7 +239,7 @@ export default function AccountPage() {
           borderRadius: 12,
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>⚠️</div>
+          <div style={{ fontSize: 48, marginBottom: 8 }}></div>
           <p style={{ color: '#991b1b', margin: 0 }}>{error || 'Perfil não encontrado'}</p>
         </div>
       </div>
@@ -249,7 +249,7 @@ export default function AccountPage() {
   return (
     <div style={{ padding: 16, maxWidth: 800, margin: '0 auto', paddingBottom: 80 }}>
       {/* Header */}
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}>⚙️ Minha Conta</h1>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}> Minha Conta</h1>
 
       {/* Success Message */}
       {success && (
@@ -262,7 +262,7 @@ export default function AccountPage() {
           color: '#065f46',
           fontWeight: 600
         }}>
-          ✅ Dados salvos com sucesso!
+           Dados salvos com sucesso!
         </div>
       )}
 
@@ -277,7 +277,7 @@ export default function AccountPage() {
           color: '#991b1b',
           fontWeight: 600
         }}>
-          ⚠️ {error}
+           {error}
         </div>
       )}
 
@@ -307,15 +307,15 @@ export default function AccountPage() {
               color: expandedSection === 'plan' ? '#8b5cf6' : '#374151'
             }}
           >
-            <span>💎 Plano Atual</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'plan' ? '▼' : '▶'}</span>
+            <span> Plano Atual</span>
+            <span style={{ fontSize: 20 }}>{expandedSection === 'plan' ? '' : '▶'}</span>
           </button>
 
           {expandedSection === 'plan' && (
             <div style={{ padding: 20, borderTop: '1px solid #e5e7eb' }}>
               {planLoading ? (
                 <div style={{ textAlign: 'center', padding: 32 }}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>⏳</div>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}></div>
                   <p style={{ color: '#6b7280', fontSize: 14 }}>Carregando informações do plano...</p>
                 </div>
               ) : (
@@ -343,7 +343,7 @@ export default function AccountPage() {
                         marginBottom: 16
                       }}>
                         <p style={{ fontSize: 14, color: '#92400e', margin: 0, fontWeight: 600 }}>
-                          🔒 Desbloqueie recursos premium como análise de fotos e OCR de nutrição!
+                           Desbloqueie recursos premium como análise de fotos e OCR de nutrição!
                         </p>
                       </div>
                       <div style={{ textAlign: 'center' }}>
@@ -355,7 +355,7 @@ export default function AccountPage() {
                   {plan === 'premium' && hasQuota && quota && (
                     <div>
                       <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
-                        📊 Uso Mensal
+                         Uso Mensal
                       </h3>
                       <div style={{ display: 'grid', gap: 12 }}>
                         <QuotaCard
@@ -385,7 +385,7 @@ export default function AccountPage() {
                       borderRadius: 12,
                       textAlign: 'center'
                     }}>
-                      <div style={{ fontSize: 48, marginBottom: 8 }}>✨</div>
+                      <div style={{ fontSize: 48, marginBottom: 8 }}></div>
                       <h3 style={{ fontSize: 18, fontWeight: 700, color: 'white', marginBottom: 8 }}>
                         Acesso Ilimitado
                       </h3>
@@ -424,15 +424,15 @@ export default function AccountPage() {
               color: expandedSection === 'health' ? '#f59e0b' : '#374151'
             }}
           >
-            <span>🎯 Objetivos de Saúde</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'health' ? '▼' : '▶'}</span>
+            <span> Objetivos de Saúde</span>
+            <span style={{ fontSize: 20 }}>{expandedSection === 'health' ? '' : '▶'}</span>
           </button>
 
           {expandedSection === 'health' && (
             <div style={{ padding: 20, borderTop: '1px solid #e5e7eb' }}>
               {loadingGoals ? (
                 <div style={{ textAlign: 'center', padding: 32 }}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>⏳</div>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}></div>
                   <p style={{ color: '#6b7280', fontSize: 14 }}>Carregando objetivos...</p>
                 </div>
               ) : !healthGoals || !healthGoals.goal_type ? (
@@ -445,7 +445,7 @@ export default function AccountPage() {
                     marginBottom: 16,
                     textAlign: 'center'
                   }}>
-                    <div style={{ fontSize: 32, marginBottom: 8 }}>🎯</div>
+                    <div style={{ fontSize: 32, marginBottom: 8 }}></div>
                     <p style={{ fontSize: 14, color: '#92400e', margin: '0 0 8px 0', fontWeight: 600 }}>
                       Configure seus objetivos de saúde
                     </p>
@@ -468,7 +468,7 @@ export default function AccountPage() {
                       boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
                     }}
                   >
-                    🎯 Configurar Objetivos
+                     Configurar Objetivos
                   </button>
                 </div>
               ) : (
@@ -485,18 +485,18 @@ export default function AccountPage() {
                         OBJETIVO PRINCIPAL
                       </div>
                       <div style={{ fontSize: 16, fontWeight: 700, color: '#15803d' }}>
-                        {healthGoals.goal_type === 'lose_weight' && '🔻 Perder Peso (Emagrecimento)'}
-                        {healthGoals.goal_type === 'gain_weight' && '🔺 Ganhar Peso (Ganho de Massa)'}
-                        {healthGoals.goal_type === 'maintain_weight' && '⚖️ Manter Peso (Manutenção)'}
+                        {healthGoals.goal_type === 'lose_weight' && ' Perder Peso (Emagrecimento)'}
+                        {healthGoals.goal_type === 'gain_weight' && ' Ganhar Peso (Ganho de Massa)'}
+                        {healthGoals.goal_type === 'maintain_weight' && ' Manter Peso (Manutenção)'}
                       </div>
                       {healthGoals.target_weight_kg && (
                         <div style={{ fontSize: 13, color: '#166534', marginTop: 8 }}>
-                          🎯 Peso alvo: <strong>{healthGoals.target_weight_kg} kg</strong>
+                           Peso alvo: <strong>{healthGoals.target_weight_kg} kg</strong>
                         </div>
                       )}
                       {healthGoals.weekly_goal_kg && (
                         <div style={{ fontSize: 13, color: '#166534', marginTop: 4 }}>
-                          📈 Meta semanal: <strong>{healthGoals.weekly_goal_kg > 0 ? '+' : ''}{healthGoals.weekly_goal_kg} kg/semana</strong>
+                           Meta semanal: <strong>{healthGoals.weekly_goal_kg > 0 ? '+' : ''}{healthGoals.weekly_goal_kg} kg/semana</strong>
                         </div>
                       )}
                     </div>
@@ -508,7 +508,7 @@ export default function AccountPage() {
                           ALTURA
                         </div>
                         <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
-                          📏 {healthGoals.height_cm} cm
+                           {healthGoals.height_cm} cm
                         </div>
                       </div>
                       <div>
@@ -535,10 +535,10 @@ export default function AccountPage() {
                         </div>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#374151' }}>
                           {healthGoals.activity_level === 'sedentary' && '🪑 Sedentário'}
-                          {healthGoals.activity_level === 'light' && '🚶 Leve'}
+                          {healthGoals.activity_level === 'light' && ' Leve'}
                           {healthGoals.activity_level === 'moderate' && '🏃 Moderado'}
-                          {healthGoals.activity_level === 'active' && '💪 Ativo'}
-                          {healthGoals.activity_level === 'very_active' && '🔥 Muito Ativo'}
+                          {healthGoals.activity_level === 'active' && ' Ativo'}
+                          {healthGoals.activity_level === 'very_active' && ' Muito Ativo'}
                         </div>
                       </div>
                     </div>
@@ -567,7 +567,7 @@ export default function AccountPage() {
                       e.currentTarget.style.color = '#f59e0b';
                     }}
                   >
-                    ✏️ Editar Objetivos
+                     Editar Objetivos
                   </button>
                 </div>
               )}
@@ -599,15 +599,15 @@ export default function AccountPage() {
               color: expandedSection === 'personal' ? '#2196F3' : '#374151'
             }}
           >
-            <span>👤 Dados Pessoais</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'personal' ? '▼' : '▶'}</span>
+            <span> Dados Pessoais</span>
+            <span style={{ fontSize: 20 }}>{expandedSection === 'personal' ? '' : '▶'}</span>
           </button>
 
           {expandedSection === 'personal' && (
             <div style={{ padding: 20, borderTop: '1px solid #e5e7eb' }}>
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: '#374151' }}>
-                  📧 Email
+                   Email
                 </label>
                 <input
                   type="email"
@@ -631,7 +631,7 @@ export default function AccountPage() {
 
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: '#374151' }}>
-                  👤 Nome
+                   Nome
                 </label>
                 <input
                   type="text"
@@ -653,7 +653,7 @@ export default function AccountPage() {
 
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: '#374151' }}>
-                  📞 Telefone
+                   Telefone
                 </label>
                 <input
                   type="tel"
@@ -690,7 +690,7 @@ export default function AccountPage() {
                   boxShadow: saving ? 'none' : '0 4px 12px rgba(33, 150, 243, 0.3)'
                 }}
               >
-                {saving ? '💾 Salvando...' : '💾 Salvar Dados'}
+                {saving ? ' Salvando...' : ' Salvar Dados'}
               </button>
             </div>
           )}
@@ -720,15 +720,15 @@ export default function AccountPage() {
               color: expandedSection === 'goals' ? '#10b981' : '#374151'
             }}
           >
-            <span>🎯 Metas Diárias</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'goals' ? '▼' : '▶'}</span>
+            <span> Metas Diárias</span>
+            <span style={{ fontSize: 20 }}>{expandedSection === 'goals' ? '' : '▶'}</span>
           </button>
 
           {expandedSection === 'goals' && (
             <div style={{ padding: 20, borderTop: '1px solid #e5e7eb' }}>
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: '#374151' }}>
-                  🔥 Calorias (kcal)
+                   Calorias (kcal)
                 </label>
                 <input
                   type="number"
@@ -752,7 +752,7 @@ export default function AccountPage() {
 
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: '#374151' }}>
-                  🥩 Proteína (g)
+                   Proteína (g)
                 </label>
                 <input
                   type="number"
@@ -776,7 +776,7 @@ export default function AccountPage() {
 
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: '#374151' }}>
-                  🍚 Carboidratos (g)
+                   Carboidratos (g)
                 </label>
                 <input
                   type="number"
@@ -824,7 +824,7 @@ export default function AccountPage() {
 
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: '#374151' }}>
-                  💧 Água (ml)
+                   Água (ml)
                 </label>
                 <input
                   type="number"
@@ -866,7 +866,7 @@ export default function AccountPage() {
                   boxShadow: saving ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)'
                 }}
               >
-                {saving ? '💾 Salvando...' : '💾 Salvar Metas'}
+                {saving ? ' Salvando...' : ' Salvar Metas'}
               </button>
             </div>
           )}
@@ -896,8 +896,8 @@ export default function AccountPage() {
               color: expandedSection === 'info' ? '#6366f1' : '#374151'
             }}
           >
-            <span>ℹ️ Informações da Conta</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'info' ? '▼' : '▶'}</span>
+            <span> Informações da Conta</span>
+            <span style={{ fontSize: 20 }}>{expandedSection === 'info' ? '' : '▶'}</span>
           </button>
 
           {expandedSection === 'info' && (
@@ -908,7 +908,7 @@ export default function AccountPage() {
                     Perfil
                   </span>
                   <p style={{ fontSize: 14, color: '#374151', margin: '4px 0 0 0', fontWeight: 600 }}>
-                    {profile.role === 'owner' ? '👑 Proprietário' : profile.role === 'admin' ? '🛡️ Administrador' : '👤 Membro'}
+                    {profile.role === 'owner' ? ' Proprietário' : profile.role === 'admin' ? ' Administrador' : ' Membro'}
                   </p>
                 </div>
                 <div>
@@ -952,8 +952,8 @@ export default function AccountPage() {
               color: expandedSection === 'danger' ? '#ef4444' : '#374151'
             }}
           >
-            <span>⚠️ Zona de Perigo</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'danger' ? '▼' : '▶'}</span>
+            <span> Zona de Perigo</span>
+            <span style={{ fontSize: 20 }}>{expandedSection === 'danger' ? '' : '▶'}</span>
           </button>
 
           {expandedSection === 'danger' && (
@@ -966,7 +966,7 @@ export default function AccountPage() {
                 marginBottom: 16
               }}>
                 <p style={{ fontSize: 14, color: '#991b1b', margin: 0, fontWeight: 600 }}>
-                  ⚠️ Atenção: Excluir sua conta é uma ação permanente e irreversível!
+                   Atenção: Excluir sua conta é uma ação permanente e irreversível!
                 </p>
               </div>
 
@@ -1005,7 +1005,7 @@ export default function AccountPage() {
                   e.currentTarget.style.color = '#ef4444';
                 }}
               >
-                🗑️ Excluir minha conta permanentemente
+                 Excluir minha conta permanentemente
               </button>
             </div>
           )}
@@ -1036,7 +1036,7 @@ export default function AccountPage() {
             boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
           }}>
             <h2 style={{ fontSize: 24, fontWeight: 700, color: '#ef4444', marginBottom: 16 }}>
-              ⚠️ Tem certeza absoluta?
+               Tem certeza absoluta?
             </h2>
 
             <p style={{ fontSize: 16, color: '#374151', marginBottom: 20, lineHeight: 1.6 }}>
@@ -1044,11 +1044,11 @@ export default function AccountPage() {
             </p>
 
             <ul style={{ fontSize: 14, color: '#6b7280', marginBottom: 24, paddingLeft: 20 }}>
-              <li>❌ Todos os seus dados pessoais</li>
-              <li>❌ Todas as suas refeições registradas</li>
-              <li>❌ Todos os seus alimentos cadastrados</li>
-              <li>❌ Todo o histórico de água</li>
-              <li>❌ Suas metas e configurações</li>
+              <li> Todos os seus dados pessoais</li>
+              <li> Todas as suas refeições registradas</li>
+              <li> Todos os seus alimentos cadastrados</li>
+              <li> Todo o histórico de água</li>
+              <li> Suas metas e configurações</li>
             </ul>
 
             <div style={{
@@ -1059,7 +1059,7 @@ export default function AccountPage() {
               marginBottom: 24
             }}>
               <p style={{ fontSize: 14, color: '#991b1b', margin: 0, fontWeight: 700, textAlign: 'center' }}>
-                ⚠️ ESTA AÇÃO É IRREVERSÍVEL E PERMANENTE!
+                 ESTA AÇÃO É IRREVERSÍVEL E PERMANENTE!
               </p>
             </div>
 
@@ -1143,7 +1143,7 @@ export default function AccountPage() {
                 fontSize: 14,
                 fontWeight: 600
               }}>
-                ⚠️ {deleteError}
+                 {deleteError}
               </div>
             )}
 
@@ -1245,7 +1245,7 @@ export default function AccountPage() {
                   cursor: (deleting || !deletePassword || !deleteConfirmText || !deleteAgreed) ? 'not-allowed' : 'pointer'
                 }}
               >
-                {deleting ? '🗑️ Excluindo...' : '🗑️ Excluir permanentemente'}
+                {deleting ? ' Excluindo...' : ' Excluir permanentemente'}
               </button>
             </div>
           </div>

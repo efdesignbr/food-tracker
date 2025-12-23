@@ -118,7 +118,7 @@ export default function CoachPage() {
       />
 
       <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 24 }}>
-        🤖 Coach IA
+         Coach IA
       </h1>
 
       {/* Loading inicial */}
@@ -132,7 +132,7 @@ export default function CoachPage() {
           marginBottom: 24
         }}>
           <div style={{ fontSize: 16, color: '#6b7280' }}>
-            ⏳ Carregando informações...
+             Carregando informações...
           </div>
         </div>
       )}
@@ -147,7 +147,7 @@ export default function CoachPage() {
           marginBottom: 24
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-            <div style={{ fontSize: 32 }}>⚙️</div>
+            <div style={{ fontSize: 32 }}></div>
             <div style={{ flex: 1 }}>
               <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#92400e' }}>
                 Configure seus objetivos primeiro
@@ -167,7 +167,7 @@ export default function CoachPage() {
                   textDecoration: 'none'
                 }}
               >
-                🎯 Configurar Objetivos Agora
+                 Configurar Objetivos Agora
               </a>
             </div>
           </div>
@@ -199,11 +199,11 @@ export default function CoachPage() {
               fontSize: 12,
               fontWeight: 700
             }}>
-              🔒 PREMIUM
+               PREMIUM
             </div>
           )}
           <div style={{ fontSize: 48, marginBottom: 16 }}>
-            {canUseCoach ? '🎯' : '🔒'}
+            {canUseCoach ? '' : ''}
           </div>
           <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>
             {canUseCoach ? 'Análise Personalizada' : 'Recurso Premium'}
@@ -229,10 +229,10 @@ export default function CoachPage() {
             }}
           >
             {loading
-              ? '⏳ Analisando...'
+              ? ' Analisando...'
               : canUseCoach
-                ? '🚀 Analisar Agora'
-                : '🔓 Desbloquear Premium'}
+                ? ' Analisar Agora'
+                : ' Desbloquear Premium'}
           </button>
         </div>
       )}
@@ -247,7 +247,7 @@ export default function CoachPage() {
           textAlign: 'center',
           marginBottom: 24
         }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
+          <div style={{ fontSize: 48, marginBottom: 16 }}></div>
           <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12, color: '#92400e' }}>
             Dados insuficientes para análise
           </h3>
@@ -262,13 +262,13 @@ export default function CoachPage() {
             textAlign: 'left'
           }}>
             <li style={{ padding: '8px 0', fontSize: 15, color: '#92400e' }}>
-              📊 Peso atual
+               Peso atual
             </li>
             <li style={{ padding: '8px 0', fontSize: 15, color: '#92400e' }}>
-              📏 Medidas corporais (cintura, quadril, etc.)
+               Medidas corporais (cintura, quadril, etc.)
             </li>
             <li style={{ padding: '8px 0', fontSize: 15, color: '#92400e' }}>
-              🍽️ Refeições recentes
+               Refeições recentes
             </li>
           </ul>
           <div style={{ marginTop: 24, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -330,7 +330,7 @@ export default function CoachPage() {
             }} />
           </div>
           <div style={{ fontSize: 14, color: '#6b7280', textAlign: 'center' }}>
-            🤖 Analisando seus dados e gerando insights...
+             Analisando seus dados e gerando insights...
           </div>
         </div>
       )}
@@ -345,7 +345,7 @@ export default function CoachPage() {
           color: '#991b1b',
           marginBottom: 24
         }}>
-          ❌ {error}
+           {error}
         </div>
       )}
 
@@ -355,7 +355,7 @@ export default function CoachPage() {
           {/* Data da análise */}
           {analysis.analysis_date && (
             <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>
-              📅 Análise de {new Date(analysis.analysis_date).toLocaleDateString('pt-BR', {
+               Análise de {new Date(analysis.analysis_date).toLocaleDateString('pt-BR', {
                 day: '2-digit',
                 month: 'long',
                 year: 'numeric',
@@ -375,7 +375,7 @@ export default function CoachPage() {
               marginBottom: 24
             }}>
               <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: '#ef4444' }}>
-                ⚠️ Alertas Importantes
+                 Alertas Importantes
               </h3>
               <ul style={{ paddingLeft: 20, margin: 0 }}>
                 {analysis.warnings.map((warning: string, i: number) => (
@@ -396,7 +396,7 @@ export default function CoachPage() {
             marginBottom: 24
           }}>
             <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>
-              📊 Análise Geral
+               Análise Geral
             </h3>
             <div style={{ fontSize: 16, lineHeight: 1.8, color: '#374151', whiteSpace: 'pre-wrap' }}>
               {analysis.analysisText}
@@ -413,7 +413,7 @@ export default function CoachPage() {
               marginBottom: 24
             }}>
               <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: '#3b82f6' }}>
-                💡 Insights Identificados
+                 Insights Identificados
               </h3>
               <ul style={{ paddingLeft: 20, margin: 0 }}>
                 {analysis.insights.map((insight: string, i: number) => (
@@ -435,7 +435,7 @@ export default function CoachPage() {
               marginBottom: 24
             }}>
               <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: '#10b981' }}>
-                ✅ Recomendações Práticas
+                 Recomendações Práticas
               </h3>
               <ul style={{ paddingLeft: 20, margin: 0 }}>
                 {analysis.recommendations.map((rec: string, i: number) => (
@@ -459,7 +459,7 @@ export default function CoachPage() {
           marginTop: 32
         }}>
           <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>
-            📜 Histórico de Análises
+             Histórico de Análises
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {history.slice(1).map((h, i) => (
@@ -482,7 +482,7 @@ export default function CoachPage() {
                   fontSize: 14
                 }}
               >
-                📅 {new Date(h.analysis_date).toLocaleDateString('pt-BR', {
+                 {new Date(h.analysis_date).toLocaleDateString('pt-BR', {
                   day: '2-digit',
                   month: 'short',
                   year: 'numeric',

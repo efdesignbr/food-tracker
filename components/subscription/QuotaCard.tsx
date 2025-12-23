@@ -12,12 +12,12 @@ interface QuotaCardProps {
 const QUOTA_CONFIG = {
   photo: {
     title: 'Análise de Fotos',
-    icon: '📸',
+    icon: '',
     unit: 'análises'
   },
   ocr: {
     title: 'Análise de Tabelas',
-    icon: '📋',
+    icon: '',
     unit: 'análises'
   }
 } as const;
@@ -147,8 +147,8 @@ export default function QuotaCard({
           }}
         >
           {percentage >= 90
-            ? `⚠️ Você está quase no limite! Restam apenas ${remaining} ${config.unit}.`
-            : `⚡ Atenção: você já usou ${percentage}% da sua quota este mês.`}
+            ? ` Você está quase no limite! Restam apenas ${remaining} ${config.unit}.`
+            : ` Atenção: você já usou ${percentage}% da sua quota este mês.`}
         </div>
       )}
 
@@ -166,7 +166,7 @@ export default function QuotaCard({
             fontWeight: 600
           }}
         >
-          🚫 Limite mensal atingido. Sua quota será renovada em {formatDate(resetDate)}.
+           Limite mensal atingido. Sua quota será renovada em {formatDate(resetDate)}.
         </div>
       )}
     </div>

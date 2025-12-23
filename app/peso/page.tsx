@@ -173,7 +173,7 @@ export default function WeightPage() {
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>⚖️ Registro de Peso e Medidas</h1>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}> Registro de Peso e Medidas</h1>
 
       {/* Tabs */}
       <div style={{
@@ -197,7 +197,7 @@ export default function WeightPage() {
             marginBottom: activeTab === 'weight' ? '-2px' : '0'
           }}
         >
-          ⚖️ Peso
+           Peso
         </button>
         <button
           onClick={() => setActiveTab('measurements')}
@@ -214,7 +214,7 @@ export default function WeightPage() {
             marginBottom: activeTab === 'measurements' ? '-2px' : '0'
           }}
         >
-          📐 Medidas Corporais
+           Medidas Corporais
         </button>
       </div>
 
@@ -252,7 +252,7 @@ export default function WeightPage() {
 
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                ⚖️ Peso (kg) *
+                 Peso (kg) *
               </label>
               <input
                 type="number"
@@ -273,7 +273,7 @@ export default function WeightPage() {
 
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                📝 Observações (opcional)
+                 Observações (opcional)
               </label>
               <textarea
                 value={notes}
@@ -301,7 +301,7 @@ export default function WeightPage() {
                 color: '#991b1b',
                 marginBottom: 16
               }}>
-                ❌ {error}
+                 {error}
               </div>
             )}
 
@@ -314,7 +314,7 @@ export default function WeightPage() {
                 color: '#065f46',
                 marginBottom: 16
               }}>
-                ✅ Peso registrado com sucesso!
+                 Peso registrado com sucesso!
               </div>
             )}
 
@@ -333,7 +333,7 @@ export default function WeightPage() {
                 cursor: loading ? 'not-allowed' : 'pointer'
               }}
             >
-              {loading ? '💾 Salvando...' : '✅ Salvar Peso'}
+              {loading ? ' Salvando...' : ' Salvar Peso'}
             </button>
           </form>
 
@@ -346,7 +346,7 @@ export default function WeightPage() {
               padding: 24,
               marginBottom: 24
             }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}>📈 Evolução do Peso</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}> Evolução do Peso</h2>
 
               <div style={{ position: 'relative', paddingLeft: 40 }}>
                 {/* Linha vertical da timeline */}
@@ -457,7 +457,7 @@ export default function WeightPage() {
                                 fontWeight: 600
                               }}
                             >
-                              🗑️
+                              
                             </button>
                           </div>
                         </div>
@@ -473,7 +473,7 @@ export default function WeightPage() {
                             borderRadius: 8,
                             borderLeft: '3px solid #d1d5db'
                           }}>
-                            💬 {log.notes}
+                             {log.notes}
                           </div>
                         )}
                       </div>
@@ -491,7 +491,7 @@ export default function WeightPage() {
                     border: '2px dashed #d1d5db'
                   }}>
                     <div style={{ fontSize: 14, fontWeight: 600, color: '#6b7280', marginBottom: 12 }}>
-                      📊 Resumo do período
+                       Resumo do período
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
                       <div>
@@ -527,7 +527,7 @@ export default function WeightPage() {
           {/* Histórico Compacto */}
           {logs.length === 0 && (
             <div>
-              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>📊 Histórico</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}> Histórico</h2>
               <div style={{
                 padding: 32,
                 textAlign: 'center',

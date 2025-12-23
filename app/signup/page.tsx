@@ -98,7 +98,7 @@ function SignupForm() {
           fontWeight: 600,
           textAlign: 'center'
         }}>
-          ✅ Conta excluída com sucesso. Você pode criar uma nova conta quando quiser.
+           Conta excluída com sucesso. Você pode criar uma nova conta quando quiser.
         </div>
       )}
 

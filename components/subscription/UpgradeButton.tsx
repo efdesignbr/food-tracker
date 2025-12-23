@@ -90,7 +90,7 @@ export default function UpgradeButton({
         e.currentTarget.style.boxShadow = variantStyle.boxShadow;
       }}
     >
-      {currentPlan === 'free' && '✨ '}
+      {currentPlan === 'free' && ' '}
       {buttonText}
     </button>
   );

@@ -57,7 +57,7 @@ export default function MeasurementForm({ onSuccess }: MeasurementFormProps) {
       if (formData.right_calf && formData.right_calf.trim()) payload.right_calf = parseFloat(formData.right_calf);
       if (formData.notes && formData.notes.trim()) payload.notes = formData.notes;
 
-      console.log('📊 Payload being sent:', payload);
+      console.log(' Payload being sent:', payload);
 
       // Validar que pelo menos uma medida foi preenchida
       const hasAtLeastOne = Object.keys(payload).some(key =>
@@ -108,7 +108,7 @@ export default function MeasurementForm({ onSuccess }: MeasurementFormProps) {
       padding: 24,
       marginBottom: 24
     }}>
-      <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>📐 Novo Registro de Medidas</h2>
+      <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}> Novo Registro de Medidas</h2>
 
       <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 20 }}>
         Preencha as medidas que desejar. Todas são opcionais, mas recomenda-se registrar pelo menos uma.
@@ -202,7 +202,7 @@ export default function MeasurementForm({ onSuccess }: MeasurementFormProps) {
       {/* Membros */}
       <div style={{ marginBottom: 24 }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12, color: '#374151' }}>
-          💪 Membros
+           Membros
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
           <div>
@@ -325,7 +325,7 @@ export default function MeasurementForm({ onSuccess }: MeasurementFormProps) {
       {/* Observações */}
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-          📝 Observações (opcional)
+           Observações (opcional)
         </label>
         <textarea
           value={formData.notes}
@@ -353,7 +353,7 @@ export default function MeasurementForm({ onSuccess }: MeasurementFormProps) {
           color: '#991b1b',
           marginBottom: 16
         }}>
-          ❌ {error}
+           {error}
         </div>
       )}
 
@@ -366,7 +366,7 @@ export default function MeasurementForm({ onSuccess }: MeasurementFormProps) {
           color: '#065f46',
           marginBottom: 16
         }}>
-          ✅ Medidas registradas com sucesso!
+           Medidas registradas com sucesso!
         </div>
       )}
 
@@ -385,7 +385,7 @@ export default function MeasurementForm({ onSuccess }: MeasurementFormProps) {
           cursor: loading ? 'not-allowed' : 'pointer'
         }}
       >
-        {loading ? '💾 Salvando...' : '✅ Salvar Medidas'}
+        {loading ? ' Salvando...' : ' Salvar Medidas'}
       </button>
     </form>
   );

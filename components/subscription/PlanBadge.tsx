@@ -17,7 +17,7 @@ const PLAN_CONFIG = {
   },
   premium: {
     label: 'PRO',
-    emoji: '💎',
+    emoji: '',
     bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     text: '#ffffff',
     border: '#667eea'

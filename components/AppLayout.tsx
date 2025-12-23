@@ -14,15 +14,15 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { href: '/', label: 'Início', icon: '🏠' },
-  { href: '/capture', label: 'Capturar', icon: '📸' },
-  { href: '/history', label: 'Histórico', icon: '📋' },
-  { href: '/peso', label: 'Peso', icon: '⚖️' },
-  { href: '/coach', label: 'Coach IA', icon: '🤖' },
-  { href: '/reports', label: 'Relatórios', icon: '📊' },
-  { href: '/restaurants', label: 'Restaurantes', icon: '🍽️' },
-  { href: '/meus-alimentos', label: 'Meus Alimentos', icon: '🍎' },
-  { href: '/account', label: 'Minha Conta', icon: '⚙️' }
+  { href: '/', label: 'Início', icon: '' },
+  { href: '/capture', label: 'Capturar', icon: '' },
+  { href: '/history', label: 'Histórico', icon: '' },
+  { href: '/peso', label: 'Peso', icon: '' },
+  { href: '/coach', label: 'Coach IA', icon: '' },
+  { href: '/reports', label: 'Relatórios', icon: '' },
+  { href: '/restaurants', label: 'Restaurantes', icon: '' },
+  { href: '/meus-alimentos', label: 'Meus Alimentos', icon: '' },
+  { href: '/account', label: 'Minha Conta', icon: '' }
 ];
 
 export default function AppLayout({ children, tenantName, userName }: {
@@ -150,7 +150,7 @@ export default function AppLayout({ children, tenantName, userName }: {
               }}
               className="mobile-menu-btn"
             >
-              {showMobileMenu ? '✕' : '☰'}
+              {showMobileMenu ? '' : ''}
             </button>
           </nav>
         </div>
@@ -200,7 +200,7 @@ export default function AppLayout({ children, tenantName, userName }: {
                 color: '#c62828'
               }}
             >
-              <span style={{ fontSize: 20 }}>🚪</span>
+              <span style={{ fontSize: 20 }}></span>
               Sair
             </button>
           </div>
