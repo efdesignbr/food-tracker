@@ -494,6 +494,27 @@ export default function CoachPage() {
           </div>
         </div>
       )}
+
+      {/* Disclaimer IA */}
+      <div style={{
+        marginTop: 32,
+        padding: 16,
+        background: '#f9fafb',
+        borderRadius: 12,
+        border: '1px solid #e5e7eb'
+      }}>
+        <p style={{
+          margin: 0,
+          fontSize: 12,
+          color: '#6b7280',
+          textAlign: 'center',
+          lineHeight: 1.6
+        }}>
+          As informacoes sao geradas por inteligencia artificial e tem carater informativo.
+          Nao substituem orientacao de nutricionistas ou medicos.
+          Consulte um profissional de saude para orientacoes personalizadas.
+        </p>
+      </div>
     </div>
   );
 }

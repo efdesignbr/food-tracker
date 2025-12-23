@@ -685,6 +685,17 @@ export default function ReportsPage() {
               ))}
             </ul>
           </div>
+
+          {/* Disclaimer IA */}
+          <p style={{
+            margin: '16px 0 0 0',
+            fontSize: 11,
+            color: '#9ca3af',
+            textAlign: 'center',
+            lineHeight: 1.5
+          }}>
+            Analise gerada por inteligencia artificial. Nao substitui orientacao de profissionais de saude.
+          </p>
         </div>
       )}
 
