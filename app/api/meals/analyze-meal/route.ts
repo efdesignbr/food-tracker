@@ -73,23 +73,8 @@ export async function POST(req: NextRequest) {
       userPlan = (userData[0]?.plan || 'free') as Plan;
     }
 
-    // 🔒 PAYWALL: Verificar quota se tem foto
+    // Verificar quota se tem foto (todos os planos têm limite, exceto UNLIMITED)
     if (imageBase64) {
-      // FREE não pode usar fotos
-      if (userPlan === 'free') {
-        return NextResponse.json(
-          {
-            error: 'upgrade_required',
-            message: 'Análise de foto é um recurso PREMIUM',
-            feature: 'photo_analysis',
-            currentPlan: 'free',
-            upgradeTo: 'premium',
-          },
-          { status: 403 }
-        );
-      }
-
-      // PREMIUM: verificar quota
       const quota = await checkQuota(session.userId, tenant.id, userPlan, 'photo');
 
       if (!quota.allowed) {
@@ -188,9 +173,13 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    // ✅ Incrementar quota APÓS sucesso (só se usou foto e é PREMIUM)
-    if (imageBase64 && userPlan === 'premium') {
-      await incrementQuota(session.userId, tenant.id, 'photo');
+    // ✅ Incrementar quota APÓS sucesso (exceto UNLIMITED)
+    if (userPlan !== 'unlimited') {
+      if (imageBase64) {
+        await incrementQuota(session.userId, tenant.id, 'photo');
+      } else {
+        await incrementQuota(session.userId, tenant.id, 'text');
+      }
     }
 
     return NextResponse.json({ result });

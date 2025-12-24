@@ -59,21 +59,7 @@ export async function POST(req: Request) {
     );
     const userPlan = (userData[0]?.plan || 'free') as Plan;
 
-    // FREE não pode usar análise de imagem
-    if (userPlan === 'free') {
-      return NextResponse.json(
-        {
-          error: 'upgrade_required',
-          message: 'Análise de foto é um recurso PREMIUM',
-          feature: 'photo_analysis',
-          currentPlan: 'free',
-          upgradeTo: 'premium',
-        },
-        { status: 403 }
-      );
-    }
-
-    // PREMIUM: verificar quota
+    // Verificar quota (todos os planos têm limite, exceto UNLIMITED)
     const quota = await checkQuota(session.userId, tenant.id, userPlan, 'photo');
     if (!quota.allowed) {
       // Calcular próximo reset (dia 1º do próximo mês)
@@ -117,8 +103,8 @@ export async function POST(req: Request) {
     const bytes = new Uint8Array(processedBuffer);
     const result = await analyzeMealFromImage(bytes, 'image/jpeg', context);
 
-    // ✅ Incrementar quota APÓS sucesso
-    if (userPlan === 'premium') {
+    // ✅ Incrementar quota APÓS sucesso (exceto UNLIMITED)
+    if (userPlan !== 'unlimited') {
       await incrementQuota(session.userId, tenant.id, 'photo');
     }
 

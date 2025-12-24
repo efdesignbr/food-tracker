@@ -125,13 +125,6 @@ export default function CapturePage() {
   }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    // Bloquear para FREE
-    if (plan === 'free') {
-      setShowPaywall(true);
-      e.target.value = ''; // Limpa o input
-      return;
-    }
-
     const f = e.target.files?.[0];
     if (f) {
       setLoading(true);
@@ -432,11 +425,11 @@ export default function CapturePage() {
 
       {/* Foto (opcional) */}
       <div style={{
-        border: plan === 'free' ? '2px dashed #fbbf24' : '2px dashed #d1d5db',
+        border: '2px dashed #d1d5db',
         borderRadius: 16,
         padding: 24,
         textAlign: 'center',
-        background: plan === 'free' ? '#fffbeb' : '#f9fafb',
+        background: '#f9fafb',
         marginBottom: 24,
         position: 'relative'
       }}>
@@ -457,7 +450,7 @@ export default function CapturePage() {
               >
                 Remover Foto
               </button>
-              {!analysis && plan !== 'free' && (
+              {!analysis && (
                 <button
                   onClick={analyzePhotoOnly}
                   disabled={loading}
@@ -477,41 +470,31 @@ export default function CapturePage() {
             </div>
           </div>
         ) : (
-          <label style={{ cursor: plan === 'free' ? 'not-allowed' : 'pointer' }}>
-            <div style={{ fontSize: 40, marginBottom: 8, color: plan === 'free' ? '#fbbf24' : '#2196F3' }}>
-              {plan === 'free' ? 'Bloqueado' : 'Foto'}
+          <label style={{ cursor: 'pointer' }}>
+            <div style={{ fontSize: 40, marginBottom: 8, color: '#2196F3' }}>
+              Foto
             </div>
-            <div style={{ fontSize: 14, color: plan === 'free' ? '#92400e' : '#666', marginBottom: 12 }}>
-              {plan === 'free'
-                ? 'Análise de foto disponível apenas para usuários PREMIUM'
-                : 'Adicionar foto da refeição (opcional)'}
+            <div style={{ fontSize: 14, color: '#666', marginBottom: 12 }}>
+              Adicionar foto da refeição (opcional)
             </div>
             <input
               type="file"
               accept="image/*"
               onChange={handleFileChange}
               style={{ display: 'none' }}
-              disabled={plan === 'free'}
             />
             <div
-              onClick={(e) => {
-                if (plan === 'free') {
-                  e.preventDefault();
-                  setShowPaywall(true);
-                }
-              }}
               style={{
                 display: 'inline-block',
                 padding: '10px 20px',
-                background: plan === 'free' ? '#fbbf24' : '#2196F3',
+                background: '#2196F3',
                 color: 'white',
                 borderRadius: 8,
                 fontWeight: 600,
-                fontSize: 14,
-                cursor: plan === 'free' ? 'pointer' : 'default'
+                fontSize: 14
               }}
             >
-              {plan === 'free' ? 'Desbloquear Premium' : 'Selecionar Foto'}
+              Selecionar Foto
             </div>
           </label>
         )}

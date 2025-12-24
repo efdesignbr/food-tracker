@@ -27,6 +27,7 @@ export interface UsageQuota {
   month: string; // 'YYYY-MM'
   photo_analyses: number;
   ocr_analyses: number;
+  text_analyses: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -34,6 +35,7 @@ export interface UsageQuota {
 export interface QuotaLimits {
   photo_analyses_per_month: number;
   ocr_analyses_per_month: number;
+  text_analyses_per_month: number;
   history_days: number | null; // null = ilimitado
   coach_ai: boolean;
   advanced_reports: boolean;

@@ -80,23 +80,15 @@ export async function checkQuota(
   userId: string,
   tenantId: string,
   plan: Plan,
-  quotaType: 'photo' | 'ocr'
+  quotaType: 'photo' | 'ocr' | 'text'
 ): Promise<QuotaCheck> {
-  // FREE não tem acesso a recursos visuais
-  if (plan === 'free') {
-    return {
-      allowed: false,
-      used: 0,
-      limit: 0,
-      remaining: 0,
-    };
-  }
-
   // UNLIMITED: sempre permite (admins/owners)
   if (plan === 'unlimited') {
     const quota = await getOrCreateQuota(userId, tenantId);
     const used =
-      quotaType === 'photo' ? quota.photo_analyses : quota.ocr_analyses;
+      quotaType === 'photo' ? quota.photo_analyses :
+      quotaType === 'ocr' ? quota.ocr_analyses :
+      quota.text_analyses;
 
     return {
       allowed: true,
@@ -106,16 +98,18 @@ export async function checkQuota(
     };
   }
 
-  // PREMIUM: verifica quota
+  // FREE e PREMIUM: verifica quota baseado no plano
   const limits = PLAN_LIMITS[plan];
   const limit =
-    quotaType === 'photo'
-      ? limits.photo_analyses_per_month
-      : limits.ocr_analyses_per_month;
+    quotaType === 'photo' ? limits.photo_analyses_per_month :
+    quotaType === 'ocr' ? limits.ocr_analyses_per_month :
+    limits.text_analyses_per_month;
 
   const quota = await getOrCreateQuota(userId, tenantId);
   const used =
-    quotaType === 'photo' ? quota.photo_analyses : quota.ocr_analyses;
+    quotaType === 'photo' ? quota.photo_analyses :
+    quotaType === 'ocr' ? quota.ocr_analyses :
+    quota.text_analyses;
 
   return {
     allowed: used < limit,
@@ -145,11 +139,14 @@ export async function checkQuota(
 export async function incrementQuota(
   userId: string,
   tenantId: string,
-  quotaType: 'photo' | 'ocr'
+  quotaType: 'photo' | 'ocr' | 'text'
 ): Promise<void> {
   const pool = getPool();
   const month = getCurrentMonth();
-  const field = quotaType === 'photo' ? 'photo_analyses' : 'ocr_analyses';
+  const field =
+    quotaType === 'photo' ? 'photo_analyses' :
+    quotaType === 'ocr' ? 'ocr_analyses' :
+    'text_analyses';
 
   // Garante que o registro existe
   await getOrCreateQuota(userId, tenantId, month);

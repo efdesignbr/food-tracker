@@ -165,12 +165,6 @@ export default function MeusAlimentosPage() {
   async function handleAnalyzeImage() {
     if (!selectedImage) return;
 
-    // Bloquear para FREE
-    if (plan === 'free') {
-      setShowPaywall(true);
-      return;
-    }
-
     setError(null);
     setAnalyzing(true);
 
@@ -411,17 +405,13 @@ export default function MeusAlimentosPage() {
 
         <button
           onClick={() => {
-            if (plan === 'free' && !showAiForm) {
-              setShowPaywall(true);
-              return;
-            }
             setShowAiForm(!showAiForm);
             setShowManualForm(false);
           }}
           style={{
             flex: 1,
             padding: 16,
-            background: showAiForm ? '#6b7280' : (plan === 'free' ? '#fbbf24' : '#10b981'),
+            background: showAiForm ? '#6b7280' : '#10b981',
             color: 'white',
             border: 'none',
             borderRadius: 12,
@@ -430,7 +420,7 @@ export default function MeusAlimentosPage() {
             cursor: 'pointer'
           }}
         >
-          {showAiForm ? ' Cancelar' : (plan === 'free' ? ' Analisar com IA (Premium)' : ' Analisar com IA')}
+          {showAiForm ? ' Cancelar' : ' Analisar com IA'}
         </button>
       </div>
 

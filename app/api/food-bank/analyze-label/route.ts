@@ -63,21 +63,7 @@ export async function POST(req: Request) {
     );
     const userPlan = (userData[0]?.plan || 'free') as Plan;
 
-    // FREE não pode usar OCR de tabelas
-    if (userPlan === 'free') {
-      return NextResponse.json(
-        {
-          error: 'upgrade_required',
-          message: 'OCR de tabelas nutricionais é um recurso PREMIUM',
-          feature: 'ocr_analysis',
-          currentPlan: 'free',
-          upgradeTo: 'premium',
-        },
-        { status: 403 }
-      );
-    }
-
-    // PREMIUM: verificar quota
+    // FREE e PREMIUM: verificar quota
     const quota = await checkQuota(session.userId, tenant.id, userPlan, 'ocr');
     if (!quota.allowed) {
       // Calcular próximo reset (dia 1º do próximo mês)
@@ -130,8 +116,8 @@ export async function POST(req: Request) {
 
     console.log('✅ [API] Análise concluída:', result);
 
-    // ✅ Incrementar quota de OCR APÓS sucesso
-    if (userPlan === 'premium') {
+    // ✅ Incrementar quota de OCR APÓS sucesso (FREE e PREMIUM)
+    if (userPlan !== 'unlimited') {
       await incrementQuota(session.userId, tenant.id, 'ocr');
     }
 

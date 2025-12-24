@@ -50,11 +50,14 @@ export const PERIOD = {
 // 💎 Subscription Plans & Quotas
 export const PLAN_LIMITS = {
   free: {
-    /** Análises de foto de refeições por mês (FREE não tem acesso) */
-    photo_analyses_per_month: 0,
+    /** Análises de foto de refeições por mês */
+    photo_analyses_per_month: 15,
 
-    /** Análises de tabela nutricional (OCR) por mês (FREE não tem acesso) */
-    ocr_analyses_per_month: 0,
+    /** Análises de tabela nutricional (OCR) por mês */
+    ocr_analyses_per_month: 15,
+
+    /** Análises de texto por mês */
+    text_analyses_per_month: 15,
 
     /** Dias de histórico disponível (FREE limitado a 30 dias) */
     history_days: 30,
@@ -69,11 +72,14 @@ export const PLAN_LIMITS = {
     data_export: false,
   },
   premium: {
-    /** Análises de foto de refeições por mês (3 por dia de média) */
-    photo_analyses_per_month: 90,
+    /** Análises de foto de refeições por mês */
+    photo_analyses_per_month: 15,
 
-    /** Análises de tabela nutricional (OCR) por mês (1 por dia de média) */
-    ocr_analyses_per_month: 30,
+    /** Análises de tabela nutricional (OCR) por mês */
+    ocr_analyses_per_month: 15,
+
+    /** Análises de texto por mês */
+    text_analyses_per_month: 15,
 
     /** Dias de histórico disponível (null = ilimitado) */
     history_days: null,
@@ -94,6 +100,9 @@ export const PLAN_LIMITS = {
     /** Análises ilimitadas (para admins/owners) */
     ocr_analyses_per_month: 999999,
 
+    /** Análises ilimitadas (para admins/owners) */
+    text_analyses_per_month: 999999,
+
     /** Histórico ilimitado */
     history_days: null,
 
@@ -107,4 +116,5 @@ export const PLAN_LIMITS = {
 export const QUOTA_TYPES = {
   PHOTO: 'photo_analyses' as const,
   OCR: 'ocr_analyses' as const,
+  TEXT: 'text_analyses' as const,
 } as const;
