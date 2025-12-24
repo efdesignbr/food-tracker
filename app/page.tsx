@@ -13,6 +13,9 @@ type Food = {
   protein_g?: number;
   carbs_g?: number;
   fat_g?: number;
+  fiber_g?: number;
+  sodium_mg?: number;
+  sugar_g?: number;
 };
 
 type Meal = {
@@ -174,12 +177,24 @@ export default function HomePage() {
     const fat = todayMeals.reduce((sum, meal) =>
       sum + meal.foods.reduce((s, f) => s + (f.fat_g || 0), 0), 0
     );
+    const fiber = todayMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.fiber_g || 0), 0), 0
+    );
+    const sodium = todayMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.sodium_mg || 0), 0), 0
+    );
+    const sugar = todayMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.sugar_g || 0), 0), 0
+    );
 
     return {
       calories,
       protein,
       carbs,
       fat,
+      fiber,
+      sodium,
+      sugar,
       meals: todayMeals.slice(0, 3) // Last 3 meals
     };
   }, [meals]);
@@ -213,281 +228,254 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{ padding: 16, maxWidth: 800, margin: '0 auto', paddingBottom: 80 }}>
-      {/* Header */}
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}> Início</h1>
-
-      {/* Progresso de Hoje */}
+    <div style={{ padding: 16, paddingTop: 24, maxWidth: 800, margin: '0 auto', paddingBottom: 80 }}>
+      {/* Layout em duas colunas */}
       <div style={{
-        background: 'white',
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 16,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        border: '2px solid #2196F3'
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: 20,
+        marginBottom: 20
       }}>
-        <div style={{ marginBottom: 16 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#2196F3' }}>
-             Progresso de Hoje
+        {/* Coluna Esquerda: Progresso de Hoje */}
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#2196F3' }}>
+            Progresso de Hoje
           </h2>
-        </div>
-
-        {/* Calorias */}
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}> Calorias</span>
-            <span style={{ fontSize: 14, fontWeight: 700, color: todayStats.calories > goals.calories ? '#ef4444' : '#2196F3' }}>
-              {todayStats.calories.toFixed(0)} / {goals.calories} kcal
-            </span>
-          </div>
-          <div style={{
-            width: '100%',
-            height: 8,
-            background: '#e5e7eb',
-            borderRadius: 4,
-            overflow: 'hidden'
-          }}>
+          {/* Calorias */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>Calorias</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: todayStats.calories > goals.calories ? '#ef4444' : '#2196F3' }}>
+                {todayStats.calories.toFixed(0)} / {goals.calories} kcal
+              </span>
+            </div>
             <div style={{
-              width: `${Math.min((todayStats.calories / goals.calories) * 100, 100)}%`,
-              height: '100%',
-              background: todayStats.calories > goals.calories
-                ? 'linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)'
-                : 'linear-gradient(90deg, #10b981 0%, #2196F3 100%)',
-              transition: 'width 0.3s ease'
-            }} />
-          </div>
-          {todayStats.calories > goals.calories && (
-            <p style={{ fontSize: 11, color: '#ef4444', margin: '4px 0 0 0' }}>
-               Acima da meta em {(todayStats.calories - goals.calories).toFixed(0)} kcal
-            </p>
-          )}
-          {todayStats.calories < goals.calories && todayStats.calories > 0 && (
-            <p style={{ fontSize: 11, color: '#10b981', margin: '4px 0 0 0' }}>
-               Restam {(goals.calories - todayStats.calories).toFixed(0)} kcal
-            </p>
-          )}
-        </div>
-
-        {/* Macros Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-          {/* Proteína */}
-          <div>
-            <div style={{ fontSize: 11, color: '#666', marginBottom: 4 }}> Proteína</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
-              {todayStats.protein.toFixed(0)}g
-            </div>
-            <div style={{ fontSize: 10, color: '#6b7280' }}>
-              Meta: {goals.protein}g
-            </div>
-          </div>
-
-          {/* Carboidratos */}
-          <div>
-            <div style={{ fontSize: 11, color: '#666', marginBottom: 4 }}> Carbos</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
-              {todayStats.carbs.toFixed(0)}g
-            </div>
-            <div style={{ fontSize: 10, color: '#6b7280' }}>
-              Meta: {goals.carbs}g
-            </div>
-          </div>
-
-          {/* Gorduras */}
-          <div>
-            <div style={{ fontSize: 11, color: '#666', marginBottom: 4 }}>🧈 Gorduras</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
-              {todayStats.fat.toFixed(0)}g
-            </div>
-            <div style={{ fontSize: 10, color: '#6b7280' }}>
-              Meta: {goals.fat}g
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Card de Hidratação */}
-      <div style={{
-        background: 'white',
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 16,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        border: '2px solid #06b6d4'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#06b6d4' }}>
-             Hidratação
-          </h2>
-          <span style={{ fontSize: 13, color: '#666' }}>
-            {Math.floor(waterIntake / 250)} {Math.floor(waterIntake / 250) === 1 ? 'copo' : 'copos'}
-          </span>
-        </div>
-
-        {/* Barra de progresso */}
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}> Água</span>
-            <span style={{ fontSize: 14, fontWeight: 700, color: waterIntake >= goals.water ? '#06b6d4' : '#0891b2' }}>
-              {waterIntake} / {goals.water} ml
-            </span>
-          </div>
-          <div style={{
-            width: '100%',
-            height: 8,
-            background: '#e0f2fe',
-            borderRadius: 4,
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              width: `${Math.min((waterIntake / goals.water) * 100, 100)}%`,
-              height: '100%',
-              background: 'linear-gradient(90deg, #06b6d4 0%, #0891b2 100%)',
-              transition: 'width 0.3s ease'
-            }} />
-          </div>
-          {waterIntake >= goals.water && (
-            <p style={{ fontSize: 11, color: '#06b6d4', margin: '4px 0 0 0' }}>
-               Meta atingida! Parabéns!
-            </p>
-          )}
-          {waterIntake < goals.water && waterIntake > 0 && (
-            <p style={{ fontSize: 11, color: '#0891b2', margin: '4px 0 0 0' }}>
-              Faltam {goals.water - waterIntake}ml ({Math.ceil((goals.water - waterIntake) / 250)} copos)
-            </p>
-          )}
-        </div>
-
-        {/* Botões de ação */}
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button
-            onClick={() => addWater(250)}
-            disabled={addingWater}
-            style={{
-              flex: 1,
-              padding: '14px 16px',
-              border: 'none',
-              background: addingWater ? '#94a3b8' : 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-              color: 'white',
-              borderRadius: 12,
-              fontWeight: 600,
-              fontSize: 16,
-              cursor: addingWater ? 'not-allowed' : 'pointer',
-              boxShadow: '0 2px 8px rgba(6, 182, 212, 0.3)',
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8
-            }}
-            onMouseOver={(e) => {
-              if (!addingWater) {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(6, 182, 212, 0.4)';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (!addingWater) {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(6, 182, 212, 0.3)';
-              }
-            }}
-          >
-            <span style={{ fontSize: 20 }}></span>
-            <span>+ 250ml</span>
-          </button>
-
-          <button
-            onClick={() => addWater(500)}
-            disabled={addingWater}
-            style={{
-              flex: 1,
-              padding: '14px 16px',
-              border: '2px solid #06b6d4',
-              background: 'white',
-              color: '#06b6d4',
-              borderRadius: 12,
-              fontWeight: 600,
-              fontSize: 16,
-              cursor: addingWater ? 'not-allowed' : 'pointer',
-              opacity: addingWater ? 0.5 : 1,
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8
-            }}
-            onMouseOver={(e) => {
-              if (!addingWater) {
-                e.currentTarget.style.background = '#ecfeff';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (!addingWater) {
-                e.currentTarget.style.background = 'white';
-              }
-            }}
-          >
-            <span style={{ fontSize: 20 }}>🧊</span>
-            <span>+ 500ml</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Card de Saúde Intestinal */}
-      <div style={{
-        background: 'white',
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 16,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        border: '2px solid #f59e0b'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#f59e0b' }}>
-             Saúde Intestinal
-          </h2>
-          <span style={{ fontSize: 13, color: '#666' }}>
-            {bowelMovementsCount} {bowelMovementsCount === 1 ? 'vez' : 'vezes'} hoje
-          </span>
-        </div>
-
-        {!showBowelForm ? (
-          <button
-            onClick={() => setShowBowelForm(true)}
-            style={{
               width: '100%',
-              padding: '14px 16px',
-              border: 'none',
-              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-              color: 'white',
-              borderRadius: 12,
-              fontWeight: 600,
-              fontSize: 16,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.4)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(245, 158, 11, 0.3)';
-            }}
-          >
-            <span style={{ fontSize: 20 }}></span>
-            <span>Registrar Evacuação</span>
-          </button>
-        ) : (
-          <div>
-            <p style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>
-              Selecione o tipo de fezes (Escala de Bristol):
-            </p>
+              height: 8,
+              background: '#e5e7eb',
+              borderRadius: 4,
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${Math.min((todayStats.calories / goals.calories) * 100, 100)}%`,
+                height: '100%',
+                background: todayStats.calories > goals.calories
+                  ? 'linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)'
+                  : 'linear-gradient(90deg, #10b981 0%, #2196F3 100%)',
+                transition: 'width 0.3s ease'
+              }} />
+            </div>
+            {todayStats.calories > goals.calories && (
+              <p style={{ fontSize: 11, color: '#ef4444', margin: '4px 0 0 0' }}>
+                Acima da meta em {(todayStats.calories - goals.calories).toFixed(0)} kcal
+              </p>
+            )}
+            {todayStats.calories < goals.calories && todayStats.calories > 0 && (
+              <p style={{ fontSize: 11, color: '#10b981', margin: '4px 0 0 0' }}>
+                Restam {(goals.calories - todayStats.calories).toFixed(0)} kcal
+              </p>
+            )}
+          </div>
+
+          {/* Nutrientes Grid - 2 linhas x 3 colunas */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, flex: 1 }}>
+            {/* Proteína */}
+            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Proteína</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                {todayStats.protein.toFixed(0)}g
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                Meta: {goals.protein}g
+              </div>
+            </div>
+
+            {/* Carboidratos */}
+            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Carbos</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                {todayStats.carbs.toFixed(0)}g
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                Meta: {goals.carbs}g
+              </div>
+            </div>
+
+            {/* Gorduras */}
+            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Gorduras</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                {todayStats.fat.toFixed(0)}g
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                Meta: {goals.fat}g
+              </div>
+            </div>
+
+            {/* Fibras */}
+            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Fibras</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                {todayStats.fiber.toFixed(0)}g
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                Meta: 25g
+              </div>
+            </div>
+
+            {/* Açúcar */}
+            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Açúcar</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                {todayStats.sugar.toFixed(0)}g
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                Limite: 50g
+              </div>
+            </div>
+
+            {/* Sódio */}
+            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Sódio</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                {todayStats.sodium.toFixed(0)}
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                Limite: 2300mg
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Coluna Direita: Hidratação + Evacuação */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Card de Hidratação */}
+          <div style={{
+            background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+            borderRadius: 16,
+            padding: 20,
+            boxShadow: '0 2px 8px rgba(6, 182, 212, 0.3)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'white' }}>
+                Hidratação
+              </h2>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>
+                {Math.floor(waterIntake / 250)} {Math.floor(waterIntake / 250) === 1 ? 'copo' : 'copos'}
+              </span>
+            </div>
+
+            {/* Barra de progresso */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>Água</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>
+                  {waterIntake} / {goals.water} ml
+                </span>
+              </div>
+              <div style={{
+                width: '100%',
+                height: 8,
+                background: 'rgba(255,255,255,0.3)',
+                borderRadius: 4,
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: `${Math.min((waterIntake / goals.water) * 100, 100)}%`,
+                  height: '100%',
+                  background: 'white',
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+              {waterIntake >= goals.water && (
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.9)', margin: '4px 0 0 0' }}>
+                  Meta atingida!
+                </p>
+              )}
+              {waterIntake < goals.water && waterIntake > 0 && (
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', margin: '4px 0 0 0' }}>
+                  Faltam {goals.water - waterIntake}ml
+                </p>
+              )}
+            </div>
+
+            {/* Botões de ação */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => addWater(250)}
+                disabled={addingWater}
+                style={{
+                  flex: 1,
+                  padding: '10px 12px',
+                  border: 'none',
+                  background: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  cursor: addingWater ? 'not-allowed' : 'pointer'
+                }}
+              >
+                +250ml
+              </button>
+              <button
+                onClick={() => addWater(500)}
+                disabled={addingWater}
+                style={{
+                  flex: 1,
+                  padding: '10px 12px',
+                  border: 'none',
+                  background: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  cursor: addingWater ? 'not-allowed' : 'pointer'
+                }}
+              >
+                +500ml
+              </button>
+            </div>
+          </div>
+
+          {/* Card de Saúde Intestinal */}
+          <div style={{
+            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+            borderRadius: 16,
+            padding: 20,
+            boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'white' }}>
+                Saúde Intestinal
+              </h2>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>
+                {bowelMovementsCount} {bowelMovementsCount === 1 ? 'vez' : 'vezes'} hoje
+              </span>
+            </div>
+
+            {!showBowelForm ? (
+              <button
+                onClick={() => setShowBowelForm(true)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: 'none',
+                  background: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  cursor: 'pointer'
+                }}
+              >
+                Registrar Evacuação
+              </button>
+            ) : (
+              <div>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.9)', marginBottom: 12 }}>
+                  Selecione o tipo (Escala de Bristol):
+                </p>
 
             <div style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
               {[
@@ -646,9 +634,11 @@ export default function HomePage() {
               >
                 {addingBowel ? 'Salvando...' : 'Salvar'}
               </button>
+              </div>
             </div>
+          )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* CTA Principal */}
