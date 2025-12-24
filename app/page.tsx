@@ -280,7 +280,12 @@ export default function HomePage() {
           {/* Nutrientes Grid - 2 linhas x 3 colunas */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, flex: 1 }}>
             {/* Proteína */}
-            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+            <div style={{
+              background: `linear-gradient(to top, #4d7c0f ${Math.min((todayStats.protein / goals.protein) * 100, 100)}%, #ef4444 ${Math.min((todayStats.protein / goals.protein) * 100, 100)}%)`,
+              borderRadius: 10,
+              padding: 12,
+              textAlign: 'center'
+            }}>
               <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Proteína</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
                 {todayStats.protein.toFixed(0)}g
@@ -291,7 +296,12 @@ export default function HomePage() {
             </div>
 
             {/* Carboidratos */}
-            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+            <div style={{
+              background: `linear-gradient(to top, #4d7c0f ${Math.min((todayStats.carbs / goals.carbs) * 100, 100)}%, #ef4444 ${Math.min((todayStats.carbs / goals.carbs) * 100, 100)}%)`,
+              borderRadius: 10,
+              padding: 12,
+              textAlign: 'center'
+            }}>
               <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Carbos</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
                 {todayStats.carbs.toFixed(0)}g
@@ -302,7 +312,12 @@ export default function HomePage() {
             </div>
 
             {/* Gorduras */}
-            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+            <div style={{
+              background: `linear-gradient(to top, #4d7c0f ${Math.min((todayStats.fat / goals.fat) * 100, 100)}%, #ef4444 ${Math.min((todayStats.fat / goals.fat) * 100, 100)}%)`,
+              borderRadius: 10,
+              padding: 12,
+              textAlign: 'center'
+            }}>
               <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Gorduras</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
                 {todayStats.fat.toFixed(0)}g
@@ -313,7 +328,12 @@ export default function HomePage() {
             </div>
 
             {/* Fibras */}
-            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+            <div style={{
+              background: `linear-gradient(to top, #4d7c0f ${Math.min((todayStats.fiber / 25) * 100, 100)}%, #ef4444 ${Math.min((todayStats.fiber / 25) * 100, 100)}%)`,
+              borderRadius: 10,
+              padding: 12,
+              textAlign: 'center'
+            }}>
               <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Fibras</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
                 {todayStats.fiber.toFixed(0)}g
@@ -323,8 +343,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Açúcar */}
-            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+            {/* Açúcar - lógica invertida: começa verde e fica vermelho ao passar do limite */}
+            <div style={{
+              background: `linear-gradient(to top, #4d7c0f ${Math.max(100 - (todayStats.sugar / 50) * 100, 0)}%, #ef4444 ${Math.max(100 - (todayStats.sugar / 50) * 100, 0)}%)`,
+              borderRadius: 10,
+              padding: 12,
+              textAlign: 'center'
+            }}>
               <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Açúcar</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
                 {todayStats.sugar.toFixed(0)}g
@@ -334,8 +359,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Sódio */}
-            <div style={{ background: '#ef4444', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+            {/* Sódio - lógica invertida: começa verde e fica vermelho ao passar do limite */}
+            <div style={{
+              background: `linear-gradient(to top, #4d7c0f ${Math.max(100 - (todayStats.sodium / 2300) * 100, 0)}%, #ef4444 ${Math.max(100 - (todayStats.sodium / 2300) * 100, 0)}%)`,
+              borderRadius: 10,
+              padding: 12,
+              textAlign: 'center'
+            }}>
               <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Sódio</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
                 {todayStats.sodium.toFixed(0)}
