@@ -411,7 +411,7 @@ export default function CapturePage() {
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>📸 Capturar Refeição</h1>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>Capturar Refeição</h1>
 
       {/* Paywall Modal */}
       <PaywallModal
@@ -458,7 +458,7 @@ export default function CapturePage() {
                   cursor: 'pointer'
                 }}
               >
-                🗑️ Remover Foto
+                Remover Foto
               </button>
               {!analysis && plan !== 'free' && (
                 <button
@@ -474,19 +474,19 @@ export default function CapturePage() {
                     fontWeight: 600
                   }}
                 >
-                  {loading ? '🔄 Analisando...' : '✨ Analisar Foto com IA'}
+                  {loading ? 'Analisando...' : 'Analisar Foto com IA'}
                 </button>
               )}
             </div>
           </div>
         ) : (
           <label style={{ cursor: plan === 'free' ? 'not-allowed' : 'pointer' }}>
-            <div style={{ fontSize: 40, marginBottom: 8 }}>
-              {plan === 'free' ? '🔒' : '📷'}
+            <div style={{ fontSize: 40, marginBottom: 8, color: plan === 'free' ? '#fbbf24' : '#2196F3' }}>
+              {plan === 'free' ? 'Bloqueado' : 'Foto'}
             </div>
             <div style={{ fontSize: 14, color: plan === 'free' ? '#92400e' : '#666', marginBottom: 12 }}>
               {plan === 'free'
-                ? '⭐ Análise de foto disponível apenas para usuários PREMIUM'
+                ? 'Análise de foto disponível apenas para usuários PREMIUM'
                 : 'Adicionar foto da refeição (opcional)'}
             </div>
             <input
@@ -514,7 +514,7 @@ export default function CapturePage() {
                 cursor: plan === 'free' ? 'pointer' : 'default'
               }}
             >
-              {plan === 'free' ? '🔓 Desbloquear Premium' : 'Selecionar Foto'}
+              {plan === 'free' ? 'Desbloquear Premium' : 'Selecionar Foto'}
             </div>
           </label>
         )}
@@ -536,7 +536,7 @@ export default function CapturePage() {
               cursor: 'pointer'
             }}
           >
-            🍎 Adicionar do Banco
+            Meus Alimentos
           </button>
           <button
             onClick={() => setShowNewFoodModal(true)}
@@ -551,7 +551,7 @@ export default function CapturePage() {
               cursor: 'pointer'
             }}
           >
-            ✏️ Adicionar Novo
+            Adicionar Novo
           </button>
         </div>
       )}
@@ -602,7 +602,7 @@ export default function CapturePage() {
                     fontSize: 12
                   }}
                 >
-                  🗑️
+                  X
                 </button>
               </div>
             ))}
@@ -623,7 +623,7 @@ export default function CapturePage() {
               cursor: loading ? 'not-allowed' : 'pointer'
             }}
           >
-            {loading ? '🔄 Analisando com IA...' : '✨ Analisar com IA'}
+            {loading ? 'Analisando com IA...' : 'Analisar com IA'}
           </button>
         </div>
       )}
@@ -638,7 +638,7 @@ export default function CapturePage() {
           color: '#991b1b',
           marginBottom: 24
         }}>
-          ❌ {error}
+          {error}
         </div>
       )}
 
@@ -652,7 +652,7 @@ export default function CapturePage() {
           color: '#065f46',
           marginBottom: 24
         }}>
-          ✅ Refeição salva com sucesso!
+          Refeição salva com sucesso!
         </div>
       )}
 
@@ -709,7 +709,7 @@ export default function CapturePage() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8 }}>
                     <div>
                       <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>
-                        🔥 Calorias (kcal)
+                        Calorias (kcal)
                       </label>
                       <input
                         type="number"
@@ -734,7 +734,7 @@ export default function CapturePage() {
 
                     <div>
                       <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>
-                        🥩 Proteína (g)
+                        Proteína (g)
                       </label>
                       <input
                         type="number"
@@ -760,7 +760,7 @@ export default function CapturePage() {
 
                     <div>
                       <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>
-                        🍚 Carboidrato (g)
+                        Carboidrato (g)
                       </label>
                       <input
                         type="number"
@@ -786,7 +786,7 @@ export default function CapturePage() {
 
                     <div>
                       <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>
-                        🧈 Gordura (g)
+                        Gordura (g)
                       </label>
                       <input
                         type="number"
@@ -812,7 +812,7 @@ export default function CapturePage() {
 
                     <div>
                       <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>
-                        🌾 Fibras (g)
+                        Fibras (g)
                       </label>
                       <input
                         type="number"
@@ -838,7 +838,7 @@ export default function CapturePage() {
 
                     <div>
                       <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>
-                        🧂 Sódio (mg)
+                        Sódio (mg)
                       </label>
                       <input
                         type="number"
@@ -864,7 +864,7 @@ export default function CapturePage() {
 
                     <div>
                       <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>
-                        🍬 Açúcar (g)
+                        Açúcar (g)
                       </label>
                       <input
                         type="number"
@@ -897,7 +897,7 @@ export default function CapturePage() {
           <div style={{ display: 'grid', gap: 16 }}>
             <div>
               <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                🍽️ Tipo de Refeição *
+                Tipo de Refeição *
               </label>
               <select
                 value={mealType}
@@ -913,16 +913,16 @@ export default function CapturePage() {
                 }}
               >
                 <option value="">Selecione o tipo...</option>
-                <option value="breakfast">☀️ Café da Manhã</option>
-                <option value="lunch">🍽️ Almoço</option>
-                <option value="dinner">🌙 Jantar</option>
-                <option value="snack">🍿 Lanche</option>
+                <option value="breakfast">Café da Manhã</option>
+                <option value="lunch">Almoço</option>
+                <option value="dinner">Jantar</option>
+                <option value="snack">Lanche</option>
               </select>
             </div>
 
             <div>
               <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                📅 Quando foi consumido?
+                Quando foi consumido?
               </label>
               <input
                 type="datetime-local"
@@ -941,7 +941,7 @@ export default function CapturePage() {
 
             <div>
               <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                📝 Observações (opcional)
+                Observações (opcional)
               </label>
               <input
                 type="text"
@@ -962,7 +962,7 @@ export default function CapturePage() {
             {/* Local da refeição */}
             <div>
               <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                📍 Local da Refeição
+                Local da Refeição
               </label>
               <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                 <button
@@ -978,7 +978,7 @@ export default function CapturePage() {
                     color: locationType === 'home' ? '#065f46' : '#374151'
                   }}
                 >
-                  🏠 Casa
+                  Casa
                 </button>
                 <button
                   type="button"
@@ -993,7 +993,7 @@ export default function CapturePage() {
                     color: locationType === 'out' ? '#92400e' : '#374151'
                   }}
                 >
-                  🍽️ Fora
+                  Fora
                 </button>
               </div>
 
@@ -1113,7 +1113,7 @@ export default function CapturePage() {
                               cursor: 'pointer'
                             }}
                           >
-                            ➕ Cadastrar "{restaurantQuery.trim()}"
+                            Cadastrar "{restaurantQuery.trim()}"
                           </button>
                         </div>
                       )}
@@ -1144,13 +1144,13 @@ export default function CapturePage() {
                 opacity: loading ? 0.6 : 1
               }}
             >
-              {loading ? '💾 Salvando...' : '✅ Salvar Refeição'}
+              {loading ? 'Salvando...' : 'Salvar Refeição'}
             </button>
           </div>
         </div>
       )}
 
-      {/* Modal: Adicionar do Banco */}
+      {/* Modal: Meus Alimentos */}
       {showFoodBankModal && (
         <div style={{
           position: 'fixed',
@@ -1175,7 +1175,7 @@ export default function CapturePage() {
             overflowY: 'auto'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700 }}>🍎 Adicionar do Banco</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700 }}>Meus Alimentos</h2>
               <button
                 onClick={() => { setShowFoodBankModal(false); setFoodBankQuery(''); setFoodBankResults([]); }}
                 style={{
@@ -1198,7 +1198,7 @@ export default function CapturePage() {
                 setFoodBankQuery(e.target.value);
                 searchFoodBank(e.target.value);
               }}
-              placeholder="🔍 Buscar alimento..."
+              placeholder="Buscar alimento..."
               style={{
                 width: '100%',
                 padding: 12,
@@ -1244,7 +1244,7 @@ export default function CapturePage() {
 
             {!foodBankLoading && foodBankQuery.length >= 2 && foodBankResults.length === 0 && (
               <div style={{ textAlign: 'center', color: '#dc2626', padding: 16 }}>
-                ❌ Nenhum alimento encontrado. <a href="/meus-alimentos" style={{ color: '#2196F3', textDecoration: 'underline' }}>Cadastre aqui</a>
+                Nenhum alimento encontrado. <a href="/meus-alimentos" style={{ color: '#2196F3', textDecoration: 'underline' }}>Cadastre aqui</a>
               </div>
             )}
           </div>
@@ -1274,7 +1274,7 @@ export default function CapturePage() {
             width: '100%'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700 }}>✏️ Adicionar Novo Alimento</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700 }}>Adicionar Novo Alimento</h2>
               <button
                 onClick={() => { setShowNewFoodModal(false); setNewFoodName(''); }}
                 style={{
