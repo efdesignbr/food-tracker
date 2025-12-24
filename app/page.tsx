@@ -491,13 +491,13 @@ export default function HomePage() {
 
             <div style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
               {[
-                { type: 1, emoji: '', desc: 'Pedaços duros separados' },
-                { type: 2, emoji: '', desc: 'Formato de salsicha irregular' },
-                { type: 3, emoji: '', desc: 'Salsicha com rachaduras (normal)' },
-                { type: 4, emoji: '', desc: 'Salsicha lisa e macia (ideal)' },
-                { type: 5, emoji: '', desc: 'Pedaços macios' },
-                { type: 6, emoji: '', desc: 'Pedaços moles irregulares' },
-                { type: 7, emoji: '', desc: 'Aquoso, líquido' }
+                { type: 1, emoji: '🟤', color: '#78350f', desc: 'Pedaços duros separados' },
+                { type: 2, emoji: '🟤', color: '#92400e', desc: 'Formato de salsicha irregular' },
+                { type: 3, emoji: '🟢', color: '#166534', desc: 'Salsicha com rachaduras (normal)' },
+                { type: 4, emoji: '✅', color: '#15803d', desc: 'Salsicha lisa e macia (ideal)' },
+                { type: 5, emoji: '🟡', color: '#a16207', desc: 'Pedaços macios' },
+                { type: 6, emoji: '🟠', color: '#c2410c', desc: 'Pedaços moles irregulares' },
+                { type: 7, emoji: '🔴', color: '#dc2626', desc: 'Aquoso, líquido' }
               ].map((item) => (
                 <button
                   key={item.type}
@@ -517,7 +517,7 @@ export default function HomePage() {
                 >
                   <span style={{ fontSize: 24 }}>{item.emoji}</span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: item.color }}>
                       Tipo {item.type}
                     </div>
                     <div style={{ fontSize: 11, color: '#6b7280' }}>
