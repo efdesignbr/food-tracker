@@ -343,9 +343,9 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Açúcar - lógica invertida: começa verde e fica vermelho ao passar do limite */}
+            {/* Açúcar - vermelho sobe de baixo conforme consome (menos = melhor) */}
             <div style={{
-              background: `linear-gradient(to top, #4d7c0f ${Math.max(100 - (todayStats.sugar / 50) * 100, 0)}%, #ef4444 ${Math.max(100 - (todayStats.sugar / 50) * 100, 0)}%)`,
+              background: `linear-gradient(to top, #ef4444 ${Math.min((todayStats.sugar / 50) * 100, 100)}%, #4d7c0f ${Math.min((todayStats.sugar / 50) * 100, 100)}%)`,
               borderRadius: 10,
               padding: 12,
               textAlign: 'center'
@@ -359,9 +359,9 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Sódio - lógica invertida: começa verde e fica vermelho ao passar do limite */}
+            {/* Sódio - vermelho sobe de baixo conforme consome (menos = melhor) */}
             <div style={{
-              background: `linear-gradient(to top, #4d7c0f ${Math.max(100 - (todayStats.sodium / 2300) * 100, 0)}%, #ef4444 ${Math.max(100 - (todayStats.sodium / 2300) * 100, 0)}%)`,
+              background: `linear-gradient(to top, #ef4444 ${Math.min((todayStats.sodium / 2300) * 100, 100)}%, #4d7c0f ${Math.min((todayStats.sodium / 2300) * 100, 100)}%)`,
               borderRadius: 10,
               padding: 12,
               textAlign: 'center'

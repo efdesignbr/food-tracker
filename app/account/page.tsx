@@ -307,8 +307,10 @@ export default function AccountPage() {
               color: expandedSection === 'plan' ? '#8b5cf6' : '#374151'
             }}
           >
-            <span> Plano Atual</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'plan' ? '' : '▶'}</span>
+            <span>Plano Atual</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expandedSection === 'plan' ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
           </button>
 
           {expandedSection === 'plan' && (
@@ -424,8 +426,10 @@ export default function AccountPage() {
               color: expandedSection === 'health' ? '#f59e0b' : '#374151'
             }}
           >
-            <span> Objetivos de Saúde</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'health' ? '' : '▶'}</span>
+            <span>Objetivos de Saúde</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expandedSection === 'health' ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
           </button>
 
           {expandedSection === 'health' && (
@@ -485,18 +489,18 @@ export default function AccountPage() {
                         OBJETIVO PRINCIPAL
                       </div>
                       <div style={{ fontSize: 16, fontWeight: 700, color: '#15803d' }}>
-                        {healthGoals.goal_type === 'lose_weight' && ' Perder Peso (Emagrecimento)'}
-                        {healthGoals.goal_type === 'gain_weight' && ' Ganhar Peso (Ganho de Massa)'}
-                        {healthGoals.goal_type === 'maintain_weight' && ' Manter Peso (Manutenção)'}
+                        {healthGoals.goal_type === 'lose_weight' && 'Perder Peso (Emagrecimento)'}
+                        {healthGoals.goal_type === 'gain_weight' && 'Ganhar Peso (Ganho de Massa)'}
+                        {healthGoals.goal_type === 'maintain_weight' && 'Manter Peso (Manutenção)'}
                       </div>
                       {healthGoals.target_weight_kg && (
                         <div style={{ fontSize: 13, color: '#166534', marginTop: 8 }}>
-                           Peso alvo: <strong>{healthGoals.target_weight_kg} kg</strong>
+                          Peso alvo: <strong>{healthGoals.target_weight_kg} kg</strong>
                         </div>
                       )}
                       {healthGoals.weekly_goal_kg && (
                         <div style={{ fontSize: 13, color: '#166534', marginTop: 4 }}>
-                           Meta semanal: <strong>{healthGoals.weekly_goal_kg > 0 ? '+' : ''}{healthGoals.weekly_goal_kg} kg/semana</strong>
+                          Meta semanal: <strong>{healthGoals.weekly_goal_kg > 0 ? '+' : ''}{healthGoals.weekly_goal_kg} kg/semana</strong>
                         </div>
                       )}
                     </div>
@@ -508,7 +512,7 @@ export default function AccountPage() {
                           ALTURA
                         </div>
                         <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
-                           {healthGoals.height_cm} cm
+                          {healthGoals.height_cm} cm
                         </div>
                       </div>
                       <div>
@@ -516,7 +520,7 @@ export default function AccountPage() {
                           IDADE
                         </div>
                         <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
-                          🎂 {healthGoals.age} anos
+                          {healthGoals.age} anos
                         </div>
                       </div>
                       <div>
@@ -524,9 +528,9 @@ export default function AccountPage() {
                           GÊNERO
                         </div>
                         <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>
-                          {healthGoals.gender === 'male' && '👨 Masculino'}
-                          {healthGoals.gender === 'female' && '👩 Feminino'}
-                          {healthGoals.gender === 'other' && '🧑 Outro'}
+                          {healthGoals.gender === 'male' && 'Masculino'}
+                          {healthGoals.gender === 'female' && 'Feminino'}
+                          {healthGoals.gender === 'other' && 'Outro'}
                         </div>
                       </div>
                       <div>
@@ -534,11 +538,11 @@ export default function AccountPage() {
                           ATIVIDADE
                         </div>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#374151' }}>
-                          {healthGoals.activity_level === 'sedentary' && '🪑 Sedentário'}
-                          {healthGoals.activity_level === 'light' && ' Leve'}
-                          {healthGoals.activity_level === 'moderate' && '🏃 Moderado'}
-                          {healthGoals.activity_level === 'active' && ' Ativo'}
-                          {healthGoals.activity_level === 'very_active' && ' Muito Ativo'}
+                          {healthGoals.activity_level === 'sedentary' && 'Sedentário'}
+                          {healthGoals.activity_level === 'light' && 'Leve'}
+                          {healthGoals.activity_level === 'moderate' && 'Moderado'}
+                          {healthGoals.activity_level === 'active' && 'Ativo'}
+                          {healthGoals.activity_level === 'very_active' && 'Muito Ativo'}
                         </div>
                       </div>
                     </div>
@@ -599,8 +603,10 @@ export default function AccountPage() {
               color: expandedSection === 'personal' ? '#2196F3' : '#374151'
             }}
           >
-            <span> Dados Pessoais</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'personal' ? '' : '▶'}</span>
+            <span>Dados Pessoais</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expandedSection === 'personal' ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
           </button>
 
           {expandedSection === 'personal' && (
@@ -720,8 +726,10 @@ export default function AccountPage() {
               color: expandedSection === 'goals' ? '#10b981' : '#374151'
             }}
           >
-            <span> Metas Diárias</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'goals' ? '' : '▶'}</span>
+            <span>Metas Diárias</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expandedSection === 'goals' ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
           </button>
 
           {expandedSection === 'goals' && (
@@ -896,8 +904,10 @@ export default function AccountPage() {
               color: expandedSection === 'info' ? '#6366f1' : '#374151'
             }}
           >
-            <span> Informações da Conta</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'info' ? '' : '▶'}</span>
+            <span>Informações da Conta</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expandedSection === 'info' ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
           </button>
 
           {expandedSection === 'info' && (
@@ -952,8 +962,10 @@ export default function AccountPage() {
               color: expandedSection === 'danger' ? '#ef4444' : '#374151'
             }}
           >
-            <span> Zona de Perigo</span>
-            <span style={{ fontSize: 20 }}>{expandedSection === 'danger' ? '' : '▶'}</span>
+            <span>Excluir Minha Conta</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expandedSection === 'danger' ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
           </button>
 
           {expandedSection === 'danger' && (

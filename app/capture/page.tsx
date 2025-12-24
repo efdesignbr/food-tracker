@@ -593,16 +593,21 @@ export default function CapturePage() {
                 <button
                   onClick={() => removeFood(i)}
                   style={{
-                    padding: '4px 8px',
+                    padding: '6px',
                     background: '#fee2e2',
                     color: '#dc2626',
                     border: 'none',
                     borderRadius: 6,
                     cursor: 'pointer',
-                    fontSize: 12
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
+                  title="Remover"
                 >
-                  X
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14M10 11v6M14 11v6"/>
+                  </svg>
                 </button>
               </div>
             ))}
@@ -1180,14 +1185,20 @@ export default function CapturePage() {
                 onClick={() => { setShowFoodBankModal(false); setFoodBankQuery(''); setFoodBankResults([]); }}
                 style={{
                   padding: 8,
-                  background: 'transparent',
+                  background: '#f3f4f6',
                   border: 'none',
-                  fontSize: 24,
+                  borderRadius: 8,
                   cursor: 'pointer',
-                  color: '#666'
+                  color: '#6b7280',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
+                title="Fechar"
               >
-                ×
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
               </button>
             </div>
 
@@ -1279,14 +1290,20 @@ export default function CapturePage() {
                 onClick={() => { setShowNewFoodModal(false); setNewFoodName(''); }}
                 style={{
                   padding: 8,
-                  background: 'transparent',
+                  background: '#f3f4f6',
                   border: 'none',
-                  fontSize: 24,
+                  borderRadius: 8,
                   cursor: 'pointer',
-                  color: '#666'
+                  color: '#6b7280',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
+                title="Fechar"
               >
-                ×
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
               </button>
             </div>
 
