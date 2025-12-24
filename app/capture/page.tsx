@@ -259,11 +259,8 @@ export default function CapturePage() {
         throw new Error(json.error || 'Erro ao analisar foto');
       }
 
-      // Converter resposta para o formato de analysis
-      setAnalysis({
-        foods: json.foods || [],
-        totals: json.totals || { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 }
-      });
+      // Usar o resultado retornado pela API
+      setAnalysis(json.result);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro ao analisar foto');
     } finally {
