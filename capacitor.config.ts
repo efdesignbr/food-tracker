@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.foodtracker.app',
+  appId: 'br.com.foodtracker.app',
   appName: 'Food Tracker',
   webDir: 'out',
   ios: {
