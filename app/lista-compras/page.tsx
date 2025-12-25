@@ -54,6 +54,11 @@ export default function ListaComprasPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
+  // Duplicate modal
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [duplicateSourceList, setDuplicateSourceList] = useState<ShoppingList | null>(null);
+  const [duplicateNewName, setDuplicateNewName] = useState('');
+
   useEffect(() => {
     fetchLists();
   }, []);
@@ -225,6 +230,40 @@ export default function ListaComprasPage() {
 
   function handleRejectSuggestion(suggestion: FoodSuggestion) {
     setSuggestions(prev => prev.filter(s => s.food_name !== suggestion.food_name));
+  }
+
+  function openDuplicateModal(list: ShoppingList) {
+    setDuplicateSourceList(list);
+    setDuplicateNewName(`Cópia de ${list.name}`);
+    setShowDuplicateModal(true);
+  }
+
+  async function handleDuplicateList(e: React.FormEvent) {
+    e.preventDefault();
+    if (!duplicateSourceList || !duplicateNewName.trim()) return;
+
+    try {
+      const res = await api.post('/api/shopping-lists/duplicate', {
+        source_list_id: duplicateSourceList.id,
+        name: duplicateNewName
+      });
+      const json = await res.json();
+
+      if (res.ok) {
+        setShowDuplicateModal(false);
+        setDuplicateSourceList(null);
+        setDuplicateNewName('');
+        await fetchLists();
+        // Abre a lista duplicada
+        if (json.list) {
+          fetchListDetails(json.list.id);
+        }
+      } else {
+        setError(json.error || 'Erro ao duplicar lista');
+      }
+    } catch (e: any) {
+      setError(e.message);
+    }
   }
 
   function formatDate(dateStr: string) {
@@ -694,33 +733,56 @@ export default function ListaComprasPage() {
                 {activeLists.map(list => (
                   <div
                     key={list.id}
-                    onClick={() => fetchListDetails(list.id)}
                     style={{
                       padding: 16,
                       background: 'white',
                       border: '2px solid #e5e7eb',
                       borderRadius: 12,
-                      cursor: 'pointer',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center'
                     }}
                   >
-                    <div>
+                    <div
+                      onClick={() => fetchListDetails(list.id)}
+                      style={{ flex: 1, cursor: 'pointer' }}
+                    >
                       <div style={{ fontWeight: 600, fontSize: 16 }}>{list.name}</div>
                       <div style={{ fontSize: 14, color: '#6b7280' }}>
                         Criada em {formatDate(list.created_at)}
                       </div>
                     </div>
-                    <div style={{
-                      padding: '8px 16px',
-                      background: '#dbeafe',
-                      color: '#1e40af',
-                      borderRadius: 8,
-                      fontSize: 14,
-                      fontWeight: 600
-                    }}>
-                      Abrir
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); openDuplicateModal(list); }}
+                        style={{
+                          padding: '8px 12px',
+                          background: '#f3f4f6',
+                          border: '1px solid #d1d5db',
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          fontSize: 14,
+                          fontWeight: 500,
+                          color: '#374151'
+                        }}
+                        title="Duplicar lista"
+                      >
+                        Duplicar
+                      </button>
+                      <div
+                        onClick={() => fetchListDetails(list.id)}
+                        style={{
+                          padding: '8px 16px',
+                          background: '#dbeafe',
+                          color: '#1e40af',
+                          borderRadius: 8,
+                          fontSize: 14,
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Abrir
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -745,8 +807,7 @@ export default function ListaComprasPage() {
                       borderRadius: 12,
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'center',
-                      opacity: 0.8
+                      alignItems: 'center'
                     }}
                   >
                     <div>
@@ -755,6 +816,22 @@ export default function ListaComprasPage() {
                         Finalizada em {formatDate(list.completed_at || list.updated_at)}
                       </div>
                     </div>
+                    <button
+                      onClick={() => openDuplicateModal(list)}
+                      style={{
+                        padding: '6px 12px',
+                        background: '#dcfce7',
+                        border: '1px solid #86efac',
+                        borderRadius: 6,
+                        cursor: 'pointer',
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: '#166534'
+                      }}
+                      title="Duplicar lista"
+                    >
+                      Duplicar
+                    </button>
                   </div>
                 ))}
               </div>
@@ -851,6 +928,92 @@ export default function ListaComprasPage() {
                   }}
                 >
                   Criar Lista
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate List Modal */}
+      {showDuplicateModal && duplicateSourceList && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24,
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            padding: 24,
+            width: '100%',
+            maxWidth: 400
+          }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Duplicar Lista</h2>
+            <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>
+              Duplicando: <strong>{duplicateSourceList.name}</strong>
+            </p>
+            <form onSubmit={handleDuplicateList}>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                  Nome da nova lista *
+                </label>
+                <input
+                  type="text"
+                  value={duplicateNewName}
+                  onChange={e => setDuplicateNewName(e.target.value)}
+                  placeholder="Ex: Compras da semana"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    fontSize: 16,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => { setShowDuplicateModal(false); setDuplicateSourceList(null); }}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: '#f3f4f6',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: '#2196F3',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                >
+                  Duplicar
                 </button>
               </div>
             </form>
