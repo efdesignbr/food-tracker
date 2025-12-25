@@ -401,3 +401,60 @@ export async function deleteShoppingItem(args: {
     client.release();
   }
 }
+
+// ============ SUGGESTIONS ============
+
+export interface FoodSuggestion {
+  food_name: string;
+  consumption_count: number;
+  days_consumed: number;
+  avg_quantity: number;
+  common_unit: string | null;
+  last_consumed: Date;
+}
+
+export async function getFoodSuggestions(args: {
+  tenantId: string;
+  userId: string;
+  limit?: number;
+}): Promise<FoodSuggestion[]> {
+  const pool = getPool();
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+    await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
+
+    const result = await client.query<FoodSuggestion>(
+      `WITH food_consumption AS (
+        SELECT
+          LOWER(TRIM(fi.name)) as food_name,
+          COUNT(*) as consumption_count,
+          COUNT(DISTINCT DATE(m.consumed_at)) as days_consumed,
+          AVG(fi.quantity) as avg_quantity,
+          MAX(fi.unit) as common_unit,
+          MAX(m.consumed_at) as last_consumed
+        FROM food_items fi
+        JOIN meals m ON fi.meal_id = m.id
+        WHERE m.user_id = $1
+          AND m.tenant_id = $2
+          AND m.status = 'approved'
+          AND m.consumed_at >= CURRENT_DATE - INTERVAL '30 days'
+        GROUP BY LOWER(TRIM(fi.name))
+        HAVING COUNT(*) >= 2
+      )
+      SELECT * FROM food_consumption
+      ORDER BY consumption_count DESC, days_consumed DESC
+      LIMIT $3`,
+      [args.userId, args.tenantId, args.limit || 10]
+    );
+
+    await client.query('COMMIT');
+    return result.rows;
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}

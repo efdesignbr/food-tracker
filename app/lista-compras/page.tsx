@@ -25,6 +25,15 @@ interface ShoppingItem {
   created_at: string;
 }
 
+interface FoodSuggestion {
+  food_name: string;
+  consumption_count: number;
+  days_consumed: number;
+  avg_quantity: number;
+  common_unit: string | null;
+  last_consumed: string;
+}
+
 export default function ListaComprasPage() {
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
@@ -39,6 +48,11 @@ export default function ListaComprasPage() {
   const [newItemName, setNewItemName] = useState('');
   const [newItemQuantity, setNewItemQuantity] = useState('1');
   const [newItemUnit, setNewItemUnit] = useState('');
+
+  // Suggestions states
+  const [suggestions, setSuggestions] = useState<FoodSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   useEffect(() => {
     fetchLists();
@@ -175,6 +189,44 @@ export default function ListaComprasPage() {
     }
   }
 
+  async function fetchSuggestions() {
+    try {
+      setLoadingSuggestions(true);
+      const res = await api.get('/api/shopping-lists/suggestions');
+      const json = await res.json();
+      if (res.ok) {
+        setSuggestions(json.suggestions || []);
+        setShowSuggestions(true);
+      }
+    } catch (e) {
+      console.error('Erro ao buscar sugestões:', e);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  }
+
+  async function handleAcceptSuggestion(suggestion: FoodSuggestion) {
+    if (!selectedList) return;
+
+    try {
+      await api.post('/api/shopping-lists/items', {
+        list_id: selectedList.id,
+        name: suggestion.food_name.charAt(0).toUpperCase() + suggestion.food_name.slice(1),
+        quantity: Math.round(suggestion.avg_quantity) || 1,
+        unit: suggestion.common_unit || undefined
+      });
+      // Remove da lista de sugestões
+      setSuggestions(prev => prev.filter(s => s.food_name !== suggestion.food_name));
+      await fetchListDetails(selectedList.id);
+    } catch (e) {
+      console.error('Erro ao adicionar sugestão:', e);
+    }
+  }
+
+  function handleRejectSuggestion(suggestion: FoodSuggestion) {
+    setSuggestions(prev => prev.filter(s => s.food_name !== suggestion.food_name));
+  }
+
   function formatDate(dateStr: string) {
     const date = new Date(dateStr);
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
@@ -244,6 +296,23 @@ export default function ListaComprasPage() {
           >
             + Adicionar Item
           </button>
+          <button
+            onClick={fetchSuggestions}
+            disabled={loadingSuggestions}
+            style={{
+              padding: '12px 24px',
+              background: '#f59e0b',
+              color: 'white',
+              border: 'none',
+              borderRadius: 8,
+              cursor: loadingSuggestions ? 'not-allowed' : 'pointer',
+              fontSize: 14,
+              fontWeight: 600,
+              opacity: loadingSuggestions ? 0.7 : 1
+            }}
+          >
+            {loadingSuggestions ? 'Carregando...' : 'Sugestoes'}
+          </button>
         </div>
 
         {/* Pending Items */}
@@ -306,6 +375,85 @@ export default function ListaComprasPage() {
             </div>
           )}
         </div>
+
+        {/* Suggestions */}
+        {showSuggestions && suggestions.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 600, color: '#f59e0b' }}>
+                SUGESTOES ({suggestions.length})
+              </h2>
+              <button
+                onClick={() => setShowSuggestions(false)}
+                style={{
+                  padding: '4px 8px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  color: '#6b7280'
+                }}
+              >
+                Fechar
+              </button>
+            </div>
+            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 12 }}>
+              Baseado no seu consumo dos ultimos 30 dias
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {suggestions.map(suggestion => (
+                <div
+                  key={suggestion.food_name}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: 16,
+                    background: '#fffbeb',
+                    border: '2px solid #fcd34d',
+                    borderRadius: 12
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, textTransform: 'capitalize' }}>{suggestion.food_name}</div>
+                    <div style={{ fontSize: 12, color: '#6b7280' }}>
+                      Consumido {suggestion.consumption_count}x em {suggestion.days_consumed} dias
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleAcceptSuggestion(suggestion)}
+                    style={{
+                      padding: '8px 16px',
+                      background: '#10b981',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      fontSize: 12,
+                      fontWeight: 600
+                    }}
+                  >
+                    Adicionar
+                  </button>
+                  <button
+                    onClick={() => handleRejectSuggestion(suggestion)}
+                    style={{
+                      padding: '8px 12px',
+                      background: '#f3f4f6',
+                      border: '1px solid #d1d5db',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      fontSize: 14,
+                      color: '#6b7280'
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Purchased Items */}
         {purchasedItems.length > 0 && (
