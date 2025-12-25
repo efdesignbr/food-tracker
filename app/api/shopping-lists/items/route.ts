@@ -27,6 +27,7 @@ const updateSchema = z.object({
   unit: z.string().max(50).optional(),
   category: z.string().max(50).optional(),
   is_purchased: z.boolean().optional(),
+  price: z.number().min(0).nullable().optional(),
   notes: z.string().optional()
 });
 
@@ -98,6 +99,7 @@ export async function PATCH(req: Request) {
       unit: validated.unit,
       category: validated.category,
       isPurchased: validated.is_purchased,
+      price: validated.price,
       notes: validated.notes
     });
 

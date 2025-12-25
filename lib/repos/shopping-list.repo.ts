@@ -21,6 +21,7 @@ export interface ShoppingItem {
   category: string | null;
   is_purchased: boolean;
   purchased_at: Date | null;
+  price: number | null;
   source: 'manual' | 'suggestion' | 'taco' | 'food_bank';
   source_id: string | null;
   suggestion_status: 'pending' | 'accepted' | 'rejected' | null;
@@ -294,6 +295,7 @@ export async function updateShoppingItem(args: {
   unit?: string;
   category?: string;
   isPurchased?: boolean;
+  price?: number | null;
   suggestionStatus?: 'pending' | 'accepted' | 'rejected';
   notes?: string;
 }): Promise<ShoppingItem | null> {
@@ -337,6 +339,11 @@ export async function updateShoppingItem(args: {
       } else {
         updates.push(`purchased_at = NULL`);
       }
+    }
+
+    if (args.price !== undefined) {
+      updates.push(`price = $${paramIndex++}`);
+      params.push(args.price);
     }
 
     if (args.suggestionStatus !== undefined) {

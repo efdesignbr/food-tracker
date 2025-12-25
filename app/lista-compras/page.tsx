@@ -21,6 +21,7 @@ interface ShoppingItem {
   category: string | null;
   is_purchased: boolean;
   purchased_at: string | null;
+  price: number | null;
   notes: string | null;
   created_at: string;
 }
@@ -152,6 +153,17 @@ export default function ListaComprasPage() {
     }
   }
 
+  async function handleUpdatePrice(itemId: string, price: number | null) {
+    try {
+      await api.patch(`/api/shopping-lists/items?id=${itemId}`, { price });
+      if (selectedList) {
+        await fetchListDetails(selectedList.id);
+      }
+    } catch (e) {
+      console.error('Erro ao atualizar preço:', e);
+    }
+  }
+
   async function handleDeleteItem(itemId: string) {
     if (!confirm('Remover este item?')) return;
 
@@ -275,6 +287,11 @@ export default function ListaComprasPage() {
   const completedLists = lists.filter(l => l.status === 'completed').slice(0, 5);
   const pendingItems = items.filter(i => !i.is_purchased);
   const purchasedItems = items.filter(i => i.is_purchased);
+  const totalPrice = purchasedItems.reduce((sum, item) => sum + (item.price || 0), 0);
+
+  function formatPrice(value: number) {
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
 
   // Detalhes da lista selecionada
   if (selectedList) {
@@ -508,28 +525,69 @@ export default function ListaComprasPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 12,
-                    padding: 16,
+                    padding: 12,
                     background: '#f0fdf4',
                     border: '2px solid #bbf7d0',
-                    borderRadius: 12,
-                    opacity: 0.8
+                    borderRadius: 12
                   }}
                 >
                   <input
                     type="checkbox"
                     checked={true}
                     onChange={() => handleToggleItem(item)}
-                    style={{ width: 24, height: 24, cursor: 'pointer' }}
+                    style={{ width: 22, height: 22, cursor: 'pointer', flexShrink: 0 }}
                   />
-                  <div style={{ flex: 1, textDecoration: 'line-through', color: '#6b7280' }}>
-                    <div style={{ fontWeight: 600 }}>{item.name}</div>
-                    <div style={{ fontSize: 14 }}>
+                  <div style={{ flex: 1, textDecoration: 'line-through', color: '#6b7280', minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 15 }}>{item.name}</div>
+                    <div style={{ fontSize: 13 }}>
                       {item.quantity} {item.unit || 'un'}
                     </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                    <span style={{ fontSize: 13, color: '#6b7280' }}>R$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0,00"
+                      defaultValue={item.price || ''}
+                      onBlur={(e) => {
+                        const value = e.target.value ? parseFloat(e.target.value) : null;
+                        if (value !== item.price) {
+                          handleUpdatePrice(item.id, value);
+                        }
+                      }}
+                      style={{
+                        width: 70,
+                        padding: '6px 8px',
+                        fontSize: 14,
+                        border: '1px solid #bbf7d0',
+                        borderRadius: 6,
+                        background: 'white',
+                        textAlign: 'right'
+                      }}
+                    />
                   </div>
                 </div>
               ))}
             </div>
+            {/* Total */}
+            {totalPrice > 0 && (
+              <div style={{
+                marginTop: 12,
+                padding: 12,
+                background: '#dcfce7',
+                borderRadius: 8,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span style={{ fontWeight: 600, color: '#166534' }}>Total</span>
+                <span style={{ fontWeight: 700, fontSize: 18, color: '#166534' }}>
+                  {formatPrice(totalPrice)}
+                </span>
+              </div>
+            )}
           </div>
         )}
 
