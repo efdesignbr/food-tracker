@@ -20,11 +20,31 @@ interface FoodBankItem {
   sodium: number | null;
   sugar: number | null;
   saturated_fat: number | null;
+  purchasable: boolean;
+  category: string | null;
   usage_count: number;
   last_used_at: string | null;
   source: string;
   created_at: string;
 }
+
+const FOOD_CATEGORIES = [
+  'Pratos prontos',
+  'Bebidas',
+  'Carnes e derivados',
+  'Cereais e derivados',
+  'Frutas e derivados',
+  'Gorduras e óleos',
+  'Industrializados',
+  'Leguminosas e derivados',
+  'Leite e derivados',
+  'Miscelâneas',
+  'Nozes e sementes',
+  'Ovos e derivados',
+  'Pescados e frutos do mar',
+  'Produtos açucarados',
+  'Verduras, hortaliças e derivados'
+];
 
 interface NutritionAnalysis {
   name: string;
@@ -38,6 +58,8 @@ interface NutritionAnalysis {
   sodium?: number;
   sugar?: number;
   saturated_fat?: number;
+  purchasable?: boolean;
+  category?: string;
 }
 
 export default function MeusAlimentosPage() {
@@ -64,6 +86,8 @@ export default function MeusAlimentosPage() {
   const [manualSodium, setManualSodium] = useState('');
   const [manualSugar, setManualSugar] = useState('');
   const [manualSaturatedFat, setManualSaturatedFat] = useState('');
+  const [manualPurchasable, setManualPurchasable] = useState(false);
+  const [manualCategory, setManualCategory] = useState('');
 
   // Formulário com IA
   const [showAiForm, setShowAiForm] = useState(false);
@@ -72,6 +96,8 @@ export default function MeusAlimentosPage() {
   const [analyzedData, setAnalyzedData] = useState<NutritionAnalysis | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [customName, setCustomName] = useState('');
+  const [aiPurchasable, setAiPurchasable] = useState(true); // Produtos industrializados geralmente são compráveis
+  const [aiCategory, setAiCategory] = useState('');
 
   // Edição de alimento
   const [editingItem, setEditingItem] = useState<FoodBankItem | null>(null);
@@ -121,6 +147,8 @@ export default function MeusAlimentosPage() {
       if (manualSodium) payload.sodium = parseFloat(manualSodium);
       if (manualSugar) payload.sugar = parseFloat(manualSugar);
       if (manualSaturatedFat) payload.saturated_fat = parseFloat(manualSaturatedFat);
+      payload.purchasable = manualPurchasable;
+      if (manualCategory) payload.category = manualCategory;
 
       const res = await api.post('/api/food-bank', payload);
       const json = await res.json();
@@ -141,6 +169,8 @@ export default function MeusAlimentosPage() {
       setManualSodium('');
       setManualSugar('');
       setManualSaturatedFat('');
+      setManualPurchasable(false);
+      setManualCategory('');
       setShowManualForm(false);
       await fetchItems();
     } catch (err: any) {
@@ -245,6 +275,8 @@ export default function MeusAlimentosPage() {
       if (analyzedData.sodium) payload.sodium = analyzedData.sodium;
       if (analyzedData.sugar) payload.sugar = analyzedData.sugar;
       if (analyzedData.saturated_fat) payload.saturated_fat = analyzedData.saturated_fat;
+      payload.purchasable = aiPurchasable;
+      if (aiCategory) payload.category = aiCategory;
 
       const res = await api.post('/api/food-bank', payload);
       const json = await res.json();
@@ -259,6 +291,8 @@ export default function MeusAlimentosPage() {
       setImagePreview(null);
       setAnalyzedData(null);
       setCustomName('');
+      setAiPurchasable(true);
+      setAiCategory('');
       await fetchItems();
     } catch (err: any) {
       setError(err.message);
@@ -294,7 +328,9 @@ export default function MeusAlimentosPage() {
         fiber: typeof editingItem.fiber === 'number' ? editingItem.fiber : undefined,
         sodium: typeof editingItem.sodium === 'number' ? editingItem.sodium : undefined,
         sugar: typeof editingItem.sugar === 'number' ? editingItem.sugar : undefined,
-        saturated_fat: typeof editingItem.saturated_fat === 'number' ? editingItem.saturated_fat : undefined
+        saturated_fat: typeof editingItem.saturated_fat === 'number' ? editingItem.saturated_fat : undefined,
+        purchasable: editingItem.purchasable,
+        category: editingItem.category || undefined
       };
 
       const res = await api.patch('/api/food-bank', payload);
@@ -694,6 +730,66 @@ export default function MeusAlimentosPage() {
               </div>
             </div>
 
+            {/* Classificação */}
+            <h3 style={{
+              fontSize: 15,
+              fontWeight: 700,
+              marginTop: 20,
+              marginBottom: 12,
+              color: '#374151',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              Classificação
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
+                  Categoria
+                </label>
+                <select
+                  value={manualCategory}
+                  onChange={e => setManualCategory(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: 10,
+                    fontSize: 15,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    boxSizing: 'border-box',
+                    background: 'white'
+                  }}
+                >
+                  <option value="">Selecione uma categoria...</option>
+                  {FOOD_CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', paddingTop: 24 }}>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  cursor: 'pointer',
+                  fontSize: 15,
+                  fontWeight: 500
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={manualPurchasable}
+                    onChange={e => setManualPurchasable(e.target.checked)}
+                    style={{
+                      width: 20,
+                      height: 20,
+                      cursor: 'pointer'
+                    }}
+                  />
+                  Pode ser comprado no mercado
+                </label>
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
@@ -1056,6 +1152,65 @@ export default function MeusAlimentosPage() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Classificação */}
+                      <div>
+                        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#6b7280', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Classificação
+                        </h4>
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                          gap: 12
+                        }}>
+                          <div>
+                            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14, color: '#374151' }}>
+                              Categoria
+                            </label>
+                            <select
+                              value={aiCategory}
+                              onChange={e => setAiCategory(e.target.value)}
+                              style={{
+                                width: '100%',
+                                padding: 10,
+                                fontSize: 15,
+                                border: '2px solid #d1d5db',
+                                borderRadius: 8,
+                                background: 'white',
+                                boxSizing: 'border-box'
+                              }}
+                            >
+                              <option value="">Selecione uma categoria...</option>
+                              {FOOD_CATEGORIES.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', paddingTop: 24 }}>
+                            <label style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 10,
+                              cursor: 'pointer',
+                              fontSize: 15,
+                              fontWeight: 500,
+                              color: '#374151'
+                            }}>
+                              <input
+                                type="checkbox"
+                                checked={aiPurchasable}
+                                onChange={e => setAiPurchasable(e.target.checked)}
+                                style={{
+                                  width: 20,
+                                  height: 20,
+                                  cursor: 'pointer'
+                                }}
+                              />
+                              Pode ser comprado no mercado
+                            </label>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1154,14 +1309,24 @@ export default function MeusAlimentosPage() {
                     >
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 16, fontWeight: 600, color: '#1f2937' }}>
+                          {item.purchasable && (
+                            <span style={{ marginRight: 6, fontSize: 14 }} title="Pode ser comprado no mercado"></span>
+                          )}
                           {item.name}
                           {item.source === 'ai_analyzed' && (
                             <span style={{ marginLeft: 8, fontSize: 14, color: '#10b981' }}></span>
                           )}
                         </div>
-                        {item.brand && (
-                          <div style={{ fontSize: 13, color: '#6b7280' }}>{item.brand}</div>
-                        )}
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          {item.brand && (
+                            <span style={{ fontSize: 13, color: '#6b7280' }}>{item.brand}</span>
+                          )}
+                          {item.category && (
+                            <span style={{ fontSize: 11, color: '#6b7280', background: '#f3f4f6', padding: '2px 6px', borderRadius: 4 }}>
+                              {item.category}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         {item.calories && (
@@ -1603,6 +1768,66 @@ export default function MeusAlimentosPage() {
                       boxSizing: 'border-box'
                     }}
                   />
+                </div>
+              </div>
+
+              {/* Classificação */}
+              <h3 style={{
+                fontSize: 15,
+                fontWeight: 700,
+                marginTop: 20,
+                marginBottom: 12,
+                color: '#374151',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                Classificação
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
+                    Categoria
+                  </label>
+                  <select
+                    value={editingItem.category || ''}
+                    onChange={e => setEditingItem({ ...editingItem, category: e.target.value || null })}
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      fontSize: 15,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box',
+                      background: 'white'
+                    }}
+                  >
+                    <option value="">Selecione uma categoria...</option>
+                    {FOOD_CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', paddingTop: 24 }}>
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    cursor: 'pointer',
+                    fontSize: 15,
+                    fontWeight: 500
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={editingItem.purchasable}
+                      onChange={e => setEditingItem({ ...editingItem, purchasable: e.target.checked })}
+                      style={{
+                        width: 20,
+                        height: 20,
+                        cursor: 'pointer'
+                      }}
+                    />
+                    Pode ser comprado no mercado
+                  </label>
                 </div>
               </div>
 

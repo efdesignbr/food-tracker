@@ -31,6 +31,10 @@ const createSchema = z.object({
   sugar: z.number().optional(),
   saturated_fat: z.number().optional(),
 
+  // Classificação
+  purchasable: z.boolean().optional(),
+  category: z.string().optional(),
+
   source: z.enum(['manual', 'ai_analyzed']).optional()
 });
 
@@ -49,7 +53,11 @@ const updateSchema = z.object({
   fiber: z.number().optional(),
   sodium: z.number().optional(),
   sugar: z.number().optional(),
-  saturated_fat: z.number().optional()
+  saturated_fat: z.number().optional(),
+
+  // Classificação
+  purchasable: z.boolean().optional(),
+  category: z.string().optional()
 });
 
 export async function POST(req: Request) {
@@ -84,6 +92,8 @@ export async function POST(req: Request) {
       sodium: validated.sodium,
       sugar: validated.sugar,
       saturatedFat: validated.saturated_fat,
+      purchasable: validated.purchasable,
+      category: validated.category,
       source: validated.source
     });
 
@@ -198,7 +208,9 @@ export async function PATCH(req: Request) {
       fiber: validated.fiber,
       sodium: validated.sodium,
       sugar: validated.sugar,
-      saturatedFat: validated.saturated_fat
+      saturatedFat: validated.saturated_fat,
+      purchasable: validated.purchasable,
+      category: validated.category
     });
 
     return NextResponse.json({ ok: true, foodItem });

@@ -19,6 +19,10 @@ export interface FoodBankItem {
   sugar: number | null;
   saturated_fat: number | null;
 
+  // Classificação
+  purchasable: boolean;
+  category: string | null;
+
   // Controle de uso
   usage_count: number;
   last_used_at: Date | null;
@@ -47,6 +51,10 @@ export interface CreateFoodBankItemArgs {
   sugar?: number;
   saturatedFat?: number;
 
+  // Classificação
+  purchasable?: boolean;
+  category?: string;
+
   source?: string; // 'manual' ou 'ai_analyzed'
 }
 
@@ -62,9 +70,9 @@ export async function createFoodBankItem(args: CreateFoodBankItemArgs): Promise<
       `INSERT INTO food_bank (
         tenant_id, user_id, name, brand, serving_size, photo_url,
         calories, protein, carbs, fat, fiber, sodium, sugar, saturated_fat,
-        source
+        purchasable, category, source
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
       RETURNING *`,
       [
         args.tenantId,
@@ -81,6 +89,8 @@ export async function createFoodBankItem(args: CreateFoodBankItemArgs): Promise<
         args.sodium || null,
         args.sugar || null,
         args.saturatedFat || null,
+        args.purchasable ?? false,
+        args.category || null,
         args.source || 'manual'
       ]
     );
@@ -214,6 +224,8 @@ export async function updateFoodBankItem(args: {
   sodium?: number;
   sugar?: number;
   saturatedFat?: number;
+  purchasable?: boolean;
+  category?: string;
 }): Promise<FoodBankItem> {
   const pool = getPool();
   const client = await pool.connect();
@@ -273,6 +285,14 @@ export async function updateFoodBankItem(args: {
     if (args.saturatedFat !== undefined) {
       updates.push(`saturated_fat = $${paramIndex++}`);
       values.push(args.saturatedFat);
+    }
+    if (args.purchasable !== undefined) {
+      updates.push(`purchasable = $${paramIndex++}`);
+      values.push(args.purchasable);
+    }
+    if (args.category !== undefined) {
+      updates.push(`category = $${paramIndex++}`);
+      values.push(args.category);
     }
 
     updates.push(`updated_at = now()`);
