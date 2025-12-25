@@ -209,16 +209,21 @@ export default function ListaComprasPage() {
           <button
             onClick={() => handleDeleteList(selectedList.id)}
             style={{
-              padding: '8px 12px',
+              padding: '8px 10px',
               background: '#fee2e2',
-              color: '#dc2626',
-              border: 'none',
+              border: '1px solid #fca5a5',
               borderRadius: 8,
               cursor: 'pointer',
-              fontSize: 14
+              color: '#dc2626',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
+            title="Excluir lista"
           >
-            Excluir
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14M10 11v6M14 11v6"/>
+            </svg>
           </button>
         </div>
 
@@ -280,16 +285,21 @@ export default function ListaComprasPage() {
                   <button
                     onClick={() => handleDeleteItem(item.id)}
                     style={{
-                      padding: '8px 12px',
+                      padding: '6px 10px',
                       background: '#fee2e2',
-                      color: '#dc2626',
-                      border: 'none',
-                      borderRadius: 8,
+                      border: '1px solid #fca5a5',
+                      borderRadius: 6,
                       cursor: 'pointer',
-                      fontSize: 12
+                      color: '#dc2626',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}
+                    title="Remover item"
                   >
-                    Remover
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14M10 11v6M14 11v6"/>
+                    </svg>
                   </button>
                 </div>
               ))}
@@ -395,12 +405,13 @@ export default function ListaComprasPage() {
                       padding: 12,
                       fontSize: 16,
                       border: '2px solid #e5e7eb',
-                      borderRadius: 8
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
                 <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
                       Quantidade
                     </label>
@@ -414,11 +425,12 @@ export default function ListaComprasPage() {
                         padding: 12,
                         fontSize: 16,
                         border: '2px solid #e5e7eb',
-                        borderRadius: 8
+                        borderRadius: 8,
+                        boxSizing: 'border-box'
                       }}
                     />
                   </div>
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
                       Unidade
                     </label>
@@ -432,7 +444,8 @@ export default function ListaComprasPage() {
                         padding: 12,
                         fontSize: 16,
                         border: '2px solid #e5e7eb',
-                        borderRadius: 8
+                        borderRadius: 8,
+                        boxSizing: 'border-box'
                       }}
                     />
                   </div>
@@ -487,17 +500,23 @@ export default function ListaComprasPage() {
         <button
           onClick={() => setShowNewListModal(true)}
           style={{
-            padding: '12px 24px',
+            width: 44,
+            height: 44,
             background: '#2196F3',
             color: 'white',
             border: 'none',
             borderRadius: 8,
             cursor: 'pointer',
-            fontSize: 14,
-            fontWeight: 600
+            fontSize: 28,
+            fontWeight: 400,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            lineHeight: 1
           }}
+          title="Nova lista"
         >
-          + Nova
+          +
         </button>
       </div>
 
