@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { api } from '@/lib/api-client';
 
 const isMobile = process.env.NEXT_PUBLIC_IS_MOBILE === 'true';
@@ -191,6 +192,20 @@ function LoginForm() {
           {loading ? 'Entrando…' : 'Entrar'}
         </button>
       </form>
+
+      <p style={{ textAlign: 'center', marginTop: 16, color: '#666', fontSize: 14 }}>
+        Ainda nao tem conta?{' '}
+        <Link
+          href="/signup"
+          style={{
+            color: '#2196F3',
+            fontWeight: 600,
+            textDecoration: 'none'
+          }}
+        >
+          Criar conta
+        </Link>
+      </p>
     </div>
   );
 }
