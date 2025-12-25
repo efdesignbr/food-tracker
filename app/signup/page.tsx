@@ -52,7 +52,7 @@ function SignupForm() {
         setError('Conta criada, mas erro ao fazer login. Tente fazer login manualmente.');
         setLoading(false);
       } else if (signInRes?.ok) {
-        router.push('/');
+        router.push('/onboarding');
         router.refresh();
       }
     } catch (e: any) {
