@@ -458,3 +458,50 @@ export async function getFoodSuggestions(args: {
     client.release();
   }
 }
+
+export interface PreviousListSuggestion {
+  food_name: string;
+  list_count: number;
+  last_quantity: number;
+  common_unit: string | null;
+}
+
+export async function getSuggestionsFromPreviousLists(args: {
+  tenantId: string;
+  userId: string;
+  limit?: number;
+}): Promise<PreviousListSuggestion[]> {
+  const pool = getPool();
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+    await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
+
+    const result = await client.query<PreviousListSuggestion>(
+      `SELECT
+        LOWER(TRIM(si.name)) as food_name,
+        COUNT(DISTINCT sl.id) as list_count,
+        MAX(si.quantity) as last_quantity,
+        MAX(si.unit) as common_unit
+      FROM shopping_items si
+      JOIN shopping_lists sl ON si.list_id = sl.id
+      WHERE sl.user_id = $1
+        AND sl.tenant_id = $2
+        AND sl.status = 'completed'
+      GROUP BY LOWER(TRIM(si.name))
+      HAVING COUNT(DISTINCT sl.id) >= 2
+      ORDER BY list_count DESC
+      LIMIT $3`,
+      [args.userId, args.tenantId, args.limit || 10]
+    );
+
+    await client.query('COMMIT');
+    return result.rows;
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}
