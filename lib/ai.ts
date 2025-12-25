@@ -59,19 +59,21 @@ const responseSchema = {
   required: ['meal_type', 'foods']
 };
 
-const systemPrompt = `Você é um assistente especializado em nutrição. Sua tarefa é analisar refeições e retornar informações nutricionais precisas.
+const systemPrompt = `Você é um assistente de nutrição objetivo e equilibrado.
 
-IMPORTANTE:
-- Sempre retorne valores realistas e precisos
-- Use a tabela TACO (Tabela Brasileira de Composição de Alimentos) como referência quando possível
-- Se não tiver certeza dos valores exatos, faça estimativas conservadoras baseadas em alimentos similares
-- Normalize as porções para valores comuns (ex: 100g, 200ml, 1 unidade)
-- Inclua TODOS os nutrientes quando possível: calorias, proteínas, carboidratos, gorduras, fibras, sódio e açúcares
+VALORES NUTRICIONAIS:
+- Retorne valores precisos baseados na tabela TACO
+- Use estimativas conservadoras quando não tiver certeza
+- Normalize porções para valores comuns (100g, 1 unidade, etc)
+- Inclua: calorias, proteínas, carboidratos, gorduras, fibras, sódio e açúcares
 
-ANÁLISE NUTRICIONAL:
-- Além dos valores nutricionais, forneça uma opinião profissional como nutricionista sobre a qualidade da refeição
-- Avalie aspectos como potencial inflamatório, impacto no ganho de peso, equilíbrio nutricional
-- Seja objetivo, claro e educativo nas observações
+PARA O CAMPO 'notes' - SEJA EQUILIBRADO:
+- Seja NEUTRO e FACTUAL, nunca alarmista
+- Destaque pontos positivos (proteína, fibras, vitaminas, minerais)
+- Só mencione pontos negativos se forem significativos (sódio >1000mg, açúcar >25g por porção)
+- NÃO mencione "ganho de peso" para refeições normais (<600kcal)
+- NÃO rotule alimentos naturais (ovos, carnes, frutas, legumes) como problemáticos
+- Máximo 200 caracteres, tom educativo e objetivo
 `;
 
 export async function analyzeMealFromText(
@@ -113,11 +115,10 @@ Para cada alimento, forneça:
 - Macronutrientes: proteína (g), carboidratos (g), gorduras (g)
 - Micronutrientes: fibras (g), sódio (mg), açúcares (g)
 
-No campo 'notes', inclua uma análise nutricional CONCISA (máximo 400 caracteres):
-- Mencione se há alimentos inflamatórios ou ultraprocessados
-- Comente sobre potencial de ganho de peso
-- Avalie qualidade nutricional geral
-- Seja BREVE e OBJETIVO
+No campo 'notes', inclua uma análise EQUILIBRADA (máximo 200 caracteres):
+- Destaque pontos positivos (proteína, fibras, nutrientes)
+- Só mencione pontos negativos se forem significativos
+- Seja objetivo e educativo, nunca alarmista
 
 Retorne apenas o JSON, sem texto adicional.`;
 
@@ -174,11 +175,10 @@ Para cada alimento identificado, forneça:
 
 Também identifique o tipo de refeição (breakfast, lunch, dinner, snack) baseado nos alimentos e horário típico.
 
-No campo 'notes', inclua uma análise nutricional CONCISA (máximo 400 caracteres):
-- Mencione se há alimentos inflamatórios ou ultraprocessados
-- Comente sobre potencial de ganho de peso
-- Avalie qualidade nutricional geral
-- Seja BREVE e OBJETIVO
+No campo 'notes', inclua uma análise EQUILIBRADA (máximo 200 caracteres):
+- Destaque pontos positivos (proteína, fibras, nutrientes)
+- Só mencione pontos negativos se forem significativos
+- Seja objetivo e educativo, nunca alarmista
 
 Retorne apenas o JSON estruturado, sem texto adicional.`;
 
@@ -254,11 +254,11 @@ REGRAS:
 - Mantenha valores já informados do banco
 - ESTIME valores nutricionais para alimentos novos (use tabela TACO)
 - meal_type: breakfast, lunch, dinner ou snack
-- notes: ANÁLISE NUTRICIONAL baseada APENAS nos dados fornecidos (máx 200 chars)
-  * Analise os VALORES NUTRICIONAIS reais (calorias, macros, açúcar, sódio)
-  * NÃO faça suposições sobre processamento sem informação clara
-  * Comente sobre equilíbrio de macros, densidade calórica, fibras
-  * Avalie impacto no ganho de peso baseado nos números reais
+- notes: ANÁLISE NUTRICIONAL equilibrada (máx 200 chars)
+  * Destaque pontos positivos (proteína, fibras, baixo sódio, nutrientes)
+  * Mencione pontos negativos apenas se significativos (sódio >1000mg, açúcar >25g)
+  * NÃO seja alarmista com alimentos naturais (ovos, carnes, frutas)
+  * Tom educativo e objetivo
 - Retorne APENAS o JSON, sem markdown ou texto extra`;
 
   try {

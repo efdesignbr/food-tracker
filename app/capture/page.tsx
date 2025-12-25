@@ -683,8 +683,47 @@ export default function CapturePage() {
                     border: '1px solid #e5e7eb'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                    <span style={{ fontWeight: 600, fontSize: 16 }}>{food.name}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 600, fontSize: 16 }}>{food.name}</span>
+                      {/* Badge temporário indicando fonte dos dados */}
+                      {food.source === 'taco' && (
+                        <span style={{
+                          fontSize: 10,
+                          padding: '2px 6px',
+                          background: '#10b981',
+                          color: 'white',
+                          borderRadius: 4,
+                          fontWeight: 600
+                        }}>
+                          TACO
+                        </span>
+                      )}
+                      {food.source === 'bank' && (
+                        <span style={{
+                          fontSize: 10,
+                          padding: '2px 6px',
+                          background: '#3b82f6',
+                          color: 'white',
+                          borderRadius: 4,
+                          fontWeight: 600
+                        }}>
+                          MEUS ALIMENTOS
+                        </span>
+                      )}
+                      {!food.source && (
+                        <span style={{
+                          fontSize: 10,
+                          padding: '2px 6px',
+                          background: '#f59e0b',
+                          color: 'white',
+                          borderRadius: 4,
+                          fontWeight: 600
+                        }}>
+                          IA
+                        </span>
+                      )}
+                    </div>
                     <span style={{ color: '#666' }}>
                       {food.quantity} {food.unit}
                     </span>
