@@ -75,6 +75,12 @@ export default function ListaComprasPage() {
   const [showNewStoreInput, setShowNewStoreInput] = useState(false);
   const [newStoreName, setNewStoreName] = useState('');
 
+  // View completed list states
+  const [isViewingCompleted, setIsViewingCompleted] = useState(false);
+  const [isEditingCompleted, setIsEditingCompleted] = useState(false);
+  const [showAllCompleted, setShowAllCompleted] = useState(false);
+  const [editStoreId, setEditStoreId] = useState<string>('');
+
   useEffect(() => {
     fetchLists();
     fetchStores();
@@ -212,6 +218,8 @@ export default function ListaComprasPage() {
       await api.delete(`/api/shopping-lists/${listId}`);
       setSelectedList(null);
       setItems([]);
+      setIsViewingCompleted(false);
+      setIsEditingCompleted(false);
       await fetchLists();
     } catch (e) {
       console.error('Erro ao excluir lista:', e);
@@ -253,6 +261,40 @@ export default function ListaComprasPage() {
     } catch (e) {
       console.error('Erro ao finalizar lista:', e);
     }
+  }
+
+  function openCompletedList(list: ShoppingList) {
+    setIsViewingCompleted(true);
+    setIsEditingCompleted(false);
+    setEditStoreId(list.store_id || '');
+    fetchListDetails(list.id);
+  }
+
+  function startEditingCompleted() {
+    setIsEditingCompleted(true);
+  }
+
+  async function saveCompletedEdits() {
+    if (!selectedList) return;
+
+    try {
+      await api.patch(`/api/shopping-lists/${selectedList.id}`, {
+        store_id: editStoreId || null
+      });
+
+      setIsEditingCompleted(false);
+      await fetchLists();
+      await fetchListDetails(selectedList.id);
+    } catch (e) {
+      console.error('Erro ao salvar edicoes:', e);
+    }
+  }
+
+  function closeCompletedView() {
+    setSelectedList(null);
+    setItems([]);
+    setIsViewingCompleted(false);
+    setIsEditingCompleted(false);
   }
 
   async function fetchSuggestions() {
@@ -333,13 +375,339 @@ export default function ListaComprasPage() {
   }
 
   const activeLists = lists.filter(l => l.status === 'active');
-  const completedLists = lists.filter(l => l.status === 'completed').slice(0, 5);
+  const allCompletedLists = lists.filter(l => l.status === 'completed');
+  const completedLists = showAllCompleted ? allCompletedLists : allCompletedLists.slice(0, 5);
   const pendingItems = items.filter(i => !i.is_purchased);
   const purchasedItems = items.filter(i => i.is_purchased);
   const totalPrice = purchasedItems.reduce((sum, item) => sum + (item.price || 0), 0);
 
   function formatPrice(value: number) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  // Visualização de lista concluída
+  if (selectedList && isViewingCompleted) {
+    return (
+      <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+          <button
+            onClick={closeCompletedView}
+            style={{
+              padding: '8px 16px',
+              background: '#f3f4f6',
+              border: 'none',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: 600
+            }}
+          >
+            Voltar
+          </button>
+          <h1 style={{ fontSize: 24, fontWeight: 700, flex: 1 }}>{selectedList.name}</h1>
+          <button
+            onClick={() => handleDeleteList(selectedList.id)}
+            style={{
+              padding: '8px 10px',
+              background: '#fee2e2',
+              border: '1px solid #fca5a5',
+              borderRadius: 8,
+              cursor: 'pointer',
+              color: '#dc2626',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            title="Excluir lista"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14M10 11v6M14 11v6"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Info da lista */}
+        <div style={{
+          padding: 16,
+          background: '#f0fdf4',
+          border: '2px solid #bbf7d0',
+          borderRadius: 12,
+          marginBottom: 24
+        }}>
+          <div style={{ fontSize: 14, color: '#166534', marginBottom: 8 }}>
+            Finalizada em {formatDate(selectedList.completed_at || selectedList.updated_at)}
+          </div>
+
+          {isEditingCompleted ? (
+            <div style={{ marginTop: 12 }}>
+              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+                Loja
+              </label>
+              <select
+                value={editStoreId}
+                onChange={e => setEditStoreId(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: 10,
+                  fontSize: 14,
+                  border: '2px solid #e5e7eb',
+                  borderRadius: 8,
+                  background: 'white',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <option value="">Sem loja</option>
+                {stores.map(store => (
+                  <option key={store.id} value={store.id}>{store.name}</option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            selectedList.store_name && (
+              <div style={{ fontSize: 14, color: '#166534' }}>
+                Loja: <strong>{selectedList.store_name}</strong>
+              </div>
+            )
+          )}
+        </div>
+
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+          {isEditingCompleted ? (
+            <>
+              <button
+                onClick={saveCompletedEdits}
+                style={{
+                  padding: '12px 24px',
+                  background: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 600
+                }}
+              >
+                Salvar
+              </button>
+              <button
+                onClick={() => setIsEditingCompleted(false)}
+                style={{
+                  padding: '12px 24px',
+                  background: '#f3f4f6',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 600
+                }}
+              >
+                Cancelar
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={startEditingCompleted}
+                style={{
+                  padding: '12px 24px',
+                  background: '#f59e0b',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 600
+                }}
+              >
+                Editar
+              </button>
+              <button
+                onClick={() => openDuplicateModal(selectedList)}
+                style={{
+                  padding: '12px 24px',
+                  background: '#2196F3',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 600
+                }}
+              >
+                Duplicar
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Items */}
+        <div style={{ marginBottom: 24 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 600, color: '#6b7280', marginBottom: 12 }}>
+            ITENS ({items.length})
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {items.map(item => (
+              <div
+                key={item.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: 12,
+                  background: 'white',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: 12
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, fontSize: 15 }}>{item.name}</div>
+                  <div style={{ fontSize: 13, color: '#6b7280' }}>
+                    {item.quantity} {item.unit || 'un'}
+                  </div>
+                </div>
+                {isEditingCompleted ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 13, color: '#6b7280' }}>R$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0,00"
+                      defaultValue={item.price || ''}
+                      onBlur={(e) => {
+                        const value = e.target.value ? parseFloat(e.target.value) : null;
+                        if (value !== item.price) {
+                          handleUpdatePrice(item.id, value);
+                        }
+                      }}
+                      style={{
+                        width: 70,
+                        padding: '6px 8px',
+                        fontSize: 14,
+                        border: '1px solid #e5e7eb',
+                        borderRadius: 6,
+                        textAlign: 'right'
+                      }}
+                    />
+                  </div>
+                ) : (
+                  item.price && (
+                    <div style={{ fontSize: 14, fontWeight: 600, color: '#166534' }}>
+                      {formatPrice(item.price)}
+                    </div>
+                  )
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Total */}
+        {totalPrice > 0 && (
+          <div style={{
+            padding: 16,
+            background: '#dcfce7',
+            borderRadius: 12,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span style={{ fontWeight: 600, color: '#166534', fontSize: 18 }}>Total</span>
+            <span style={{ fontWeight: 700, fontSize: 24, color: '#166534' }}>
+              {formatPrice(totalPrice)}
+            </span>
+          </div>
+        )}
+
+        {/* Duplicate Modal */}
+        {showDuplicateModal && duplicateSourceList && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24,
+            zIndex: 1000
+          }}>
+            <div style={{
+              background: 'white',
+              borderRadius: 16,
+              padding: 24,
+              width: '100%',
+              maxWidth: 400
+            }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Duplicar Lista</h2>
+              <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>
+                Duplicando: <strong>{duplicateSourceList.name}</strong>
+              </p>
+              <form onSubmit={handleDuplicateList}>
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                    Nome da nova lista *
+                  </label>
+                  <input
+                    type="text"
+                    value={duplicateNewName}
+                    onChange={e => setDuplicateNewName(e.target.value)}
+                    placeholder="Ex: Compras da semana"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      fontSize: 16,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    type="button"
+                    onClick={() => { setShowDuplicateModal(false); setDuplicateSourceList(null); }}
+                    style={{
+                      flex: 1,
+                      padding: 12,
+                      background: '#f3f4f6',
+                      border: 'none',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      fontSize: 16,
+                      fontWeight: 600
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 1,
+                      padding: 12,
+                      background: '#2196F3',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      fontSize: 16,
+                      fontWeight: 600
+                    }}
+                  >
+                    Duplicar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   }
 
   // Detalhes da lista selecionada
@@ -1040,11 +1408,30 @@ export default function ListaComprasPage() {
           </div>
 
           {/* Completed Lists */}
-          {completedLists.length > 0 && (
+          {allCompletedLists.length > 0 && (
             <div>
-              <h2 style={{ fontSize: 16, fontWeight: 600, color: '#6b7280', marginBottom: 12 }}>
-                LISTAS CONCLUIDAS (ultimas 5)
-              </h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <h2 style={{ fontSize: 16, fontWeight: 600, color: '#6b7280' }}>
+                  LISTAS CONCLUIDAS {!showAllCompleted && allCompletedLists.length > 5 && `(ultimas 5 de ${allCompletedLists.length})`}
+                </h2>
+                {allCompletedLists.length > 5 && (
+                  <button
+                    onClick={() => setShowAllCompleted(!showAllCompleted)}
+                    style={{
+                      padding: '6px 12px',
+                      background: '#f3f4f6',
+                      border: 'none',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: '#6b7280'
+                    }}
+                  >
+                    {showAllCompleted ? 'Mostrar menos' : 'Ver todas'}
+                  </button>
+                )}
+              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {completedLists.map(list => (
                   <div
@@ -1059,29 +1446,48 @@ export default function ListaComprasPage() {
                       alignItems: 'center'
                     }}
                   >
-                    <div>
+                    <div
+                      onClick={() => openCompletedList(list)}
+                      style={{ flex: 1, cursor: 'pointer' }}
+                    >
                       <div style={{ fontWeight: 600, color: '#166534' }}>{list.name}</div>
                       <div style={{ fontSize: 12, color: '#6b7280' }}>
                         Finalizada em {formatDate(list.completed_at || list.updated_at)}
                         {list.store_name && ` - ${list.store_name}`}
                       </div>
                     </div>
-                    <button
-                      onClick={() => openDuplicateModal(list)}
-                      style={{
-                        padding: '6px 12px',
-                        background: '#dcfce7',
-                        border: '1px solid #86efac',
-                        borderRadius: 6,
-                        cursor: 'pointer',
-                        fontSize: 13,
-                        fontWeight: 500,
-                        color: '#166534'
-                      }}
-                      title="Duplicar lista"
-                    >
-                      Duplicar
-                    </button>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => openCompletedList(list)}
+                        style={{
+                          padding: '6px 12px',
+                          background: '#dbeafe',
+                          border: '1px solid #93c5fd',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                          fontSize: 13,
+                          fontWeight: 500,
+                          color: '#1e40af'
+                        }}
+                      >
+                        Ver
+                      </button>
+                      <button
+                        onClick={() => openDuplicateModal(list)}
+                        style={{
+                          padding: '6px 12px',
+                          background: '#dcfce7',
+                          border: '1px solid #86efac',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                          fontSize: 13,
+                          fontWeight: 500,
+                          color: '#166534'
+                        }}
+                      >
+                        Duplicar
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
