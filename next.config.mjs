@@ -1,7 +1,4 @@
 import withPWA from 'next-pwa';
-import createNextIntlPlugin from 'next-intl/plugin';
-
-const withNextIntl = createNextIntlPlugin('./lib/i18n/request.ts');
 
 const isMobile = process.env.MOBILE_BUILD === 'true';
 
@@ -109,4 +106,4 @@ export default withPWA({
       }
     }
   ]
-})(withNextIntl(nextConfig));
+})(nextConfig);

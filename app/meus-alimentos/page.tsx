@@ -38,6 +38,7 @@ const FOOD_CATEGORIES = [
   'Industrializados',
   'Leguminosas e derivados',
   'Leite e derivados',
+  'Leites Vegetais',
   'Miscelâneas',
   'Nozes e sementes',
   'Ovos e derivados',
