@@ -39,6 +39,7 @@ const FOOD_CATEGORIES = [
   'Leguminosas e derivados',
   'Leite e derivados',
   'Leites Vegetais',
+  'Massas',
   'Miscelâneas',
   'Nozes e sementes',
   'Ovos e derivados',
