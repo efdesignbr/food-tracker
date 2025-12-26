@@ -184,7 +184,8 @@ export default function OnboardingPage() {
                       padding: 12,
                       fontSize: 16,
                       border: '2px solid #e5e7eb',
-                      borderRadius: 8
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
@@ -203,7 +204,8 @@ export default function OnboardingPage() {
                       padding: 12,
                       fontSize: 16,
                       border: '2px solid #e5e7eb',
-                      borderRadius: 8
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>

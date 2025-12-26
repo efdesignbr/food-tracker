@@ -43,6 +43,7 @@ const FOOD_CATEGORIES = [
   'Ovos e derivados',
   'Pescados e frutos do mar',
   'Produtos açucarados',
+  'Suplementos',
   'Verduras, hortaliças e derivados'
 ];
 
