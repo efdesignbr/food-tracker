@@ -15,7 +15,8 @@ import { z } from 'zod';
 
 const updateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  status: z.enum(['active', 'completed', 'archived']).optional()
+  status: z.enum(['active', 'completed', 'archived']).optional(),
+  store_id: z.string().uuid().nullable().optional()
 });
 
 export async function GET(
@@ -81,7 +82,8 @@ export async function PATCH(
       userId: session.userId,
       id: params.id,
       name: validated.name,
-      status: validated.status
+      status: validated.status,
+      storeId: validated.store_id
     });
 
     if (!list) {

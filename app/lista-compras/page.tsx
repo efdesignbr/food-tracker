@@ -7,6 +7,8 @@ interface ShoppingList {
   id: string;
   name: string;
   status: 'active' | 'completed' | 'archived';
+  store_id: string | null;
+  store_name: string | null;
   completed_at: string | null;
   created_at: string;
   updated_at: string;
@@ -35,6 +37,12 @@ interface FoodSuggestion {
   last_consumed: string;
 }
 
+interface Store {
+  id: string;
+  name: string;
+  address: string | null;
+}
+
 export default function ListaComprasPage() {
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
@@ -60,9 +68,29 @@ export default function ListaComprasPage() {
   const [duplicateSourceList, setDuplicateSourceList] = useState<ShoppingList | null>(null);
   const [duplicateNewName, setDuplicateNewName] = useState('');
 
+  // Store states
+  const [stores, setStores] = useState<Store[]>([]);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [selectedStoreId, setSelectedStoreId] = useState<string>('');
+  const [showNewStoreInput, setShowNewStoreInput] = useState(false);
+  const [newStoreName, setNewStoreName] = useState('');
+
   useEffect(() => {
     fetchLists();
+    fetchStores();
   }, []);
+
+  async function fetchStores() {
+    try {
+      const res = await api.get('/api/stores');
+      const json = await res.json();
+      if (res.ok) {
+        setStores(json.stores || []);
+      }
+    } catch (e) {
+      console.error('Erro ao buscar lojas:', e);
+    }
+  }
 
   async function fetchLists() {
     try {
@@ -190,14 +218,35 @@ export default function ListaComprasPage() {
     }
   }
 
+  function openCompleteModal() {
+    setSelectedStoreId('');
+    setShowNewStoreInput(false);
+    setNewStoreName('');
+    setShowCompleteModal(true);
+  }
+
   async function handleCompleteList() {
     if (!selectedList) return;
-    if (!confirm('Finalizar esta lista?')) return;
 
     try {
+      let storeId = selectedStoreId || null;
+
+      // Se está criando nova loja
+      if (showNewStoreInput && newStoreName.trim()) {
+        const res = await api.post('/api/stores', { name: newStoreName.trim() });
+        const json = await res.json();
+        if (res.ok && json.store) {
+          storeId = json.store.id;
+          await fetchStores();
+        }
+      }
+
       await api.patch(`/api/shopping-lists/${selectedList.id}`, {
-        status: 'completed'
+        status: 'completed',
+        store_id: storeId
       });
+
+      setShowCompleteModal(false);
       setSelectedList(null);
       setItems([]);
       await fetchLists();
@@ -594,7 +643,7 @@ export default function ListaComprasPage() {
         {/* Complete List Button */}
         {pendingItems.length === 0 && items.length > 0 && (
           <button
-            onClick={handleCompleteList}
+            onClick={openCompleteModal}
             style={{
               width: '100%',
               padding: 16,
@@ -609,6 +658,148 @@ export default function ListaComprasPage() {
           >
             Finalizar Lista
           </button>
+        )}
+
+        {/* Complete List Modal */}
+        {showCompleteModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24,
+            zIndex: 1000
+          }}>
+            <div style={{
+              background: 'white',
+              borderRadius: 16,
+              padding: 24,
+              width: '100%',
+              maxWidth: 400
+            }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Finalizar Lista</h2>
+              <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>
+                Onde voce fez as compras?
+              </p>
+
+              {!showNewStoreInput ? (
+                <>
+                  <select
+                    value={selectedStoreId}
+                    onChange={e => setSelectedStoreId(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      fontSize: 16,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      marginBottom: 12,
+                      boxSizing: 'border-box',
+                      background: 'white'
+                    }}
+                  >
+                    <option value="">Selecione uma loja (opcional)</option>
+                    {stores.map(store => (
+                      <option key={store.id} value={store.id}>{store.name}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewStoreInput(true)}
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      background: '#f3f4f6',
+                      border: '1px dashed #d1d5db',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      fontSize: 14,
+                      color: '#6b7280',
+                      marginBottom: 16
+                    }}
+                  >
+                    + Adicionar nova loja
+                  </button>
+                </>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    value={newStoreName}
+                    onChange={e => setNewStoreName(e.target.value)}
+                    placeholder="Nome da loja (ex: Carrefour Centro)"
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      fontSize: 16,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      marginBottom: 12,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => { setShowNewStoreInput(false); setNewStoreName(''); }}
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      background: '#f3f4f6',
+                      border: 'none',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      fontSize: 14,
+                      color: '#6b7280',
+                      marginBottom: 16
+                    }}
+                  >
+                    Voltar para lista de lojas
+                  </button>
+                </>
+              )}
+
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowCompleteModal(false)}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: '#f3f4f6',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCompleteList}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                >
+                  Finalizar
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Add Item Modal */}
@@ -872,6 +1063,7 @@ export default function ListaComprasPage() {
                       <div style={{ fontWeight: 600, color: '#166534' }}>{list.name}</div>
                       <div style={{ fontSize: 12, color: '#6b7280' }}>
                         Finalizada em {formatDate(list.completed_at || list.updated_at)}
+                        {list.store_name && ` - ${list.store_name}`}
                       </div>
                     </div>
                     <button

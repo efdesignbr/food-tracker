@@ -6,6 +6,8 @@ export interface ShoppingList {
   user_id: string;
   name: string;
   status: 'active' | 'completed' | 'archived';
+  store_id: string | null;
+  store_name?: string | null;
   completed_at: Date | null;
   created_at: Date;
   updated_at: Date;
@@ -73,15 +75,19 @@ export async function getShoppingListsByUser(args: {
     await client.query('BEGIN');
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
 
-    let query = `SELECT * FROM shopping_lists WHERE tenant_id = $1 AND user_id = $2`;
+    let query = `
+      SELECT sl.*, s.name as store_name
+      FROM shopping_lists sl
+      LEFT JOIN stores s ON sl.store_id = s.id
+      WHERE sl.tenant_id = $1 AND sl.user_id = $2`;
     const params: any[] = [args.tenantId, args.userId];
 
     if (args.status) {
-      query += ` AND status = $3`;
+      query += ` AND sl.status = $3`;
       params.push(args.status);
     }
 
-    query += ` ORDER BY created_at DESC`;
+    query += ` ORDER BY sl.created_at DESC`;
 
     const result = await client.query<ShoppingList>(query, params);
 
@@ -108,8 +114,10 @@ export async function getShoppingListById(args: {
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
 
     const result = await client.query<ShoppingList>(
-      `SELECT * FROM shopping_lists
-       WHERE id = $1 AND tenant_id = $2 AND user_id = $3`,
+      `SELECT sl.*, s.name as store_name
+       FROM shopping_lists sl
+       LEFT JOIN stores s ON sl.store_id = s.id
+       WHERE sl.id = $1 AND sl.tenant_id = $2 AND sl.user_id = $3`,
       [args.id, args.tenantId, args.userId]
     );
 
@@ -129,6 +137,7 @@ export async function updateShoppingList(args: {
   id: string;
   name?: string;
   status?: 'active' | 'completed' | 'archived';
+  storeId?: string | null;
 }): Promise<ShoppingList | null> {
   const pool = getPool();
   const client = await pool.connect();
@@ -153,6 +162,11 @@ export async function updateShoppingList(args: {
       if (args.status === 'completed') {
         updates.push(`completed_at = NOW()`);
       }
+    }
+
+    if (args.storeId !== undefined) {
+      updates.push(`store_id = $${paramIndex++}`);
+      params.push(args.storeId);
     }
 
     updates.push(`updated_at = NOW()`);
