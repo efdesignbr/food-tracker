@@ -379,7 +379,7 @@ export default function ListaComprasPage() {
   const completedLists = showAllCompleted ? allCompletedLists : allCompletedLists.slice(0, 5);
   const pendingItems = items.filter(i => !i.is_purchased);
   const purchasedItems = items.filter(i => i.is_purchased);
-  const totalPrice = purchasedItems.reduce((sum, item) => sum + (item.price || 0), 0);
+  const totalPrice = purchasedItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
 
   function formatPrice(value: number) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -595,7 +595,7 @@ export default function ListaComprasPage() {
                 ) : (
                   item.price && (
                     <div style={{ fontSize: 14, fontWeight: 600, color: '#166534' }}>
-                      {formatPrice(item.price)}
+                      {formatPrice(Number(item.price))}
                     </div>
                   )
                 )}

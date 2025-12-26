@@ -209,6 +209,7 @@ Listas de compras.
 | tenant_id | UUID (FK) | Tenant |
 | name | VARCHAR(100) | Nome da lista |
 | status | VARCHAR(20) | active, completed, archived |
+| store_id | UUID (FK) | Loja onde a compra foi realizada |
 | completed_at | TIMESTAMP | Data de conclusao |
 
 ### 2.12 Tabela: shopping_items
@@ -276,6 +277,25 @@ Multi-tenancy.
 | id | UUID (PK) | Identificador |
 | slug | VARCHAR(100) | Slug unico |
 | name | VARCHAR(200) | Nome |
+
+### 2.17 Tabela: stores
+
+Cadastro de lojas/estabelecimentos onde as compras sao realizadas.
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| id | UUID (PK) | Identificador unico |
+| tenant_id | UUID (FK) | Tenant |
+| user_id | UUID (FK) | Usuario que cadastrou |
+| name | VARCHAR(255) | Nome da loja (ex: Carrefour Centro) |
+| address | TEXT | Endereco (opcional) |
+| created_at | TIMESTAMP | Data de criacao |
+
+**Indices:**
+- `idx_stores_user` - (user_id, tenant_id)
+
+**Relacionamentos:**
+- `shopping_lists.store_id` referencia `stores.id`
 
 ---
 
@@ -354,11 +374,29 @@ Multi-tenancy.
 **Proposito:** Criar e gerenciar listas de compras.
 
 **Funcionalidades:**
-- CRUD de listas
+- CRUD de listas de compras
 - CRUD de itens com preco
-- Sugestoes inteligentes
-- Duplicacao de listas
-- Calculo de total
+- Sugestoes inteligentes baseadas em consumo
+- Duplicacao de listas concluidas
+- Calculo de total em tempo real
+- Registro de loja/estabelecimento ao finalizar lista
+- Visualizacao de listas concluidas (somente leitura)
+- Edicao de precos e loja em listas concluidas
+- Exclusao de listas concluidas
+- Botao "Ver todas" para historico completo (exibe ultimas 5 por padrao)
+
+**Fluxo de finalizacao:**
+1. Usuario marca todos os itens como comprados
+2. Botao "Finalizar Lista" aparece
+3. Modal abre para selecionar/criar loja
+4. Lista e marcada como completed com store_id
+
+**APIs consumidas:**
+- GET/POST/PATCH/DELETE /api/shopping-lists
+- GET/POST /api/shopping-lists/items
+- GET /api/shopping-lists/suggestions
+- POST /api/shopping-lists/duplicate
+- GET/POST /api/stores
 
 ### 3.7 /coach (Coach IA)
 
@@ -525,14 +563,31 @@ Multi-tenancy.
 | GET | /api/shopping-lists/suggestions | Sugestoes |
 | POST | /api/shopping-lists/duplicate | Duplicar lista |
 
-### 4.13 Relatorios
+### 4.13 Lojas/Estabelecimentos
+
+| Metodo | Rota | Descricao |
+|--------|------|-----------|
+| GET | /api/stores | Listar lojas do usuario |
+| POST | /api/stores | Criar nova loja |
+| PATCH | /api/stores?id=UUID | Atualizar loja |
+| DELETE | /api/stores?id=UUID | Deletar loja |
+
+**Campos da requisicao POST/PATCH:**
+```json
+{
+  "name": "Carrefour Centro",
+  "address": "Rua das Flores, 123" // opcional
+}
+```
+
+### 4.14 Relatorios
 
 | Metodo | Rota | Descricao |
 |--------|------|-----------|
 | GET | /api/reports/analysis | Analise (PREMIUM) |
 | GET | /api/reports/inflammation | Inflamacao intestinal |
 
-### 4.14 Conta
+### 4.15 Conta
 
 | Metodo | Rota | Descricao |
 |--------|------|-----------|
@@ -596,6 +651,7 @@ Multi-tenancy.
   - body-measurements.repo.ts
   - food-bank.repo.ts
   - shopping-list.repo.ts
+  - store.repo.ts
   - bowel-movement.repo.ts
   - taco.repo.ts
 
@@ -769,6 +825,7 @@ food-tracker/
 │       ├── food-bank/
 │       ├── restaurants/
 │       ├── shopping-lists/
+│       ├── stores/
 │       ├── coach/
 │       ├── user/
 │       ├── subscription/
@@ -791,4 +848,39 @@ food-tracker/
 
 ---
 
+## 13. HISTORICO DE ALTERACOES
+
+### 26/12/2024
+
+**Sistema de Lojas/Estabelecimentos:**
+- Nova tabela `stores` para cadastro de lojas onde as compras sao realizadas
+- Coluna `store_id` adicionada em `shopping_lists` para vincular lista a loja
+- API `/api/stores` (GET, POST, PATCH, DELETE) para CRUD de lojas
+- Repositorio `lib/repos/store.repo.ts`
+- Modal de finalizacao de lista com selecao/criacao de loja
+- Exibicao do nome da loja nas listas concluidas
+
+**Visualizacao de Listas Concluidas:**
+- Clique na lista concluida abre visualizacao completa
+- Modo somente leitura com detalhes de itens e precos
+- Botao "Editar" para corrigir precos e trocar loja
+- Botao "Excluir" para remover listas concluidas
+- Botao "Ver todas" quando ha mais de 5 listas concluidas
+
+**Novas Categorias de Alimentos:**
+- Suplementos
+- Leites Vegetais
+- Massas
+
+**Correcoes:**
+- Fix na API de sugestoes (`/api/shopping-lists/suggestions`) - campos `consumption_count` e `days_consumed` nao estavam sendo retornados corretamente
+- Fix no layout dos inputs de data no periodo personalizado da pagina de relatorios
+
+**Remocoes:**
+- Removido sistema de internacionalizacao (next-intl) - app e apenas em portugues
+- Removida pasta `messages/` e `lib/i18n/`
+
+---
+
 *Documentacao gerada em 25/12/2024*
+*Atualizada em 26/12/2024*
