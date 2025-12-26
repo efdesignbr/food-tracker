@@ -376,9 +376,10 @@ Cadastro de lojas/estabelecimentos onde as compras sao realizadas.
 **Funcionalidades:**
 - CRUD de listas de compras
 - CRUD de itens com preco
+- Edicao de quantidade e unidade ao marcar item como comprado
 - Sugestoes inteligentes baseadas em consumo
 - Duplicacao de listas concluidas
-- Calculo de total em tempo real
+- Calculo de total em tempo real (formato R$ brasileiro)
 - Registro de loja/estabelecimento ao finalizar lista
 - Visualizacao de listas concluidas (somente leitura)
 - Edicao de precos e loja em listas concluidas
@@ -872,9 +873,15 @@ food-tracker/
 - Leites Vegetais
 - Massas
 
+**Edicao de Itens Comprados:**
+- Quantidade e unidade agora sao editaveis ao marcar item como comprado
+- Permite ajustar quando a quantidade real difere da planejada (ex: lista tinha 1kg, comprou 500g)
+- Inputs inline para quantidade, unidade e preco
+
 **Correcoes:**
 - Fix na API de sugestoes (`/api/shopping-lists/suggestions`) - campos `consumption_count` e `days_consumed` nao estavam sendo retornados corretamente
 - Fix no layout dos inputs de data no periodo personalizado da pagina de relatorios
+- Fix na formatacao do total da lista de compras - valores eram concatenados como string em vez de somados (ex: "065.00" ao inves de "R$ 65,00")
 
 **Remocoes:**
 - Removido sistema de internacionalizacao (next-intl) - app e apenas em portugues
