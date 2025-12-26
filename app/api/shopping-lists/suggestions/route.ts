@@ -30,34 +30,36 @@ export async function GET(req: Request) {
       getSuggestionsFromPreviousLists({ tenantId: tenant.id, userId: session.userId, limit })
     ]);
 
-    // Combinar sugestões (prioridade: listas anteriores > consumo)
+    // Combinar sugestões (prioridade: consumo > listas anteriores)
     const seenNames = new Set<string>();
     const combined = [];
 
-    // Primeiro adiciona sugestões de listas anteriores
-    for (const s of previousListSuggestions) {
-      if (!seenNames.has(s.food_name)) {
-        seenNames.add(s.food_name);
-        combined.push({
-          food_name: s.food_name,
-          source: 'previous_list',
-          count: s.list_count,
-          quantity: s.last_quantity,
-          unit: s.common_unit
-        });
-      }
-    }
-
-    // Depois adiciona sugestões de consumo (se não duplicadas)
+    // Primeiro adiciona sugestões de consumo (tem mais dados)
     for (const s of consumptionSuggestions) {
       if (!seenNames.has(s.food_name)) {
         seenNames.add(s.food_name);
         combined.push({
           food_name: s.food_name,
-          source: 'consumption',
-          count: s.consumption_count,
-          quantity: s.avg_quantity,
-          unit: s.common_unit
+          consumption_count: s.consumption_count,
+          days_consumed: s.days_consumed,
+          avg_quantity: s.avg_quantity,
+          common_unit: s.common_unit,
+          last_consumed: s.last_consumed
+        });
+      }
+    }
+
+    // Depois adiciona sugestões de listas anteriores (se não duplicadas)
+    for (const s of previousListSuggestions) {
+      if (!seenNames.has(s.food_name)) {
+        seenNames.add(s.food_name);
+        combined.push({
+          food_name: s.food_name,
+          consumption_count: s.list_count,
+          days_consumed: s.list_count,
+          avg_quantity: s.last_quantity,
+          common_unit: s.common_unit,
+          last_consumed: null
         });
       }
     }
