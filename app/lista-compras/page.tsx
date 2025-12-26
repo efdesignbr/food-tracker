@@ -198,6 +198,17 @@ export default function ListaComprasPage() {
     }
   }
 
+  async function handleUpdateItemDetails(itemId: string, updates: { quantity?: number; unit?: string; price?: number | null }) {
+    try {
+      await api.patch(`/api/shopping-lists/items?id=${itemId}`, updates);
+      if (selectedList) {
+        await fetchListDetails(selectedList.id);
+      }
+    } catch (e) {
+      console.error('Erro ao atualizar item:', e);
+    }
+  }
+
   async function handleDeleteItem(itemId: string) {
     if (!confirm('Remover este item?')) return;
 
@@ -954,10 +965,46 @@ export default function ListaComprasPage() {
                     onChange={() => handleToggleItem(item)}
                     style={{ width: 22, height: 22, cursor: 'pointer', flexShrink: 0 }}
                   />
-                  <div style={{ flex: 1, textDecoration: 'line-through', color: '#6b7280', minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: 15 }}>{item.name}</div>
-                    <div style={{ fontSize: 13 }}>
-                      {item.quantity} {item.unit || 'un'}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 15, textDecoration: 'line-through', color: '#6b7280' }}>{item.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0.1"
+                        defaultValue={item.quantity}
+                        onBlur={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (value && value !== Number(item.quantity)) {
+                            handleUpdateItemDetails(item.id, { quantity: value });
+                          }
+                        }}
+                        style={{
+                          width: 50,
+                          padding: '4px 6px',
+                          fontSize: 13,
+                          border: '1px solid #d1d5db',
+                          borderRadius: 4,
+                          textAlign: 'center'
+                        }}
+                      />
+                      <input
+                        type="text"
+                        defaultValue={item.unit || 'un'}
+                        onBlur={(e) => {
+                          const value = e.target.value.trim();
+                          if (value && value !== item.unit) {
+                            handleUpdateItemDetails(item.id, { unit: value });
+                          }
+                        }}
+                        style={{
+                          width: 45,
+                          padding: '4px 6px',
+                          fontSize: 13,
+                          border: '1px solid #d1d5db',
+                          borderRadius: 4
+                        }}
+                      />
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
@@ -970,7 +1017,7 @@ export default function ListaComprasPage() {
                       defaultValue={item.price || ''}
                       onBlur={(e) => {
                         const value = e.target.value ? parseFloat(e.target.value) : null;
-                        if (value !== item.price) {
+                        if (value !== Number(item.price)) {
                           handleUpdatePrice(item.id, value);
                         }
                       }}
