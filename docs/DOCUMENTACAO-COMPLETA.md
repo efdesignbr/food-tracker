@@ -1,7 +1,7 @@
 # DOCUMENTACAO COMPLETA - FOOD TRACKER
 
-**Versao:** 1.0
-**Data:** 25/12/2024
+**Versao:** 1.1
+**Data:** 27/12/2024
 **Autor:** Documentacao gerada automaticamente
 
 ---
@@ -224,12 +224,17 @@ Itens das listas de compras.
 | name | VARCHAR(200) | Nome do item |
 | quantity | NUMERIC | Quantidade |
 | unit | VARCHAR(50) | Unidade |
-| price | NUMERIC(10,2) | Preco total |
-| unit_price | NUMERIC(10,2) | Preco unitario |
+| price | NUMERIC(10,2) | Preco total do item |
+| unit_price | NUMERIC(10,2) | Preco unitario (usado na calculadora inteligente) |
 | is_purchased | BOOLEAN | Foi comprado |
 | purchased_at | TIMESTAMP | Data da compra |
 | source | VARCHAR(20) | manual, suggestion |
 | category | VARCHAR(50) | Categoria |
+
+**Relacionamento de precos:**
+- `unit_price`: Preco por unidade (ex: R$ 10,00 por kg)
+- `price`: Preco total calculado (quantity × unit_price)
+- A calculadora inteligente permite preencher qualquer combinacao e calcula o terceiro valor
 
 ### 2.13 Tabela: restaurants
 
@@ -377,26 +382,28 @@ Cadastro de lojas/estabelecimentos onde as compras sao realizadas.
 **Funcionalidades:**
 - CRUD de listas de compras
 - CRUD de itens com preco
-- Calculadora Inteligente de Precos (Qtd x Unitario = Total)
 - Edicao de quantidade e unidade ao marcar item como comprado
-- Sugestoes inteligentes baseadas EXCLUSIVAMENTE em historico de compras (compra > 2x)
+- Sugestoes inteligentes baseadas em consumo
 - Duplicacao de listas concluidas
 - Calculo de total em tempo real (formato R$ brasileiro)
 - Registro de loja/estabelecimento ao finalizar lista
-- Visualizacao de listas concluidas com valor total gasto
+- Visualizacao de listas concluidas (somente leitura)
 - Edicao de precos e loja em listas concluidas
 - Exclusao de listas concluidas
 - Botao "Ver todas" para historico completo (exibe ultimas 5 por padrao)
-- Painel de Gastos (Dashboard) com graficos
+- Botao "Painel" para acessar dashboard de gastos
 
-### 3.6.1 Dashboard de Gastos (/lista-compras/dashboard)
+**Calculadora Inteligente de Precos:**
+Ao marcar um item como comprado, o usuario pode informar:
+- **Quantidade**: Ex: 2.5 (kg, un, L, etc)
+- **Preco Unitario**: Ex: R$ 12,50/kg
+- **Preco Total**: Ex: R$ 31,25
 
-**Proposito:** Painel analitico para controle financeiro de mercado.
-
-**Visualizacoes:**
-1.  **Evolucao Mensal (Bar Chart):** Gastos totais nos ultimos 12 meses.
-2.  **Distribuicao por Loja (Pie Chart):** Share of wallet por estabelecimento.
-3.  **Historico de Precos (Line Chart):** Evolucao do preco unitario dos 10 itens mais comprados (Inflacao Pessoal).
+A calculadora recalcula automaticamente:
+- Se mudar quantidade e tiver preco unitario → recalcula total
+- Se mudar preco unitario → recalcula total baseado na quantidade
+- Se mudar preco total → recalcula unitario baseado na quantidade
+- Util para produtos pesaveis onde o preco final so e conhecido na hora
 
 **Fluxo de finalizacao:**
 1. Usuario marca todos os itens como comprados
@@ -409,7 +416,57 @@ Cadastro de lojas/estabelecimentos onde as compras sao realizadas.
 - GET/POST /api/shopping-lists/items
 - GET /api/shopping-lists/suggestions
 - POST /api/shopping-lists/duplicate
+- GET /api/shopping-lists/stats
 - GET/POST /api/stores
+
+### 3.6.1 /lista-compras/dashboard (Painel de Gastos)
+
+**Proposito:** Dashboard analitico de gastos em compras.
+
+**Funcionalidades:**
+- Grafico de barras: Evolucao de gastos mensais (ultimos 12 meses)
+- Grafico de pizza: Distribuicao de gastos por loja
+- Grafico de linhas: Historico de precos unitarios (top 10 itens mais frequentes)
+
+**Biblioteca de graficos:** Recharts
+
+**Componentes utilizados:**
+- `BarChart` - Evolucao mensal
+- `PieChart` - Distribuicao por loja
+- `LineChart` - Historico de precos
+
+**APIs consumidas:**
+- GET /api/shopping-lists/stats
+
+**Resposta da API stats:**
+```json
+{
+  "ok": true,
+  "stats": {
+    "monthly": [
+      { "month": "2024-01", "total": 450.00 },
+      { "month": "2024-02", "total": 520.30 }
+    ],
+    "byStore": [
+      { "storeName": "Carrefour", "total": 1200.00 },
+      { "storeName": "Assai", "total": 800.00 }
+    ],
+    "topItemsPriceHistory": [
+      {
+        "itemName": "Arroz",
+        "history": [
+          { "date": "2024-01-15", "price": 5.50 },
+          { "date": "2024-02-20", "price": 5.90 }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Observacoes:**
+- Historico de precos so aparece a partir da 2a compra do mesmo item com preco unitario informado
+- Permite acompanhar inflacao pessoal dos itens mais consumidos
 
 ### 3.7 /coach (Coach IA)
 
@@ -571,38 +628,21 @@ Cadastro de lojas/estabelecimentos onde as compras sao realizadas.
 | PATCH | /api/shopping-lists/[id] | Atualizar |
 | DELETE | /api/shopping-lists/[id] | Deletar |
 | POST | /api/shopping-lists/items | Adicionar item |
-| PATCH | /api/shopping-lists/items | Atualizar item |
+| PATCH | /api/shopping-lists/items | Atualizar item (preco, quantidade, etc) |
 | DELETE | /api/shopping-lists/items | Deletar item |
-| GET | /api/shopping-lists/suggestions | Sugestoes |
-| GET | /api/shopping-lists/stats | Dashboard de gastos |
+| GET | /api/shopping-lists/suggestions | Sugestoes baseadas em consumo |
 | POST | /api/shopping-lists/duplicate | Duplicar lista |
+| GET | /api/shopping-lists/stats | Estatisticas para dashboard de gastos |
 
-**Payload Item (POST/PATCH):**
+**Campos do PATCH /api/shopping-lists/items:**
 ```json
 {
-  "name": "Arroz Integral",
-  "quantity": 2,
+  "name": "Arroz",
+  "quantity": 2.5,
   "unit": "kg",
-  "price": 40.00,        // Preco TOTAL (opcional)
-  "unit_price": 20.00,   // Preco UNITARIO (novo, opcional)
-  "is_purchased": true   // Se true, purchased_at = NOW()
-}
-```
-
-**Resposta Dashboard (/stats):**
-```json
-{
-  "ok": true,
-  "stats": {
-    "monthly": [{ "month": "2024-12", "total": 500.00 }],
-    "byStore": [{ "storeName": "Carrefour", "total": 300.00 }],
-    "topItemsPriceHistory": [
-      {
-        "itemName": "Leite",
-        "history": [{ "date": "2024-11-01", "price": 4.50 }]
-      }
-    ]
-  }
+  "is_purchased": true,
+  "price": 31.25,
+  "unit_price": 12.50
 }
 ```
 
@@ -848,6 +888,9 @@ food-tracker/
 │   ├── peso/
 │   ├── meus-alimentos/
 │   ├── lista-compras/
+│   │   ├── page.tsx (lista principal)
+│   │   └── dashboard/
+│   │       └── page.tsx (painel de gastos)
 │   ├── coach/
 │   ├── objetivos/
 │   ├── restaurants/
@@ -868,6 +911,12 @@ food-tracker/
 │       ├── food-bank/
 │       ├── restaurants/
 │       ├── shopping-lists/
+│       │   ├── route.ts (GET, POST listas)
+│       │   ├── [id]/route.ts (GET, PATCH, DELETE lista)
+│       │   ├── items/route.ts (POST, PATCH, DELETE itens)
+│       │   ├── suggestions/route.ts (GET sugestoes)
+│       │   ├── duplicate/route.ts (POST duplicar)
+│       │   └── stats/route.ts (GET estatisticas)
 │       ├── stores/
 │       ├── coach/
 │       ├── user/
@@ -892,34 +941,6 @@ food-tracker/
 ---
 
 ## 13. HISTORICO DE ALTERACOES
-
-### 27/12/2024
-
-**Calculadora Inteligente de Precos:**
-- Implementacao de calculo automatico `Qtd x Unitario = Total` na lista de compras
-- Novos inputs interativos ao marcar item como comprado
-- Armazenamento do preco unitario (`unit_price`) para historico de inflacao
-- Comportamento inteligente: editar total recalcula unitario (bom para itens de peso/granel)
-
-**Sugestoes de Compras Aprimoradas:**
-- Refatoracao completa do algoritmo de sugestoes
-- Remocao de sugestoes baseadas em consumo domestico (para evitar pratos como "Bolo")
-- Foco exclusivo em itens efetivamente comprados em listas anteriores
-- Filtros de relevancia: itens comprados pelo menos 2x nos ultimos 90 dias
-- Isolamento estrito de dados por usuario
-
-**Painel de Gastos (Dashboard):**
-- Nova tela de analise financeira de compras
-- Grafico de Barras: Evolucao de gastos mensais
-- Grafico de Pizza: Distribuicao de gastos por mercado/loja
-- Grafico de Linha: Historico de variacao de preco dos top 10 itens
-- API `/api/shopping-lists/stats` para agregacao de dados
-
-**Melhorias de UI/UX:**
-- Exibicao do valor total gasto na listagem de listas concluidas
-- Remocao de bordas excessivas nos cards para visual mais limpo
-- Correcao de inputs de data em relatorios e modais (layout mobile)
-- Inputs numericos sem setas (spinners) e com selecao automatica ao focar
 
 ### 26/12/2024
 
@@ -957,7 +978,26 @@ food-tracker/
 - Removido sistema de internacionalizacao (next-intl) - app e apenas em portugues
 - Removida pasta `messages/` e `lib/i18n/`
 
+### 27/12/2024
+
+**Calculadora Inteligente de Precos:**
+- Novo campo `unit_price` (NUMERIC 10,2) na tabela `shopping_items`
+- Logica de recalculo automatico ao editar quantidade, preco unitario ou preco total
+- Interface com 4 campos editaveis: Qtd, Unid, R$ Unit., R$ Total
+- Atualizacao otimista da UI para melhor experiencia do usuario
+
+**Painel de Gastos (Dashboard):**
+- Nova pagina `/lista-compras/dashboard` com graficos Recharts
+- Grafico de barras: Evolucao de gastos mensais (ultimos 12 meses)
+- Grafico de pizza: Distribuicao de gastos por loja
+- Grafico de linhas: Historico de precos unitarios (top 10 itens mais frequentes)
+- Nova rota API `GET /api/shopping-lists/stats` para fornecer dados estatisticos
+- Funcao `getShoppingStats()` no repositorio `shopping-list.repo.ts`
+
+**Correcoes:**
+- Fix na navegacao do botao "Painel": trocado `window.location.href` por `router.push()` para compatibilidade com Capacitor/iOS (navegacao client-side evita perda de sessao)
+
 ---
 
 *Documentacao gerada em 25/12/2024*
-*Atualizada em 26/12/2024*
+*Atualizada em 27/12/2024*

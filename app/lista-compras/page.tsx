@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api-client';
 
 interface ShoppingList {
@@ -46,6 +47,7 @@ interface Store {
 }
 
 export default function ListaComprasPage() {
+  const router = useRouter();
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
   const [items, setItems] = useState<ShoppingItem[]>([]);
@@ -1464,7 +1466,7 @@ export default function ListaComprasPage() {
         <h1 style={{ fontSize: 28, fontWeight: 700 }}>Lista de Compras</h1>
         <div style={{ display: 'flex', gap: 12 }}>
           <button
-            onClick={() => window.location.href = '/lista-compras/dashboard'}
+            onClick={() => router.push('/lista-compras/dashboard')}
             style={{
               padding: '0 16px',
               height: 44,
