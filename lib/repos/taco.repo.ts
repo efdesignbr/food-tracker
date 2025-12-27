@@ -30,9 +30,21 @@ export interface TacoFood {
   vitamin_c: number | null;
 }
 
+// Função para normalizar acentos (mesmo mapeamento usado no SQL)
+function normalizeAccents(str: string): string {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+// Constante SQL para normalizar acentos no banco
+const SQL_NORMALIZE = `translate(LOWER(name), 'áàâãäéèêëíìîïóòôõöúùûüçñ', 'aaaaaeeeeiiiiooooouuuucn')`;
+
 /**
  * Busca alimentos na tabela TACO por nome
  * Estratégia: busca pelo termo principal, ignora modificadores comuns
+ * Usa normalização de acentos e word boundaries para evitar falsos positivos
  */
 export async function searchTacoFoods(
   query: string,
@@ -40,8 +52,8 @@ export async function searchTacoFoods(
 ): Promise<TacoFood[]> {
   const pool = getPool();
 
-  // Normaliza a query
-  const normalizedQuery = query.toLowerCase().trim();
+  // Normaliza a query (remove acentos e lowercase)
+  const normalizedQuery = normalizeAccents(query.trim());
 
   // Palavras a ignorar na busca (modificadores comuns)
   const stopWords = ['de', 'com', 'sem', 'do', 'da', 'em', 'para', 'ao', 'a', 'o', 'e', 'branco', 'branca', 'integral', 'natural', 'fresco', 'fresca'];
@@ -67,26 +79,26 @@ export async function searchTacoFoods(
   let result;
 
   if (secondTerm) {
-    // Tenta com dois termos primeiro
+    // Tenta com dois termos primeiro (usando word boundaries e normalização de acentos)
     result = await pool.query<TacoFood>(
       `SELECT
         id, taco_number, name, category,
         calories, protein, carbs, fat, fiber, sodium, cholesterol,
         calcium, magnesium, iron, potassium, zinc, vitamin_c
       FROM taco_foods
-      WHERE LOWER(name) ILIKE $1 AND LOWER(name) ILIKE $2
+      WHERE ${SQL_NORMALIZE} ~* $1
+        AND ${SQL_NORMALIZE} ~* $2
       ORDER BY LENGTH(name)
       LIMIT $3`,
-      [`%${mainTerm}%`, `%${secondTerm}%`, limit]
+      [`\\y${mainTerm}\\y`, `\\y${secondTerm}\\y`, limit]
     );
 
-    // Se encontrou, retorna
     if (result.rows.length > 0) {
       return result.rows;
     }
   }
 
-  // Fallback: busca apenas com termo principal
+  // Fallback: busca apenas com termo principal (com word boundary)
   // Prioriza: começa com termo > cozido > grelhado > assado > cru > outros
   result = await pool.query<TacoFood>(
     `SELECT
@@ -94,7 +106,7 @@ export async function searchTacoFoods(
       calories, protein, carbs, fat, fiber, sodium, cholesterol,
       calcium, magnesium, iron, potassium, zinc, vitamin_c
     FROM taco_foods
-    WHERE LOWER(name) ILIKE $1
+    WHERE ${SQL_NORMALIZE} ~* $1
     ORDER BY
       CASE
         WHEN LOWER(name) ILIKE '%cozido%' THEN 1
@@ -105,10 +117,10 @@ export async function searchTacoFoods(
         WHEN LOWER(name) ILIKE '%cru%' THEN 6
         ELSE 7
       END,
-      CASE WHEN LOWER(name) LIKE $2 THEN 0 ELSE 1 END,
+      CASE WHEN ${SQL_NORMALIZE} ~ $2 THEN 0 ELSE 1 END,
       LENGTH(name)
     LIMIT $3`,
-    [`%${mainTerm}%`, `${mainTerm}%`, limit]
+    [`\\y${mainTerm}\\y`, `^${mainTerm}`, limit]
   );
 
   return result.rows;

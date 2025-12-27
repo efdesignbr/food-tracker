@@ -467,8 +467,12 @@ export default function ReportsPage() {
           <div style={{ marginBottom: 12, fontWeight: 600, color: '#374151', fontSize: 14 }}>
              Selecione o Período
           </div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: 12
+          }}>
+            <div>
               <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 4 }}>
                 Data Inicial
               </label>
@@ -478,16 +482,16 @@ export default function ReportsPage() {
                 onChange={(e) => setCustomStartDate(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '8px 10px',
+                  padding: '10px 12px',
                   border: '1px solid #d1d5db',
                   borderRadius: 8,
-                  fontSize: 14,
+                  fontSize: 16,
                   fontFamily: 'inherit',
                   boxSizing: 'border-box'
                 }}
               />
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div>
               <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 4 }}>
                 Data Final
               </label>
@@ -497,10 +501,10 @@ export default function ReportsPage() {
                 onChange={(e) => setCustomEndDate(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '8px 10px',
+                  padding: '10px 12px',
                   border: '1px solid #d1d5db',
                   borderRadius: 8,
-                  fontSize: 14,
+                  fontSize: 16,
                   fontFamily: 'inherit',
                   boxSizing: 'border-box'
                 }}

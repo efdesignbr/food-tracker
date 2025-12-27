@@ -178,17 +178,24 @@ export default function CapturePage() {
       console.error('Erro ao incrementar uso:', e);
     }
 
+    // Helper para arredondar valores (evita floating point issues como 26.400000000000002)
+    const round = (val: number, decimals = 1): number => {
+      const factor = Math.pow(10, decimals);
+      return Math.round(val * factor) / factor;
+    };
+
+    // Usar 0 como fallback para nutrientes não cadastrados (evita que vá para IA)
     const newFood = {
       name: foodItem.name,
       quantity: quantity,
       unit: foodItem.serving_size || 'porção',
-      calories: foodItem.calories ? foodItem.calories * quantity : undefined,
-      protein_g: foodItem.protein ? foodItem.protein * quantity : undefined,
-      carbs_g: foodItem.carbs ? foodItem.carbs * quantity : undefined,
-      fat_g: foodItem.fat ? foodItem.fat * quantity : undefined,
-      fiber_g: foodItem.fiber ? foodItem.fiber * quantity : undefined,
-      sodium_mg: foodItem.sodium ? foodItem.sodium * quantity : undefined,
-      sugar_g: foodItem.sugar ? foodItem.sugar * quantity : undefined,
+      calories: Math.round((foodItem.calories ?? 0) * quantity),
+      protein_g: round((foodItem.protein ?? 0) * quantity),
+      carbs_g: round((foodItem.carbs ?? 0) * quantity),
+      fat_g: round((foodItem.fat ?? 0) * quantity),
+      fiber_g: round((foodItem.fiber ?? 0) * quantity),
+      sodium_mg: Math.round((foodItem.sodium ?? 0) * quantity),
+      sugar_g: round((foodItem.sugar ?? 0) * quantity),
       source: 'bank'
     };
 
