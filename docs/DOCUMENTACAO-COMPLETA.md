@@ -224,7 +224,8 @@ Itens das listas de compras.
 | name | VARCHAR(200) | Nome do item |
 | quantity | NUMERIC | Quantidade |
 | unit | VARCHAR(50) | Unidade |
-| price | NUMERIC(10,2) | Preco |
+| price | NUMERIC(10,2) | Preco total |
+| unit_price | NUMERIC(10,2) | Preco unitario |
 | is_purchased | BOOLEAN | Foi comprado |
 | purchased_at | TIMESTAMP | Data da compra |
 | source | VARCHAR(20) | manual, suggestion |
@@ -376,15 +377,26 @@ Cadastro de lojas/estabelecimentos onde as compras sao realizadas.
 **Funcionalidades:**
 - CRUD de listas de compras
 - CRUD de itens com preco
+- Calculadora Inteligente de Precos (Qtd x Unitario = Total)
 - Edicao de quantidade e unidade ao marcar item como comprado
-- Sugestoes inteligentes baseadas em consumo
+- Sugestoes inteligentes baseadas EXCLUSIVAMENTE em historico de compras (compra > 2x)
 - Duplicacao de listas concluidas
 - Calculo de total em tempo real (formato R$ brasileiro)
 - Registro de loja/estabelecimento ao finalizar lista
-- Visualizacao de listas concluidas (somente leitura)
+- Visualizacao de listas concluidas com valor total gasto
 - Edicao de precos e loja em listas concluidas
 - Exclusao de listas concluidas
 - Botao "Ver todas" para historico completo (exibe ultimas 5 por padrao)
+- Painel de Gastos (Dashboard) com graficos
+
+### 3.6.1 Dashboard de Gastos (/lista-compras/dashboard)
+
+**Proposito:** Painel analitico para controle financeiro de mercado.
+
+**Visualizacoes:**
+1.  **Evolucao Mensal (Bar Chart):** Gastos totais nos ultimos 12 meses.
+2.  **Distribuicao por Loja (Pie Chart):** Share of wallet por estabelecimento.
+3.  **Historico de Precos (Line Chart):** Evolucao do preco unitario dos 10 itens mais comprados (Inflacao Pessoal).
 
 **Fluxo de finalizacao:**
 1. Usuario marca todos os itens como comprados
@@ -562,7 +574,37 @@ Cadastro de lojas/estabelecimentos onde as compras sao realizadas.
 | PATCH | /api/shopping-lists/items | Atualizar item |
 | DELETE | /api/shopping-lists/items | Deletar item |
 | GET | /api/shopping-lists/suggestions | Sugestoes |
+| GET | /api/shopping-lists/stats | Dashboard de gastos |
 | POST | /api/shopping-lists/duplicate | Duplicar lista |
+
+**Payload Item (POST/PATCH):**
+```json
+{
+  "name": "Arroz Integral",
+  "quantity": 2,
+  "unit": "kg",
+  "price": 40.00,        // Preco TOTAL (opcional)
+  "unit_price": 20.00,   // Preco UNITARIO (novo, opcional)
+  "is_purchased": true   // Se true, purchased_at = NOW()
+}
+```
+
+**Resposta Dashboard (/stats):**
+```json
+{
+  "ok": true,
+  "stats": {
+    "monthly": [{ "month": "2024-12", "total": 500.00 }],
+    "byStore": [{ "storeName": "Carrefour", "total": 300.00 }],
+    "topItemsPriceHistory": [
+      {
+        "itemName": "Leite",
+        "history": [{ "date": "2024-11-01", "price": 4.50 }]
+      }
+    ]
+  }
+}
+```
 
 ### 4.13 Lojas/Estabelecimentos
 
@@ -850,6 +892,34 @@ food-tracker/
 ---
 
 ## 13. HISTORICO DE ALTERACOES
+
+### 27/12/2024
+
+**Calculadora Inteligente de Precos:**
+- Implementacao de calculo automatico `Qtd x Unitario = Total` na lista de compras
+- Novos inputs interativos ao marcar item como comprado
+- Armazenamento do preco unitario (`unit_price`) para historico de inflacao
+- Comportamento inteligente: editar total recalcula unitario (bom para itens de peso/granel)
+
+**Sugestoes de Compras Aprimoradas:**
+- Refatoracao completa do algoritmo de sugestoes
+- Remocao de sugestoes baseadas em consumo domestico (para evitar pratos como "Bolo")
+- Foco exclusivo em itens efetivamente comprados em listas anteriores
+- Filtros de relevancia: itens comprados pelo menos 2x nos ultimos 90 dias
+- Isolamento estrito de dados por usuario
+
+**Painel de Gastos (Dashboard):**
+- Nova tela de analise financeira de compras
+- Grafico de Barras: Evolucao de gastos mensais
+- Grafico de Pizza: Distribuicao de gastos por mercado/loja
+- Grafico de Linha: Historico de variacao de preco dos top 10 itens
+- API `/api/shopping-lists/stats` para agregacao de dados
+
+**Melhorias de UI/UX:**
+- Exibicao do valor total gasto na listagem de listas concluidas
+- Remocao de bordas excessivas nos cards para visual mais limpo
+- Correcao de inputs de data em relatorios e modais (layout mobile)
+- Inputs numericos sem setas (spinners) e com selecao automatica ao focar
 
 ### 26/12/2024
 

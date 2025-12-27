@@ -578,3 +578,133 @@ export async function getSuggestionsFromPreviousLists(args: {
     client.release();
   }
 }
+
+// ============ STATS ============
+
+export interface ShoppingStats {
+  monthly: { month: string; total: number }[];
+  byStore: { storeName: string; total: number }[];
+  topItemsPriceHistory: {
+    itemName: string;
+    history: { date: Date; price: number }[];
+  }[];
+}
+
+export async function getShoppingStats(args: {
+  tenantId: string;
+  userId: string;
+}): Promise<ShoppingStats> {
+  const pool = getPool();
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+    await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
+
+    // 1. Gastos por Mês (últimos 12 meses)
+    const monthlyRes = await client.query(
+      `SELECT 
+         TO_CHAR(sl.completed_at, 'YYYY-MM') as month, 
+         SUM(si.price) as total
+       FROM shopping_lists sl
+       JOIN shopping_items si ON sl.id = si.list_id
+       WHERE sl.tenant_id = $1 
+         AND sl.user_id = $2
+         AND sl.status = 'completed'
+         AND si.is_purchased = true
+         AND sl.completed_at >= CURRENT_DATE - INTERVAL '12 months'
+       GROUP BY 1
+       ORDER BY 1 ASC`,
+      [args.tenantId, args.userId]
+    );
+
+    // 2. Gastos por Loja (Top 10)
+    const storeRes = await client.query(
+      `SELECT 
+         COALESCE(s.name, 'Outros') as store_name, 
+         SUM(si.price) as total
+       FROM shopping_lists sl
+       JOIN shopping_items si ON sl.id = si.list_id
+       LEFT JOIN stores s ON sl.store_id = s.id
+       WHERE sl.tenant_id = $1 
+         AND sl.user_id = $2
+         AND sl.status = 'completed'
+         AND si.is_purchased = true
+       GROUP BY 1
+       ORDER BY 2 DESC
+       LIMIT 10`,
+      [args.tenantId, args.userId]
+    );
+
+    // 3. Histórico de Preços (Top 5 itens mais frequentes com preço unitário)
+    // Primeiro identificamos os itens
+    const topItemsRes = await client.query(
+      `SELECT LOWER(TRIM(si.name)) as name
+       FROM shopping_items si
+       JOIN shopping_lists sl ON si.list_id = sl.id
+       WHERE sl.tenant_id = $1 
+         AND sl.user_id = $2
+         AND si.is_purchased = true
+         AND si.unit_price IS NOT NULL
+       GROUP BY 1
+       ORDER BY COUNT(*) DESC
+       LIMIT 10`,
+      [args.tenantId, args.userId]
+    );
+
+    const topItemNames = topItemsRes.rows.map(r => r.name);
+    let priceHistory: ShoppingStats['topItemsPriceHistory'] = [];
+
+    if (topItemNames.length > 0) {
+      // Para cada item, pegamos o histórico
+      const historyRes = await client.query(
+        `SELECT 
+           LOWER(TRIM(si.name)) as name,
+           sl.completed_at as date,
+           si.unit_price as price
+         FROM shopping_items si
+         JOIN shopping_lists sl ON si.list_id = sl.id
+         WHERE sl.tenant_id = $1 
+           AND sl.user_id = $2
+           AND si.is_purchased = true
+           AND si.unit_price IS NOT NULL
+           AND LOWER(TRIM(si.name)) = ANY($3)
+         ORDER BY sl.completed_at ASC`,
+        [args.tenantId, args.userId, topItemNames]
+      );
+
+      // Agrupar por item
+      const historyMap = new Map<string, { date: Date; price: number }[]>();
+      topItemNames.forEach(name => historyMap.set(name, []));
+
+      historyRes.rows.forEach(row => {
+        const itemHistory = historyMap.get(row.name);
+        if (itemHistory) {
+          itemHistory.push({
+            date: row.date,
+            price: Number(row.price)
+          });
+        }
+      });
+
+      priceHistory = Array.from(historyMap.entries()).map(([name, history]) => ({
+        itemName: name.charAt(0).toUpperCase() + name.slice(1), // Capitalize
+        history
+      }));
+    }
+
+    await client.query('COMMIT');
+
+    return {
+      monthly: monthlyRes.rows.map(r => ({ month: r.month, total: Number(r.total) })),
+      byStore: storeRes.rows.map(r => ({ storeName: r.store_name, total: Number(r.total) })),
+      topItemsPriceHistory: priceHistory
+    };
+
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}

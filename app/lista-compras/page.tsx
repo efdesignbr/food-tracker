@@ -1462,27 +1462,52 @@ export default function ListaComprasPage() {
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <h1 style={{ fontSize: 28, fontWeight: 700 }}>Lista de Compras</h1>
-        <button
-          onClick={() => setShowNewListModal(true)}
-          style={{
-            width: 44,
-            height: 44,
-            background: '#2196F3',
-            color: 'white',
-            border: 'none',
-            borderRadius: 8,
-            cursor: 'pointer',
-            fontSize: 28,
-            fontWeight: 400,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            lineHeight: 1
-          }}
-          title="Nova lista"
-        >
-          +
-        </button>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button
+            onClick={() => window.location.href = '/lista-compras/dashboard'}
+            style={{
+              padding: '0 16px',
+              height: 44,
+              background: 'white',
+              color: '#374151',
+              border: '2px solid #e5e7eb',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8
+            }}
+            title="Painel de Gastos"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 20V10M12 20V4M6 20v-6" />
+            </svg>
+            Painel
+          </button>
+          <button
+            onClick={() => setShowNewListModal(true)}
+            style={{
+              width: 44,
+              height: 44,
+              background: '#2196F3',
+              color: 'white',
+              border: 'none',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontSize: 28,
+              fontWeight: 400,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              lineHeight: 1
+            }}
+            title="Nova lista"
+          >
+            +
+          </button>
+        </div>
       </div>
 
       {loading ? (
