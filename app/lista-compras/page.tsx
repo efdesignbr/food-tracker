@@ -24,6 +24,7 @@ interface ShoppingItem {
   is_purchased: boolean;
   purchased_at: string | null;
   price: number | null;
+  unit_price: number | null;
   notes: string | null;
   created_at: string;
 }
@@ -176,9 +177,16 @@ export default function ListaComprasPage() {
 
   async function handleToggleItem(item: ShoppingItem) {
     try {
-      await api.patch(`/api/shopping-lists/items?id=${item.id}`, {
-        is_purchased: !item.is_purchased
-      });
+      const newIsPurchased = !item.is_purchased;
+      const updates: any = { is_purchased: newIsPurchased };
+
+      // Se desmarcar o item, reseta os valores de preço
+      if (!newIsPurchased) {
+        updates.price = null;
+        updates.unitPrice = null; // Backend espera unitPrice
+      }
+
+      await api.patch(`/api/shopping-lists/items?id=${item.id}`, updates);
       if (selectedList) {
         await fetchListDetails(selectedList.id);
       }
@@ -206,6 +214,59 @@ export default function ListaComprasPage() {
       }
     } catch (e) {
       console.error('Erro ao atualizar item:', e);
+    }
+  }
+
+  async function handleSmartPriceUpdate(
+    item: ShoppingItem,
+    field: 'quantity' | 'unit_price' | 'price',
+    value: number
+  ) {
+    let updates: { quantity?: number; unit_price?: number; price?: number } = {};
+
+    // Lógica da Calculadora Inteligente
+    if (field === 'quantity') {
+      updates.quantity = value;
+      // Se mudar quantidade e tiver preço unitário, recalcula total
+      if (item.unit_price) {
+        updates.price = Number((value * item.unit_price).toFixed(2));
+      }
+      // Se tiver total mas não unitário, recalcula unitário (caso de pesáveis)
+      else if (item.price && value > 0) {
+        updates.unit_price = Number((item.price / value).toFixed(2));
+      }
+    } else if (field === 'unit_price') {
+      updates.unit_price = value;
+      // Se mudar unitário, recalcula total baseado na quantidade atual
+      if (item.quantity) {
+        updates.price = Number((item.quantity * value).toFixed(2));
+      }
+    } else if (field === 'price') {
+      updates.price = value;
+      // Se mudar total, recalcula unitário baseado na quantidade atual
+      if (item.quantity && item.quantity > 0) {
+        updates.unit_price = Number((value / item.quantity).toFixed(2));
+      }
+    }
+
+    // Atualização Otimista da UI
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, ...updates } : i));
+
+    // Persistência
+    try {
+      // Mapear unit_price para unitPrice para a API
+      const apiUpdates: any = { ...updates };
+      if (updates.unit_price !== undefined) {
+        apiUpdates.unitPrice = updates.unit_price;
+        delete apiUpdates.unit_price;
+      }
+
+      await api.patch(`/api/shopping-lists/items?id=${item.id}`, apiUpdates);
+      // Não recarrega tudo para não perder foco, pois já atualizamos localmente
+    } catch (e) {
+      console.error('Erro ao atualizar item:', e);
+      // Reverter em caso de erro (opcional, mas recomendado)
+      await fetchListDetails(selectedList!.id);
     }
   }
 
@@ -967,70 +1028,121 @@ export default function ListaComprasPage() {
                   />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 600, fontSize: 15, textDecoration: 'line-through', color: '#6b7280' }}>{item.name}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                      <input
-                        type="number"
-                        step="0.1"
-                        min="0.1"
-                        defaultValue={item.quantity}
-                        onBlur={(e) => {
-                          const value = parseFloat(e.target.value);
-                          if (value && value !== Number(item.quantity)) {
-                            handleUpdateItemDetails(item.id, { quantity: value });
-                          }
-                        }}
-                        style={{
-                          width: 50,
-                          padding: '4px 6px',
-                          fontSize: 13,
-                          border: '1px solid #d1d5db',
-                          borderRadius: 4,
-                          textAlign: 'center'
-                        }}
-                      />
-                      <input
-                        type="text"
-                        defaultValue={item.unit || 'un'}
-                        onBlur={(e) => {
-                          const value = e.target.value.trim();
-                          if (value && value !== item.unit) {
-                            handleUpdateItemDetails(item.id, { unit: value });
-                          }
-                        }}
-                        style={{
-                          width: 45,
-                          padding: '4px 6px',
-                          fontSize: 13,
-                          border: '1px solid #d1d5db',
-                          borderRadius: 4
-                        }}
-                      />
+                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginTop: 6 }}>
+                      {/* Quantidade */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <label style={{ fontSize: 10, color: '#9ca3af' }}>Qtd</label>
+                        <input
+                          type="number"
+                          step="0.001"
+                          min="0.001"
+                          className="no-spinner"
+                          defaultValue={item.quantity}
+                          onFocus={(e) => e.target.select()}
+                          onBlur={(e) => {
+                            const value = parseFloat(e.target.value);
+                            if (value && value !== Number(item.quantity)) {
+                              handleSmartPriceUpdate(item, 'quantity', value);
+                            }
+                          }}
+                          style={{
+                            width: 60,
+                            padding: '6px',
+                            fontSize: 13,
+                            border: '1px solid #d1d5db',
+                            borderRadius: 6,
+                            textAlign: 'center'
+                          }}
+                        />
+                      </div>
+
+                      {/* Unidade */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <label style={{ fontSize: 10, color: '#9ca3af' }}>Unid</label>
+                        <input
+                          type="text"
+                          defaultValue={item.unit || 'un'}
+                          onBlur={(e) => {
+                            const value = e.target.value.trim();
+                            if (value && value !== item.unit) {
+                              handleUpdateItemDetails(item.id, { unit: value });
+                            }
+                          }}
+                          style={{
+                            width: 50,
+                            padding: '6px',
+                            fontSize: 13,
+                            border: '1px solid #d1d5db',
+                            borderRadius: 6,
+                            textAlign: 'center'
+                          }}
+                        />
+                      </div>
+
+                      {/* Preço Unitário */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <label style={{ fontSize: 10, color: '#9ca3af' }}>R$ Unit.</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0,00"
+                          className="no-spinner"
+                          key={`unit-${item.id}-${item.unit_price}`} // Força re-render ao mudar externamente
+                          defaultValue={item.unit_price ? Number(item.unit_price).toFixed(2) : ''}
+                          onFocus={(e) => e.target.select()}
+                          onBlur={(e) => {
+                            const value = e.target.value ? parseFloat(e.target.value) : 0;
+                            if (value !== Number(item.unit_price)) {
+                              handleSmartPriceUpdate(item, 'unit_price', value);
+                            }
+                          }}
+                          style={{
+                            width: 70,
+                            padding: '6px',
+                            fontSize: 13,
+                            border: '1px solid #d1d5db',
+                            borderRadius: 6,
+                            textAlign: 'right',
+                            background: '#f9fafb'
+                          }}
+                        />
+                      </div>
+
+                      {/* Preço Total */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <label style={{ fontSize: 10, color: '#166534', fontWeight: 600 }}>R$ Total</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0,00"
+                          className="no-spinner"
+                          key={`total-${item.id}-${item.price}`} // Força re-render ao mudar externamente
+                          defaultValue={item.price ? Number(item.price).toFixed(2) : ''}
+                          onFocus={(e) => e.target.select()}
+                          onBlur={(e) => {
+                            const value = e.target.value ? parseFloat(e.target.value) : 0;
+                            if (value !== Number(item.price)) {
+                              handleSmartPriceUpdate(item, 'price', value);
+                            }
+                          }}
+                          style={{
+                            width: 80,
+                            padding: '6px',
+                            fontSize: 13,
+                            border: '1px solid #10b981',
+                            borderRadius: 6,
+                            textAlign: 'right',
+                            fontWeight: 600,
+                            color: '#166534'
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                    <span style={{ fontSize: 13, color: '#6b7280' }}>R$</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0,00"
-                      defaultValue={item.price || ''}
-                      onBlur={(e) => {
-                        const value = e.target.value ? parseFloat(e.target.value) : null;
-                        if (value !== Number(item.price)) {
-                          handleUpdatePrice(item.id, value);
-                        }
-                      }}
-                      style={{
-                        width: 70,
-                        padding: '6px 8px',
-                        fontSize: 14,
-                        border: '1px solid #bbf7d0',
-                        borderRadius: 6,
-                        background: 'white',
-                        textAlign: 'right'
-                      }}
-                    />
+                  <div style={{ display: 'none' }}>
+                    {/* Placeholder para manter layout flex antigo se necessário, mas agora tudo está no bloco principal */}
                   </div>
                 </div>
               ))}

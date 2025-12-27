@@ -24,6 +24,7 @@ export interface ShoppingItem {
   is_purchased: boolean;
   purchased_at: Date | null;
   price: number | null;
+  unit_price: number | null;
   source: 'manual' | 'suggestion' | 'taco' | 'food_bank';
   source_id: string | null;
   suggestion_status: 'pending' | 'accepted' | 'rejected' | null;
@@ -237,6 +238,7 @@ export async function addShoppingItem(args: {
   sourceId?: string;
   suggestionStatus?: 'pending' | 'accepted' | 'rejected';
   notes?: string;
+  unitPrice?: number;
 }): Promise<ShoppingItem> {
   const pool = getPool();
   const client = await pool.connect();
@@ -246,8 +248,8 @@ export async function addShoppingItem(args: {
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
 
     const result = await client.query<ShoppingItem>(
-      `INSERT INTO shopping_items (tenant_id, list_id, name, quantity, unit, category, source, source_id, suggestion_status, notes)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `INSERT INTO shopping_items (tenant_id, list_id, name, quantity, unit, category, source, source_id, suggestion_status, notes, unit_price)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
       [
         args.tenantId,
@@ -259,7 +261,8 @@ export async function addShoppingItem(args: {
         args.source ?? 'manual',
         args.sourceId ?? null,
         args.suggestionStatus ?? null,
-        args.notes ?? null
+        args.notes ?? null,
+        args.unitPrice ?? null
       ]
     );
 
@@ -310,6 +313,7 @@ export async function updateShoppingItem(args: {
   category?: string;
   isPurchased?: boolean;
   price?: number | null;
+  unitPrice?: number | null;
   suggestionStatus?: 'pending' | 'accepted' | 'rejected';
   notes?: string;
 }): Promise<ShoppingItem | null> {
@@ -358,6 +362,11 @@ export async function updateShoppingItem(args: {
     if (args.price !== undefined) {
       updates.push(`price = $${paramIndex++}`);
       params.push(args.price);
+    }
+
+    if (args.unitPrice !== undefined) {
+      updates.push(`unit_price = $${paramIndex++}`);
+      params.push(args.unitPrice);
     }
 
     if (args.suggestionStatus !== undefined) {
@@ -511,8 +520,8 @@ export async function duplicateShoppingList(args: {
 
     // Copiar itens da lista original (resetando is_purchased)
     await client.query(
-      `INSERT INTO shopping_items (tenant_id, list_id, name, quantity, unit, category, source, source_id, notes)
-       SELECT $1, $2, name, quantity, unit, category, source, source_id, notes
+      `INSERT INTO shopping_items (tenant_id, list_id, name, quantity, unit, category, source, source_id, notes, unit_price)
+       SELECT $1, $2, name, quantity, unit, category, source, source_id, notes, unit_price
        FROM shopping_items
        WHERE list_id = $3 AND tenant_id = $1`,
       [args.tenantId, newList.id, args.sourceListId]

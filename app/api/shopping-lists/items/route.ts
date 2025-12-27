@@ -18,7 +18,8 @@ const addSchema = z.object({
   quantity: z.number().min(0).optional(),
   unit: z.string().max(50).optional(),
   category: z.string().max(50).optional(),
-  notes: z.string().optional()
+  notes: z.string().optional(),
+  unit_price: z.number().min(0).optional()
 });
 
 const updateSchema = z.object({
@@ -28,6 +29,7 @@ const updateSchema = z.object({
   category: z.string().max(50).optional(),
   is_purchased: z.boolean().optional(),
   price: z.number().min(0).nullable().optional(),
+  unit_price: z.number().min(0).nullable().optional(),
   notes: z.string().optional()
 });
 
@@ -55,7 +57,8 @@ export async function POST(req: Request) {
       quantity: validated.quantity,
       unit: validated.unit,
       category: validated.category,
-      notes: validated.notes
+      notes: validated.notes,
+      unitPrice: validated.unit_price
     });
 
     return NextResponse.json({ ok: true, item });
@@ -100,6 +103,7 @@ export async function PATCH(req: Request) {
       category: validated.category,
       isPurchased: validated.is_purchased,
       price: validated.price,
+      unitPrice: validated.unit_price,
       notes: validated.notes
     });
 
