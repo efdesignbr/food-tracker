@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Food Tracker',
   webDir: 'out',
   ios: {
-    contentInset: 'always'
+    contentInset: 'never'
   }
 };
 

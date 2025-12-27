@@ -462,48 +462,59 @@ export default function ReportsPage() {
           padding: 16,
           marginBottom: 16,
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          border: '2px solid #2196F3',
-          overflow: 'hidden'
+          border: '2px solid #2196F3'
         }}>
           <div style={{ marginBottom: 12, fontWeight: 600, color: '#374151', fontSize: 14 }}>
              Selecione o Período
           </div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ width: '100%' }}>
               <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 4 }}>
-                Início
+                Data Inicial
               </label>
               <input
                 type="date"
                 value={customStartDate}
                 onChange={(e) => setCustomStartDate(e.target.value)}
                 style={{
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  display: 'block',
                   width: '100%',
-                  padding: 8,
-                  fontSize: 16,
+                  boxSizing: 'border-box',
+                  padding: '10px 12px',
+                  margin: 0,
                   borderRadius: 8,
                   border: '1px solid #d1d5db',
-                  boxSizing: 'border-box',
-                  minWidth: 0
+                  backgroundColor: 'white',
+                  fontSize: 16,
+                  color: '#374151',
+                  minHeight: 44
                 }}
               />
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ width: '100%' }}>
               <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 4 }}>
-                Fim
+                Data Final
               </label>
               <input
                 type="date"
                 value={customEndDate}
                 onChange={(e) => setCustomEndDate(e.target.value)}
                 style={{
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  display: 'block',
                   width: '100%',
-                  padding: 8,
-                  fontSize: 16,
+                  boxSizing: 'border-box',
+                  padding: '10px 12px',
+                  margin: 0,
                   borderRadius: 8,
                   border: '1px solid #d1d5db',
-                  boxSizing: 'border-box',
-                  minWidth: 0
+                  backgroundColor: 'white',
+                  fontSize: 16,
+                  color: '#374151',
+                  minHeight: 44
                 }}
               />
             </div>

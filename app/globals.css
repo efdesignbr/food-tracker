@@ -1,0 +1,118 @@
+/* ==========================================================================
+   Food Tracker - Global Styles
+   CSS Reset + Normalização para iOS Safari WebView
+   Baseado no Tailwind Preflight que funciona perfeitamente no igarage
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CSS Reset Base (Tailwind Preflight)
+   -------------------------------------------------------------------------- */
+
+/* Box sizing para todos os elementos */
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+}
+
+/* HTML base para iOS */
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Body reset */
+body {
+  margin: 0;
+  line-height: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   Reset de Form Elements - CRÍTICO para iOS
+   -------------------------------------------------------------------------- */
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  font-size: 100%;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove text-transform herdado */
+button,
+select {
+  text-transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Inputs de Data/Hora - Específico para iOS
+   -------------------------------------------------------------------------- */
+
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  line-height: normal;
+  font-size: 16px;
+}
+
+/* Alinhar texto do date picker no iOS */
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value,
+input[type="datetime-local"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+/* Evitar zoom automático no iOS ao focar inputs (font-size < 16px) */
+@supports (-webkit-touch-callout: none) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Utilitários de Layout
+   -------------------------------------------------------------------------- */
+
+/* Grid de 2 colunas */
+.grid-2-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Grid de 3 colunas */
+.grid-3-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Utilitários de Sizing
+   -------------------------------------------------------------------------- */
+
+.w-full {
+  width: 100%;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
