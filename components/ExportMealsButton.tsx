@@ -255,7 +255,7 @@ export default function ExportMealsButton({ plan = 'free' }: ExportMealsButtonPr
             {/* Custom Date Range */}
             {period === 'custom' && (
               <div style={{ marginBottom: 20, padding: 16, backgroundColor: '#f9fafb', borderRadius: 8 }}>
-                <div style={{ marginBottom: 12 }}>
+                <div style={{ marginBottom: 12, width: '100%' }}>
                   <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
                     Data de início
                   </label>
@@ -264,15 +264,23 @@ export default function ExportMealsButton({ plan = 'free' }: ExportMealsButtonPr
                     value={customStartDate}
                     onChange={(e) => setCustomStartDate(e.target.value)}
                     style={{
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      display: 'block',
                       width: '100%',
-                      padding: 10,
+                      boxSizing: 'border-box',
+                      padding: '10px 12px',
+                      margin: 0,
                       fontSize: 15,
                       borderRadius: 8,
                       border: '2px solid #e5e7eb',
+                      backgroundColor: 'white',
+                      minHeight: 44,
+                      color: '#374151'
                     }}
                   />
                 </div>
-                <div>
+                <div style={{ width: '100%' }}>
                   <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
                     Data de fim
                   </label>
@@ -281,11 +289,19 @@ export default function ExportMealsButton({ plan = 'free' }: ExportMealsButtonPr
                     value={customEndDate}
                     onChange={(e) => setCustomEndDate(e.target.value)}
                     style={{
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      display: 'block',
                       width: '100%',
-                      padding: 10,
+                      boxSizing: 'border-box',
+                      padding: '10px 12px',
+                      margin: 0,
                       fontSize: 15,
                       borderRadius: 8,
                       border: '2px solid #e5e7eb',
+                      backgroundColor: 'white',
+                      minHeight: 44,
+                      color: '#374151'
                     }}
                   />
                 </div>
