@@ -11,6 +11,7 @@ export interface ShoppingList {
   completed_at: Date | null;
   created_at: Date;
   updated_at: Date;
+  total_price?: number;
 }
 
 export interface ShoppingItem {
@@ -77,9 +78,13 @@ export async function getShoppingListsByUser(args: {
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
 
     let query = `
-      SELECT sl.*, s.name as store_name
+      SELECT
+        sl.*,
+        s.name as store_name,
+        COALESCE(SUM(si.price), 0) as total_price
       FROM shopping_lists sl
       LEFT JOIN stores s ON sl.store_id = s.id
+      LEFT JOIN shopping_items si ON sl.id = si.list_id AND si.is_purchased = true
       WHERE sl.tenant_id = $1 AND sl.user_id = $2`;
     const params: any[] = [args.tenantId, args.userId];
 
@@ -88,7 +93,7 @@ export async function getShoppingListsByUser(args: {
       params.push(args.status);
     }
 
-    query += ` ORDER BY sl.created_at DESC`;
+    query += ` GROUP BY sl.id, s.name ORDER BY sl.created_at DESC`;
 
     const result = await client.query<ShoppingList>(query, params);
 
@@ -456,25 +461,22 @@ export async function getFoodSuggestions(args: {
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
 
     const result = await client.query<FoodSuggestion>(
-      `WITH food_consumption AS (
-        SELECT
-          LOWER(TRIM(fi.name)) as food_name,
-          COUNT(*) as consumption_count,
-          COUNT(DISTINCT DATE(m.consumed_at)) as days_consumed,
-          AVG(fi.quantity) as avg_quantity,
-          MAX(fi.unit) as common_unit,
-          MAX(m.consumed_at) as last_consumed
-        FROM food_items fi
-        JOIN meals m ON fi.meal_id = m.id
-        WHERE m.user_id = $1
-          AND m.tenant_id = $2
-          AND m.status = 'approved'
-          AND m.consumed_at >= CURRENT_DATE - INTERVAL '30 days'
-        GROUP BY LOWER(TRIM(fi.name))
-        HAVING COUNT(*) >= 2
-      )
-      SELECT * FROM food_consumption
-      ORDER BY consumption_count DESC, days_consumed DESC
+      `SELECT 
+        LOWER(TRIM(si.name)) as food_name,
+        COUNT(*) as consumption_count,
+        COUNT(DISTINCT DATE(si.created_at)) as days_consumed,
+        MAX(si.created_at) as last_consumed,
+        MODE() WITHIN GROUP (ORDER BY si.unit) as common_unit,
+        AVG(si.quantity) as avg_quantity
+      FROM shopping_items si
+      JOIN shopping_lists sl ON si.list_id = sl.id
+      WHERE si.tenant_id = $2
+        AND sl.user_id = $1 -- Apenas listas do usuário
+        AND si.is_purchased = true
+        AND si.created_at >= CURRENT_DATE - INTERVAL '90 days'
+      GROUP BY 1
+      HAVING COUNT(*) >= 2 -- Item comprado pelo menos 2x nos últimos 90 dias
+      ORDER BY consumption_count DESC, last_consumed DESC
       LIMIT $3`,
       [args.userId, args.tenantId, args.limit || 10]
     );

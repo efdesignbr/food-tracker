@@ -12,6 +12,7 @@ interface ShoppingList {
   completed_at: string | null;
   created_at: string;
   updated_at: string;
+  total_price?: number;
 }
 
 interface ShoppingItem {
@@ -503,7 +504,7 @@ export default function ListaComprasPage() {
         <div style={{
           padding: 16,
           background: '#f0fdf4',
-          border: '2px solid #bbf7d0',
+          // border: '2px solid #bbf7d0', // Borda removida
           borderRadius: 12,
           marginBottom: 24
         }}>
@@ -880,7 +881,8 @@ export default function ListaComprasPage() {
                     gap: 12,
                     padding: 16,
                     background: 'white',
-                    border: '2px solid #e5e7eb',
+                    // border: '2px solid #e5e7eb', // Borda removida
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                     borderRadius: 12
                   }}
                 >
@@ -1016,7 +1018,7 @@ export default function ListaComprasPage() {
                     gap: 12,
                     padding: 12,
                     background: '#f0fdf4',
-                    border: '2px solid #bbf7d0',
+                    // border: '2px solid #bbf7d0', // Borda removida
                     borderRadius: 12
                   }}
                 >
@@ -1512,7 +1514,8 @@ export default function ListaComprasPage() {
                     style={{
                       padding: 16,
                       background: 'white',
-                      border: '2px solid #e5e7eb',
+                      // border: '2px solid #e5e7eb', // Borda removida
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)', // Adicionando sombra leve para manter separação visual
                       borderRadius: 12,
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -1598,7 +1601,7 @@ export default function ListaComprasPage() {
                     style={{
                       padding: 12,
                       background: '#f0fdf4',
-                      border: '2px solid #bbf7d0',
+                      // border: '2px solid #bbf7d0', // Borda removida
                       borderRadius: 12,
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -1609,11 +1612,18 @@ export default function ListaComprasPage() {
                       onClick={() => openCompletedList(list)}
                       style={{ flex: 1, cursor: 'pointer' }}
                     >
-                      <div style={{ fontWeight: 600, color: '#166534' }}>{list.name}</div>
-                      <div style={{ fontSize: 12, color: '#6b7280' }}>
-                        Finalizada em {formatDate(list.completed_at || list.updated_at)}
-                        {list.store_name && ` - ${list.store_name}`}
+                      <div style={{ fontWeight: 600, color: '#166534', fontSize: 15, marginBottom: 2 }}>
+                        {list.name}
+                        <span style={{ fontWeight: 400, color: '#6b7280', fontSize: 13 }}>
+                          {' - '}{formatDate(list.completed_at || list.updated_at)}
+                          {list.store_name && ` - ${list.store_name}`}
+                        </span>
                       </div>
+                      {list.total_price && Number(list.total_price) > 0 && (
+                        <div style={{ fontSize: 15, fontWeight: 700, color: '#166534' }}>
+                          {formatPrice(Number(list.total_price))}
+                        </div>
+                      )}
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button
