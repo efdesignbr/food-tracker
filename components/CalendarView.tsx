@@ -12,6 +12,25 @@ type Food = {
   protein_g?: number;
   carbs_g?: number;
   fat_g?: number;
+  fiber_g?: number;
+  sodium_mg?: number;
+  sugar_g?: number;
+  cholesterol_mg?: number;
+  saturated_fat_g?: number;
+  calcium_mg?: number;
+  magnesium_mg?: number;
+  phosphorus_mg?: number;
+  iron_mg?: number;
+  potassium_mg?: number;
+  zinc_mg?: number;
+  copper_mg?: number;
+  manganese_mg?: number;
+  vitamin_c_mg?: number;
+  vitamin_a_mcg?: number;
+  vitamin_b1_mg?: number;
+  vitamin_b2_mg?: number;
+  vitamin_b3_mg?: number;
+  vitamin_b6_mg?: number;
 };
 
 type Meal = {
@@ -32,6 +51,9 @@ type DayData = {
   protein: number;
   carbs: number;
   fat: number;
+  fiber: number;
+  sodium: number;
+  sugar: number;
   meals: Meal[];
   waterIntake: number; // ml
   isCurrentMonth: boolean;
@@ -145,6 +167,15 @@ export default function CalendarView({
       const fat = dayMeals.reduce((sum, meal) =>
         sum + meal.foods.reduce((s, f) => s + (f.fat_g || 0), 0), 0
       );
+      const fiber = dayMeals.reduce((sum, meal) =>
+        sum + meal.foods.reduce((s, f) => s + (f.fiber_g || 0), 0), 0
+      );
+      const sodium = dayMeals.reduce((sum, meal) =>
+        sum + meal.foods.reduce((s, f) => s + (f.sodium_mg || 0), 0), 0
+      );
+      const sugar = dayMeals.reduce((sum, meal) =>
+        sum + meal.foods.reduce((s, f) => s + (f.sugar_g || 0), 0), 0
+      );
 
       // Verifica se é hoje comparando ano/mês/dia
       const isToday = current.getFullYear() === todayYear &&
@@ -158,6 +189,9 @@ export default function CalendarView({
         protein,
         carbs,
         fat,
+        fiber,
+        sodium,
+        sugar,
         meals: dayMeals,
         waterIntake: dayWater,
         isCurrentMonth: current.getMonth() === month,
@@ -651,6 +685,24 @@ export default function CalendarView({
               </div>
               <div style={{ fontSize: 10, color: '#9ca3af' }}>Meta: {fatGoal}g</div>
             </div>
+            <div>
+              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>Fibra</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#059669' }}>
+                {selectedDay.fiber.toFixed(0)}g
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>Sódio</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#4f46e5' }}>
+                {selectedDay.sodium.toFixed(0)}mg
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>Açúcar</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#ca8a04' }}>
+                {selectedDay.sugar.toFixed(0)}g
+              </div>
+            </div>
             <div style={{
               gridColumn: '1 / -1',
               background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
@@ -694,6 +746,9 @@ export default function CalendarView({
               const mealProtein = meal.foods.reduce((s, f) => s + (f.protein_g || 0), 0);
               const mealCarbs = meal.foods.reduce((s, f) => s + (f.carbs_g || 0), 0);
               const mealFat = meal.foods.reduce((s, f) => s + (f.fat_g || 0), 0);
+              const mealFiber = meal.foods.reduce((s, f) => s + (f.fiber_g || 0), 0);
+              const mealSodium = meal.foods.reduce((s, f) => s + (f.sodium_mg || 0), 0);
+              const mealSugar = meal.foods.reduce((s, f) => s + (f.sugar_g || 0), 0);
               const config = mealTypeConfig[meal.meal_type] || mealTypeConfig.lunch;
 
               return (
@@ -797,32 +852,49 @@ export default function CalendarView({
                       }}>
                         Alimentos ({meal.foods.length})
                       </div>
-                      <div style={{ display: 'grid', gap: 6 }}>
+                      <div style={{ display: 'grid', gap: 8 }}>
                         {meal.foods.map((food) => (
                           <div
                             key={food.id}
                             style={{
-                              padding: '8px 10px',
+                              padding: '10px 12px',
                               background: '#f9fafb',
-                              borderRadius: 6,
+                              borderRadius: 8,
                               fontSize: 12,
                               border: '1px solid #e5e7eb'
                             }}
                           >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                              <span style={{ fontWeight: 600, color: '#374151' }}>{food.name}</span>
-                              <span style={{ color: '#6b7280', fontSize: 11 }}>
-                                {food.quantity}{food.unit}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                              <span style={{ fontWeight: 600, color: '#374151' }}>
+                                {food.name}
+                                <span style={{ color: '#9ca3af', marginLeft: 4, fontWeight: 400 }}>
+                                  ({food.quantity} {food.unit})
+                                </span>
+                              </span>
+                              <span style={{ fontWeight: 600, color: '#6b7280' }}>
+                                {(food.calories || 0).toFixed(0)} kcal
                               </span>
                             </div>
-                            {(food.calories || food.protein_g || food.carbs_g || food.fat_g) && (
-                              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 10, color: '#6b7280' }}>
-                                {food.calories && <span> {food.calories.toFixed(0)} kcal</span>}
-                                {food.protein_g && <span> {food.protein_g.toFixed(1)}g</span>}
-                                {food.carbs_g && <span> {food.carbs_g.toFixed(1)}g</span>}
-                                {food.fat_g && <span>🧈 {food.fat_g.toFixed(1)}g</span>}
-                              </div>
-                            )}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, fontSize: 10 }}>
+                              <span style={{ color: '#d97706', background: '#fef3c7', padding: '2px 6px', borderRadius: 4 }}>
+                                P: {(food.protein_g || 0).toFixed(0)}g
+                              </span>
+                              <span style={{ color: '#2563eb', background: '#dbeafe', padding: '2px 6px', borderRadius: 4 }}>
+                                C: {(food.carbs_g || 0).toFixed(0)}g
+                              </span>
+                              <span style={{ color: '#db2777', background: '#fce7f3', padding: '2px 6px', borderRadius: 4 }}>
+                                G: {(food.fat_g || 0).toFixed(0)}g
+                              </span>
+                              <span style={{ color: '#059669', background: '#d1fae5', padding: '2px 6px', borderRadius: 4 }}>
+                                F: {(food.fiber_g || 0).toFixed(0)}g
+                              </span>
+                              <span style={{ color: '#4f46e5', background: '#e0e7ff', padding: '2px 6px', borderRadius: 4 }}>
+                                S: {(food.sodium_mg || 0).toFixed(0)}mg
+                              </span>
+                              <span style={{ color: '#ca8a04', background: '#fef9c3', padding: '2px 6px', borderRadius: 4 }}>
+                                A: {(food.sugar_g || 0).toFixed(0)}g
+                              </span>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -839,20 +911,22 @@ export default function CalendarView({
                         <span style={{ fontWeight: 600, fontSize: 13 }}>Total</span>
                         <span style={{ fontSize: 18, fontWeight: 700 }}>{mealCalories.toFixed(0)} kcal</span>
                       </div>
-                      {(mealProtein > 0 || mealCarbs > 0 || mealFat > 0) && (
-                        <div style={{
-                          display: 'flex',
-                          gap: 10,
-                          fontSize: 11,
-                          opacity: 0.95,
-                          paddingTop: 6,
-                          borderTop: '1px solid rgba(255,255,255,0.3)'
-                        }}>
-                          {mealProtein > 0 && <span> {mealProtein.toFixed(1)}g</span>}
-                          {mealCarbs > 0 && <span> {mealCarbs.toFixed(1)}g</span>}
-                          {mealFat > 0 && <span>🧈 {mealFat.toFixed(1)}g</span>}
-                        </div>
-                      )}
+                      <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 8,
+                        fontSize: 11,
+                        opacity: 0.95,
+                        paddingTop: 6,
+                        borderTop: '1px solid rgba(255,255,255,0.3)'
+                      }}>
+                        <span>P: {mealProtein.toFixed(0)}g</span>
+                        <span>C: {mealCarbs.toFixed(0)}g</span>
+                        <span>G: {mealFat.toFixed(0)}g</span>
+                        <span>F: {mealFiber.toFixed(0)}g</span>
+                        <span>S: {mealSodium.toFixed(0)}mg</span>
+                        <span>A: {mealSugar.toFixed(0)}g</span>
+                      </div>
                     </div>
                   </div>
                 </div>

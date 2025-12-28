@@ -61,6 +61,18 @@ interface NutritionAnalysis {
   sodium?: number;
   sugar?: number;
   saturated_fat?: number;
+  // Micronutrientes
+  cholesterol?: number;
+  calcium?: number;
+  iron?: number;
+  zinc?: number;
+  potassium?: number;
+  vitamin_c?: number;
+  vitamin_a?: number;
+  vitamin_b1?: number;
+  vitamin_b2?: number;
+  vitamin_b3?: number;
+  vitamin_b6?: number;
   purchasable?: boolean;
   category?: string;
 }
@@ -89,6 +101,19 @@ export default function MeusAlimentosPage() {
   const [manualSodium, setManualSodium] = useState('');
   const [manualSugar, setManualSugar] = useState('');
   const [manualSaturatedFat, setManualSaturatedFat] = useState('');
+  // Micronutrientes
+  const [manualCholesterol, setManualCholesterol] = useState('');
+  const [manualCalcium, setManualCalcium] = useState('');
+  const [manualIron, setManualIron] = useState('');
+  const [manualZinc, setManualZinc] = useState('');
+  const [manualPotassium, setManualPotassium] = useState('');
+  const [manualVitaminC, setManualVitaminC] = useState('');
+  const [manualVitaminA, setManualVitaminA] = useState('');
+  const [manualVitaminB1, setManualVitaminB1] = useState('');
+  const [manualVitaminB2, setManualVitaminB2] = useState('');
+  const [manualVitaminB3, setManualVitaminB3] = useState('');
+  const [manualVitaminB6, setManualVitaminB6] = useState('');
+  const [showMicronutrients, setShowMicronutrients] = useState(false);
   const [manualPurchasable, setManualPurchasable] = useState(false);
   const [manualCategory, setManualCategory] = useState('');
 
@@ -101,6 +126,7 @@ export default function MeusAlimentosPage() {
   const [customName, setCustomName] = useState('');
   const [aiPurchasable, setAiPurchasable] = useState(true); // Produtos industrializados geralmente são compráveis
   const [aiCategory, setAiCategory] = useState('');
+  const [showAiMicronutrients, setShowAiMicronutrients] = useState(false);
 
   // Edição de alimento
   const [editingItem, setEditingItem] = useState<FoodBankItem | null>(null);
@@ -150,6 +176,18 @@ export default function MeusAlimentosPage() {
       if (manualSodium) payload.sodium = parseFloat(manualSodium);
       if (manualSugar) payload.sugar = parseFloat(manualSugar);
       if (manualSaturatedFat) payload.saturated_fat = parseFloat(manualSaturatedFat);
+      // Micronutrientes
+      if (manualCholesterol) payload.cholesterol = parseFloat(manualCholesterol);
+      if (manualCalcium) payload.calcium = parseFloat(manualCalcium);
+      if (manualIron) payload.iron = parseFloat(manualIron);
+      if (manualZinc) payload.zinc = parseFloat(manualZinc);
+      if (manualPotassium) payload.potassium = parseFloat(manualPotassium);
+      if (manualVitaminC) payload.vitamin_c = parseFloat(manualVitaminC);
+      if (manualVitaminA) payload.vitamin_a = parseFloat(manualVitaminA);
+      if (manualVitaminB1) payload.vitamin_b1 = parseFloat(manualVitaminB1);
+      if (manualVitaminB2) payload.vitamin_b2 = parseFloat(manualVitaminB2);
+      if (manualVitaminB3) payload.vitamin_b3 = parseFloat(manualVitaminB3);
+      if (manualVitaminB6) payload.vitamin_b6 = parseFloat(manualVitaminB6);
       payload.purchasable = manualPurchasable;
       if (manualCategory) payload.category = manualCategory;
 
@@ -172,6 +210,18 @@ export default function MeusAlimentosPage() {
       setManualSodium('');
       setManualSugar('');
       setManualSaturatedFat('');
+      setManualCholesterol('');
+      setManualCalcium('');
+      setManualIron('');
+      setManualZinc('');
+      setManualPotassium('');
+      setManualVitaminC('');
+      setManualVitaminA('');
+      setManualVitaminB1('');
+      setManualVitaminB2('');
+      setManualVitaminB3('');
+      setManualVitaminB6('');
+      setShowMicronutrients(false);
       setManualPurchasable(false);
       setManualCategory('');
       setShowManualForm(false);
@@ -278,6 +328,18 @@ export default function MeusAlimentosPage() {
       if (analyzedData.sodium) payload.sodium = analyzedData.sodium;
       if (analyzedData.sugar) payload.sugar = analyzedData.sugar;
       if (analyzedData.saturated_fat) payload.saturated_fat = analyzedData.saturated_fat;
+      // Micronutrientes
+      if (analyzedData.cholesterol) payload.cholesterol = analyzedData.cholesterol;
+      if (analyzedData.calcium) payload.calcium = analyzedData.calcium;
+      if (analyzedData.iron) payload.iron = analyzedData.iron;
+      if (analyzedData.zinc) payload.zinc = analyzedData.zinc;
+      if (analyzedData.potassium) payload.potassium = analyzedData.potassium;
+      if (analyzedData.vitamin_c) payload.vitamin_c = analyzedData.vitamin_c;
+      if (analyzedData.vitamin_a) payload.vitamin_a = analyzedData.vitamin_a;
+      if (analyzedData.vitamin_b1) payload.vitamin_b1 = analyzedData.vitamin_b1;
+      if (analyzedData.vitamin_b2) payload.vitamin_b2 = analyzedData.vitamin_b2;
+      if (analyzedData.vitamin_b3) payload.vitamin_b3 = analyzedData.vitamin_b3;
+      if (analyzedData.vitamin_b6) payload.vitamin_b6 = analyzedData.vitamin_b6;
       payload.purchasable = aiPurchasable;
       if (aiCategory) payload.category = aiCategory;
 
@@ -733,6 +795,91 @@ export default function MeusAlimentosPage() {
               </div>
             </div>
 
+            {/* Micronutrientes (expansível) */}
+            <button
+              type="button"
+              onClick={() => setShowMicronutrients(!showMicronutrients)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginTop: 20,
+                marginBottom: 12,
+                padding: 0,
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 15,
+                fontWeight: 700,
+                color: '#374151',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}
+            >
+              Micronutrientes <span style={{ fontSize: 12, color: '#9ca3af', fontWeight: 400 }}>(Opcional)</span>
+              <span style={{ fontSize: 12, color: '#6b7280' }}>{showMicronutrients ? '▼' : '▶'}</span>
+            </button>
+
+            {showMicronutrients && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginBottom: 12 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Colesterol (mg)</label>
+                  <input type="number" step="0.1" value={manualCholesterol} onChange={e => setManualCholesterol(e.target.value)} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Cálcio (mg)</label>
+                  <input type="number" step="0.1" value={manualCalcium} onChange={e => setManualCalcium(e.target.value)} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Ferro (mg)</label>
+                  <input type="number" step="0.1" value={manualIron} onChange={e => setManualIron(e.target.value)} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Zinco (mg)</label>
+                  <input type="number" step="0.1" value={manualZinc} onChange={e => setManualZinc(e.target.value)} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Potássio (mg)</label>
+                  <input type="number" step="0.1" value={manualPotassium} onChange={e => setManualPotassium(e.target.value)} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Vit. C (mg)</label>
+                  <input type="number" step="0.1" value={manualVitaminC} onChange={e => setManualVitaminC(e.target.value)} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Vit. A (mcg)</label>
+                  <input type="number" step="0.1" value={manualVitaminA} onChange={e => setManualVitaminA(e.target.value)} placeholder="mcg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Vit. B1 (mg)</label>
+                  <input type="number" step="0.01" value={manualVitaminB1} onChange={e => setManualVitaminB1(e.target.value)} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Vit. B2 (mg)</label>
+                  <input type="number" step="0.01" value={manualVitaminB2} onChange={e => setManualVitaminB2(e.target.value)} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Vit. B3 (mg)</label>
+                  <input type="number" step="0.01" value={manualVitaminB3} onChange={e => setManualVitaminB3(e.target.value)} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Vit. B6 (mg)</label>
+                  <input type="number" step="0.01" value={manualVitaminB6} onChange={e => setManualVitaminB6(e.target.value)} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+              </div>
+            )}
+
             {/* Classificação */}
             <h3 style={{
               fontSize: 15,
@@ -1154,6 +1301,92 @@ export default function MeusAlimentosPage() {
                             />
                           </div>
                         </div>
+                      </div>
+
+                      {/* Micronutrientes (expansível) */}
+                      <div>
+                        <button
+                          type="button"
+                          onClick={() => setShowAiMicronutrients(!showAiMicronutrients)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            padding: 0,
+                            marginBottom: 12,
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: 14,
+                            fontWeight: 700,
+                            color: '#6b7280',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px'
+                          }}
+                        >
+                          Micronutrientes <span style={{ fontSize: 12, color: '#9ca3af', fontWeight: 400 }}>(Opcional)</span>
+                          <span style={{ fontSize: 12 }}>{showAiMicronutrients ? '▼' : '▶'}</span>
+                        </button>
+
+                        {showAiMicronutrients && (
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 12 }}>
+                            <div>
+                              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12, color: '#374151' }}>Colesterol (mg)</label>
+                              <input type="number" step="0.1" value={analyzedData.cholesterol || ''} onChange={e => setAnalyzedData({ ...analyzedData, cholesterol: e.target.value ? parseFloat(e.target.value) : undefined })} placeholder="mg"
+                                style={{ width: '100%', padding: 8, fontSize: 14, border: '2px solid #d1d5db', borderRadius: 8, background: 'white', boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12, color: '#374151' }}>Cálcio (mg)</label>
+                              <input type="number" step="0.1" value={analyzedData.calcium || ''} onChange={e => setAnalyzedData({ ...analyzedData, calcium: e.target.value ? parseFloat(e.target.value) : undefined })} placeholder="mg"
+                                style={{ width: '100%', padding: 8, fontSize: 14, border: '2px solid #d1d5db', borderRadius: 8, background: 'white', boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12, color: '#374151' }}>Ferro (mg)</label>
+                              <input type="number" step="0.1" value={analyzedData.iron || ''} onChange={e => setAnalyzedData({ ...analyzedData, iron: e.target.value ? parseFloat(e.target.value) : undefined })} placeholder="mg"
+                                style={{ width: '100%', padding: 8, fontSize: 14, border: '2px solid #d1d5db', borderRadius: 8, background: 'white', boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12, color: '#374151' }}>Zinco (mg)</label>
+                              <input type="number" step="0.1" value={analyzedData.zinc || ''} onChange={e => setAnalyzedData({ ...analyzedData, zinc: e.target.value ? parseFloat(e.target.value) : undefined })} placeholder="mg"
+                                style={{ width: '100%', padding: 8, fontSize: 14, border: '2px solid #d1d5db', borderRadius: 8, background: 'white', boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12, color: '#374151' }}>Potássio (mg)</label>
+                              <input type="number" step="0.1" value={analyzedData.potassium || ''} onChange={e => setAnalyzedData({ ...analyzedData, potassium: e.target.value ? parseFloat(e.target.value) : undefined })} placeholder="mg"
+                                style={{ width: '100%', padding: 8, fontSize: 14, border: '2px solid #d1d5db', borderRadius: 8, background: 'white', boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12, color: '#374151' }}>Vit. C (mg)</label>
+                              <input type="number" step="0.1" value={analyzedData.vitamin_c || ''} onChange={e => setAnalyzedData({ ...analyzedData, vitamin_c: e.target.value ? parseFloat(e.target.value) : undefined })} placeholder="mg"
+                                style={{ width: '100%', padding: 8, fontSize: 14, border: '2px solid #d1d5db', borderRadius: 8, background: 'white', boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12, color: '#374151' }}>Vit. A (mcg)</label>
+                              <input type="number" step="0.1" value={analyzedData.vitamin_a || ''} onChange={e => setAnalyzedData({ ...analyzedData, vitamin_a: e.target.value ? parseFloat(e.target.value) : undefined })} placeholder="mcg"
+                                style={{ width: '100%', padding: 8, fontSize: 14, border: '2px solid #d1d5db', borderRadius: 8, background: 'white', boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12, color: '#374151' }}>Vit. B1 (mg)</label>
+                              <input type="number" step="0.01" value={analyzedData.vitamin_b1 || ''} onChange={e => setAnalyzedData({ ...analyzedData, vitamin_b1: e.target.value ? parseFloat(e.target.value) : undefined })} placeholder="mg"
+                                style={{ width: '100%', padding: 8, fontSize: 14, border: '2px solid #d1d5db', borderRadius: 8, background: 'white', boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12, color: '#374151' }}>Vit. B2 (mg)</label>
+                              <input type="number" step="0.01" value={analyzedData.vitamin_b2 || ''} onChange={e => setAnalyzedData({ ...analyzedData, vitamin_b2: e.target.value ? parseFloat(e.target.value) : undefined })} placeholder="mg"
+                                style={{ width: '100%', padding: 8, fontSize: 14, border: '2px solid #d1d5db', borderRadius: 8, background: 'white', boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12, color: '#374151' }}>Vit. B3 (mg)</label>
+                              <input type="number" step="0.01" value={analyzedData.vitamin_b3 || ''} onChange={e => setAnalyzedData({ ...analyzedData, vitamin_b3: e.target.value ? parseFloat(e.target.value) : undefined })} placeholder="mg"
+                                style={{ width: '100%', padding: 8, fontSize: 14, border: '2px solid #d1d5db', borderRadius: 8, background: 'white', boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12, color: '#374151' }}>Vit. B6 (mg)</label>
+                              <input type="number" step="0.01" value={analyzedData.vitamin_b6 || ''} onChange={e => setAnalyzedData({ ...analyzedData, vitamin_b6: e.target.value ? parseFloat(e.target.value) : undefined })} placeholder="mg"
+                                style={{ width: '100%', padding: 8, fontSize: 14, border: '2px solid #d1d5db', borderRadius: 8, background: 'white', boxSizing: 'border-box' }} />
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Classificação */}

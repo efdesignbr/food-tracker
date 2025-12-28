@@ -733,6 +733,9 @@ export default function HomePage() {
               const mealProtein = meal.foods.reduce((s, f) => s + (f.protein_g || 0), 0);
               const mealCarbs = meal.foods.reduce((s, f) => s + (f.carbs_g || 0), 0);
               const mealFat = meal.foods.reduce((s, f) => s + (f.fat_g || 0), 0);
+              const mealFiber = meal.foods.reduce((s, f) => s + (f.fiber_g || 0), 0);
+              const mealSodium = meal.foods.reduce((s, f) => s + (f.sodium_mg || 0), 0);
+              const mealSugar = meal.foods.reduce((s, f) => s + (f.sugar_g || 0), 0);
               const config = mealTypeConfig[meal.meal_type] || mealTypeConfig.lunch;
               const isExpanded = expandedMealId === meal.id;
 
@@ -791,7 +794,7 @@ export default function HomePage() {
                       <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(3, 1fr)',
-                        gap: 12,
+                        gap: 8,
                         marginBottom: 16
                       }}>
                         <div style={{ textAlign: 'center', padding: 8, background: '#fef3c7', borderRadius: 8 }}>
@@ -806,6 +809,18 @@ export default function HomePage() {
                           <div style={{ fontSize: 16, fontWeight: 700, color: '#db2777' }}>{mealFat.toFixed(0)}g</div>
                           <div style={{ fontSize: 11, color: '#9d174d' }}>Gordura</div>
                         </div>
+                        <div style={{ textAlign: 'center', padding: 8, background: '#d1fae5', borderRadius: 8 }}>
+                          <div style={{ fontSize: 16, fontWeight: 700, color: '#059669' }}>{mealFiber.toFixed(0)}g</div>
+                          <div style={{ fontSize: 11, color: '#065f46' }}>Fibra</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: 8, background: '#e0e7ff', borderRadius: 8 }}>
+                          <div style={{ fontSize: 16, fontWeight: 700, color: '#4f46e5' }}>{mealSodium.toFixed(0)}mg</div>
+                          <div style={{ fontSize: 11, color: '#3730a3' }}>Sódio</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: 8, background: '#fef9c3', borderRadius: 8 }}>
+                          <div style={{ fontSize: 16, fontWeight: 700, color: '#ca8a04' }}>{mealSugar.toFixed(0)}g</div>
+                          <div style={{ fontSize: 11, color: '#854d0e' }}>Açúcar</div>
+                        </div>
                       </div>
 
                       {/* Lista de alimentos */}
@@ -814,29 +829,48 @@ export default function HomePage() {
                           <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', marginBottom: 8 }}>
                             Alimentos ({meal.foods.length})
                           </div>
-                          <div style={{ display: 'grid', gap: 6 }}>
+                          <div style={{ display: 'grid', gap: 8 }}>
                             {meal.foods.map((food) => (
                               <div
                                 key={food.id}
                                 style={{
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
-                                  padding: '8px 12px',
+                                  padding: '10px 12px',
                                   background: '#f9fafb',
                                   borderRadius: 8,
                                   fontSize: 13
                                 }}
                               >
-                                <span style={{ color: '#374151' }}>
-                                  {food.name}
-                                  <span style={{ color: '#9ca3af', marginLeft: 4 }}>
-                                    ({food.quantity} {food.unit})
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                  <span style={{ color: '#374151', fontWeight: 500 }}>
+                                    {food.name}
+                                    <span style={{ color: '#9ca3af', marginLeft: 4, fontWeight: 400 }}>
+                                      ({food.quantity} {food.unit})
+                                    </span>
                                   </span>
-                                </span>
-                                <span style={{ fontWeight: 600, color: '#6b7280' }}>
-                                  {(food.calories || 0).toFixed(0)} kcal
-                                </span>
+                                  <span style={{ fontWeight: 600, color: '#6b7280' }}>
+                                    {(food.calories || 0).toFixed(0)} kcal
+                                  </span>
+                                </div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, fontSize: 11 }}>
+                                  <span style={{ color: '#d97706', background: '#fef3c7', padding: '2px 6px', borderRadius: 4 }}>
+                                    P: {(food.protein_g || 0).toFixed(0)}g
+                                  </span>
+                                  <span style={{ color: '#2563eb', background: '#dbeafe', padding: '2px 6px', borderRadius: 4 }}>
+                                    C: {(food.carbs_g || 0).toFixed(0)}g
+                                  </span>
+                                  <span style={{ color: '#db2777', background: '#fce7f3', padding: '2px 6px', borderRadius: 4 }}>
+                                    G: {(food.fat_g || 0).toFixed(0)}g
+                                  </span>
+                                  <span style={{ color: '#059669', background: '#d1fae5', padding: '2px 6px', borderRadius: 4 }}>
+                                    F: {(food.fiber_g || 0).toFixed(0)}g
+                                  </span>
+                                  <span style={{ color: '#4f46e5', background: '#e0e7ff', padding: '2px 6px', borderRadius: 4 }}>
+                                    S: {(food.sodium_mg || 0).toFixed(0)}mg
+                                  </span>
+                                  <span style={{ color: '#ca8a04', background: '#fef9c3', padding: '2px 6px', borderRadius: 4 }}>
+                                    A: {(food.sugar_g || 0).toFixed(0)}g
+                                  </span>
+                                </div>
                               </div>
                             ))}
                           </div>

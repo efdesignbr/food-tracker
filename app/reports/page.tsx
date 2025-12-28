@@ -13,6 +13,25 @@ type Food = {
   protein_g?: number;
   carbs_g?: number;
   fat_g?: number;
+  fiber_g?: number;
+  sodium_mg?: number;
+  sugar_g?: number;
+  cholesterol_mg?: number;
+  saturated_fat_g?: number;
+  calcium_mg?: number;
+  magnesium_mg?: number;
+  phosphorus_mg?: number;
+  iron_mg?: number;
+  potassium_mg?: number;
+  zinc_mg?: number;
+  copper_mg?: number;
+  manganese_mg?: number;
+  vitamin_c_mg?: number;
+  vitamin_a_mcg?: number;
+  vitamin_b1_mg?: number;
+  vitamin_b2_mg?: number;
+  vitamin_b3_mg?: number;
+  vitamin_b6_mg?: number;
 };
 
 type Meal = {
@@ -185,6 +204,15 @@ export default function ReportsPage() {
     const totalFat = filteredMeals.reduce((sum, meal) =>
       sum + meal.foods.reduce((s, f) => s + (f.fat_g || 0), 0), 0
     );
+    const totalFiber = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.fiber_g || 0), 0), 0
+    );
+    const totalSodium = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.sodium_mg || 0), 0), 0
+    );
+    const totalSugar = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.sugar_g || 0), 0), 0
+    );
 
     const avgCaloriesPerMeal = totalMeals > 0 ? totalCalories / totalMeals : 0;
 
@@ -303,6 +331,9 @@ export default function ReportsPage() {
       totalProtein,
       totalCarbs,
       totalFat,
+      totalFiber,
+      totalSodium,
+      totalSugar,
       avgCaloriesPerMeal,
       avgCaloriesPerDay,
       caloriesByType,
@@ -773,160 +804,216 @@ export default function ReportsPage() {
             </div>
           </div>
 
-          {/* Nutrientes Detalhados */}
-          <div style={{
-            background: 'white',
-            borderRadius: 16,
-            padding: 20,
-            marginBottom: 24,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            border: '2px solid #2196F3'
-          }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#2196F3' }}>
-               Nutrientes no Período
-            </h2>
+          {/* Nutrientes + Calorias por Tipo lado a lado */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24, alignItems: 'stretch' }}>
+            {/* Nutrientes */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
+                 Nutrientes no Período
+              </h2>
 
-            {/* Proteína */}
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}> Proteína</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#ef4444' }}>
-                  {stats.totalProtein.toFixed(1)}g total
-                </span>
-              </div>
-              <div style={{
-                width: '100%',
-                height: 8,
-                background: '#e5e7eb',
-                borderRadius: 4,
-                overflow: 'hidden'
-              }}>
+              {/* Grid de Nutrientes - 2 linhas x 3 colunas */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12, flex: 1 }}>
+                {/* Proteína */}
                 <div style={{
-                  width: `${Math.min((stats.totalProtein / (goals.protein * stats.last7Days.length)) * 100, 100)}%`,
-                  height: '100%',
-                  background: 'linear-gradient(90deg, #ef4444 0%, #f97316 100%)',
-                  transition: 'width 0.3s ease'
-                }} />
+                  background: `linear-gradient(to top, #4d7c0f ${Math.min((stats.totalProtein / (goals.protein * stats.last7Days.length)) * 100, 100)}%, #ef4444 ${Math.min((stats.totalProtein / (goals.protein * stats.last7Days.length)) * 100, 100)}%)`,
+                  borderRadius: 10,
+                  padding: 12,
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Proteína</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                    {stats.totalProtein.toFixed(0)}g
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                    Meta: {goals.protein * stats.last7Days.length}g
+                  </div>
+                </div>
+
+                {/* Carboidratos */}
+                <div style={{
+                  background: `linear-gradient(to top, #4d7c0f ${Math.min((stats.totalCarbs / (goals.carbs * stats.last7Days.length)) * 100, 100)}%, #ef4444 ${Math.min((stats.totalCarbs / (goals.carbs * stats.last7Days.length)) * 100, 100)}%)`,
+                  borderRadius: 10,
+                  padding: 12,
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Carbos</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                    {stats.totalCarbs.toFixed(0)}g
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                    Meta: {goals.carbs * stats.last7Days.length}g
+                  </div>
+                </div>
+
+                {/* Gorduras */}
+                <div style={{
+                  background: `linear-gradient(to top, #4d7c0f ${Math.min((stats.totalFat / (goals.fat * stats.last7Days.length)) * 100, 100)}%, #ef4444 ${Math.min((stats.totalFat / (goals.fat * stats.last7Days.length)) * 100, 100)}%)`,
+                  borderRadius: 10,
+                  padding: 12,
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Gorduras</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                    {stats.totalFat.toFixed(0)}g
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                    Meta: {goals.fat * stats.last7Days.length}g
+                  </div>
+                </div>
+
+                {/* Fibra */}
+                <div style={{
+                  background: `linear-gradient(to top, #4d7c0f ${Math.min((stats.totalFiber / (25 * stats.last7Days.length)) * 100, 100)}%, #ef4444 ${Math.min((stats.totalFiber / (25 * stats.last7Days.length)) * 100, 100)}%)`,
+                  borderRadius: 10,
+                  padding: 12,
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Fibras</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                    {stats.totalFiber.toFixed(0)}g
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                    Meta: {25 * stats.last7Days.length}g
+                  </div>
+                </div>
+
+                {/* Açúcar */}
+                <div style={{
+                  background: `linear-gradient(to top, #ef4444 ${Math.min((stats.totalSugar / (50 * stats.last7Days.length)) * 100, 100)}%, #4d7c0f ${Math.min((stats.totalSugar / (50 * stats.last7Days.length)) * 100, 100)}%)`,
+                  borderRadius: 10,
+                  padding: 12,
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Açúcar</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                    {stats.totalSugar.toFixed(0)}g
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                    Limite: {50 * stats.last7Days.length}g
+                  </div>
+                </div>
+
+                {/* Sódio */}
+                <div style={{
+                  background: `linear-gradient(to top, #ef4444 ${Math.min((stats.totalSodium / (2300 * stats.last7Days.length)) * 100, 100)}%, #4d7c0f ${Math.min((stats.totalSodium / (2300 * stats.last7Days.length)) * 100, 100)}%)`,
+                  borderRadius: 10,
+                  padding: 12,
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Sódio</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                    {(stats.totalSodium / 1000).toFixed(1)}g
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                    Limite: {((2300 * stats.last7Days.length) / 1000).toFixed(1)}g
+                  </div>
+                </div>
+              </div>
+
+              {/* Água */}
+              <div style={{
+                background: `linear-gradient(to top, #0891b2 ${Math.min((stats.avgWaterPerDay / goals.water) * 100, 100)}%, #9ca3af ${Math.min((stats.avgWaterPerDay / goals.water) * 100, 100)}%)`,
+                borderRadius: 10,
+                padding: 12
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: 'white', marginBottom: 4, fontWeight: 600 }}>Água</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>
+                      {(stats.totalWater / 1000).toFixed(1)}L total
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>
+                      {stats.avgWaterPerDay.toFixed(0)}ml/dia
+                    </div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>
+                      Meta: {goals.water}ml/dia
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Carboidratos */}
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}> Carboidratos</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#f59e0b' }}>
-                  {stats.totalCarbs.toFixed(1)}g total
-                </span>
-              </div>
-              <div style={{
-                width: '100%',
-                height: 8,
-                background: '#e5e7eb',
-                borderRadius: 4,
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  width: `${Math.min((stats.totalCarbs / (goals.carbs * stats.last7Days.length)) * 100, 100)}%`,
-                  height: '100%',
-                  background: 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)',
-                  transition: 'width 0.3s ease'
-                }} />
-              </div>
-            </div>
-
-            {/* Gorduras */}
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>🧈 Gorduras</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#8b5cf6' }}>
-                  {stats.totalFat.toFixed(1)}g total
-                </span>
-              </div>
-              <div style={{
-                width: '100%',
-                height: 8,
-                background: '#e5e7eb',
-                borderRadius: 4,
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  width: `${Math.min((stats.totalFat / (goals.fat * stats.last7Days.length)) * 100, 100)}%`,
-                  height: '100%',
-                  background: 'linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%)',
-                  transition: 'width 0.3s ease'
-                }} />
-              </div>
-            </div>
-
-            {/* Água */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}> Água</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#06b6d4' }}>
-                  {(stats.totalWater / 1000).toFixed(1)}L total • {stats.avgWaterPerDay.toFixed(0)}ml/dia
-                </span>
-              </div>
-              <div style={{
-                width: '100%',
-                height: 8,
-                background: '#e5e7eb',
-                borderRadius: 4,
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  width: `${Math.min((stats.avgWaterPerDay / goals.water) * 100, 100)}%`,
-                  height: '100%',
-                  background: 'linear-gradient(90deg, #06b6d4 0%, #22d3ee 100%)',
-                  transition: 'width 0.3s ease'
-                }} />
+            {/* Calorias por Tipo de Refeição */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
+                 Calorias por Tipo de Refeição
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, justifyContent: 'space-between' }}>
+                {Object.entries(stats.caloriesByType).map(([type, data]) => {
+                  const config = mealTypeConfig[type] || mealTypeConfig.lunch;
+                  const avg = data.total / data.count;
+                  return (
+                    <div
+                      key={type}
+                      style={{
+                        padding: 14,
+                        background: '#f9fafb',
+                        borderRadius: 10,
+                        border: '1px solid #e5e7eb',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span style={{ fontSize: 22 }}>{config.icon}</span>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: 14, color: config.color }}>
+                            {config.label}
+                          </div>
+                          <div style={{ fontSize: 11, color: '#6b7280' }}>
+                            {data.count} refeições
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 18, fontWeight: 700, color: config.color }}>
+                          {data.total.toFixed(0)} kcal
+                        </div>
+                        <div style={{ fontSize: 11, color: '#6b7280' }}>
+                          ~{avg.toFixed(0)} kcal/ref
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
 
-          {/* Gráfico de Calorias */}
-          <div style={{
-            background: 'white',
-            borderRadius: 16,
-            padding: 20,
-            marginBottom: 24,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            border: '1px solid #e5e7eb'
-          }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
+          {/* Gráfico de Evolução */}
+          <div style={{ marginBottom: 24 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4, color: '#374151' }}>
                Evolução ({stats.last7Days.length} dias)
             </h2>
+            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>
+              Meta: {goals.calories} kcal/dia
+            </div>
             <div style={{ position: 'relative', height: 200 }}>
               {/* Linha de Meta */}
               <div style={{
                 position: 'absolute',
-                top: '30%',
+                bottom: 140 + 24,
                 left: 0,
                 right: 0,
-                borderTop: '2px dashed #2196F3',
-                opacity: 0.3
+                borderTop: '2px dashed #9ca3af',
+                opacity: 0.6
               }} />
-              <div style={{
-                position: 'absolute',
-                top: 'calc(30% - 20px)',
-                left: 8,
-                fontSize: 11,
-                color: '#2196F3',
-                fontWeight: 600
-              }}>
-                Meta: {goals.calories} kcal
-              </div>
 
               {/* Barras */}
               <div style={{
                 display: 'flex',
                 alignItems: 'flex-end',
-                justifyContent: 'space-around',
+                justifyContent: 'space-between',
                 height: '100%',
-                paddingTop: 24
+                paddingBottom: 24,
+                gap: 4
               }}>
                 {stats.last7Days.map((day, idx) => {
-                  const maxCal = Math.max(...stats.last7Days.map(d => d.calories), goals.calories);
-                  const heightPercent = maxCal > 0 ? (day.calories / maxCal) * 100 : 0;
+                  const barHeight = goals.calories > 0 ? Math.round((day.calories / goals.calories) * 140) : 0;
                   const isOverGoal = day.calories > goals.calories;
 
                   return (
@@ -936,16 +1023,15 @@ export default function ReportsPage() {
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        flex: 1,
-                        marginRight: idx < stats.last7Days.length - 1 ? 4 : 0
+                        flex: 1
                       }}
                     >
                       {day.calories > 0 && (
                         <div style={{
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: 600,
                           color: isOverGoal ? '#ef4444' : '#10b981',
-                          marginBottom: 4
+                          marginBottom: 2
                         }}>
                           {day.calories.toFixed(0)}
                         </div>
@@ -953,25 +1039,24 @@ export default function ReportsPage() {
                       <div
                         style={{
                           width: '100%',
-                          height: `${heightPercent}%`,
+                          height: Math.min(barHeight, 160),
                           background: day.calories === 0
                             ? '#e5e7eb'
                             : isOverGoal
-                            ? 'linear-gradient(180deg, #f59e0b 0%, #ef4444 100%)'
-                            : 'linear-gradient(180deg, #10b981 0%, #2196F3 100%)',
-                          borderRadius: '4px 4px 0 0',
-                          minHeight: day.calories > 0 ? 20 : 10,
-                          transition: 'height 0.3s ease'
+                            ? '#ef4444'
+                            : '#10b981',
+                          borderRadius: '3px 3px 0 0',
+                          minHeight: day.calories > 0 ? 8 : 4
                         }}
                       />
                       <div style={{
                         fontSize: 9,
                         color: '#6b7280',
-                        marginTop: 6,
+                        marginTop: 4,
                         textAlign: 'center',
-                        whiteSpace: 'nowrap'
+                        fontWeight: 500
                       }}>
-                        {day.dateObj.toLocaleDateString('pt-BR', { weekday: 'short' })}
+                        {day.dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
                       </div>
                     </div>
                   );
@@ -1017,59 +1102,6 @@ export default function ReportsPage() {
                 </div>
               )}
             </div>
-            {/* Calories by Meal Type */}
-            <div style={{
-              background: 'white',
-              borderRadius: 16,
-              padding: 20,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              border: '1px solid #e5e7eb'
-            }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
-                 Calorias por Tipo de Refeição
-              </h2>
-              <div style={{ display: 'grid', gap: 12 }}>
-                {Object.entries(stats.caloriesByType).map(([type, data]) => {
-                  const config = mealTypeConfig[type] || mealTypeConfig.lunch;
-                  const avg = data.total / data.count;
-                  return (
-                    <div
-                      key={type}
-                      style={{
-                        padding: 16,
-                        background: '#f9fafb',
-                        borderRadius: 12,
-                        border: '1px solid #e5e7eb',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <span style={{ fontSize: 24 }}>{config.icon}</span>
-                        <div>
-                          <div style={{ fontWeight: 600, fontSize: 16, color: config.color }}>
-                            {config.label}
-                          </div>
-                          <div style={{ fontSize: 12, color: '#666' }}>
-                            {data.count} refeições
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 20, fontWeight: 700, color: config.color }}>
-                          {data.total.toFixed(0)} kcal
-                        </div>
-                        <div style={{ fontSize: 12, color: '#666' }}>
-                          ~{avg.toFixed(0)} kcal/ref
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* Top Foods */}
             {stats.topFoods.length > 0 && (
               <div style={{

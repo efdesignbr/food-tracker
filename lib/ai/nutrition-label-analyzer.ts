@@ -5,6 +5,7 @@ export type NutritionLabelAnalysis = {
   name: string;
   brand?: string;
   serving_size?: string;
+  // Macronutrientes principais
   calories?: number;
   protein?: number;
   carbs?: number;
@@ -13,6 +14,22 @@ export type NutritionLabelAnalysis = {
   sodium?: number;
   sugar?: number;
   saturated_fat?: number;
+  // Micronutrientes expandidos
+  cholesterol?: number;
+  calcium?: number;
+  magnesium?: number;
+  phosphorus?: number;
+  iron?: number;
+  potassium?: number;
+  zinc?: number;
+  copper?: number;
+  manganese?: number;
+  vitamin_c?: number;
+  vitamin_a?: number;
+  vitamin_b1?: number;
+  vitamin_b2?: number;
+  vitamin_b3?: number;
+  vitamin_b6?: number;
 };
 
 export async function analyzeNutritionLabel(
@@ -38,8 +55,10 @@ export async function analyzeNutritionLabel(
 INSTRUÇÕES IMPORTANTES:
 1. Extraia APENAS os valores visíveis na imagem
 2. Se houver colunas "100g" e "Porção", use SEMPRE os valores da coluna "Porção"
-3. Sódio deve ser convertido para miligramas (mg)
-4. Não invente valores - se não estiver visível, não inclua
+3. Sódio, cálcio, ferro, etc. devem ser em miligramas (mg)
+4. Vitaminas B1, B2, B3, B6 em miligramas (mg)
+5. Vitamina A em microgramas (mcg)
+6. Não invente valores - se não estiver visível, não inclua
 
 FORMATO DE RESPOSTA (JSON):
 {
@@ -51,9 +70,24 @@ FORMATO DE RESPOSTA (JSON):
   "carbs": número (gramas),
   "fat": número (gramas),
   "fiber": número (gramas, opcional),
-  "sodium": número (miligramas, opcional),
+  "sodium": número (mg, opcional),
   "sugar": número (gramas, opcional),
-  "saturated_fat": número (gramas, opcional)
+  "saturated_fat": número (gramas, opcional),
+  "cholesterol": número (mg, opcional),
+  "calcium": número (mg, opcional),
+  "magnesium": número (mg, opcional),
+  "phosphorus": número (mg, opcional),
+  "iron": número (mg, opcional),
+  "potassium": número (mg, opcional),
+  "zinc": número (mg, opcional),
+  "copper": número (mg, opcional),
+  "manganese": número (mg, opcional),
+  "vitamin_c": número (mg, opcional),
+  "vitamin_a": número (mcg, opcional),
+  "vitamin_b1": número (mg, opcional),
+  "vitamin_b2": número (mg, opcional),
+  "vitamin_b3": número (mg, opcional),
+  "vitamin_b6": número (mg, opcional)
 }
 
 Retorne APENAS o JSON válido, sem texto adicional.`;
