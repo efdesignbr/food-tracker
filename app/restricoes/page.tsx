@@ -262,9 +262,10 @@ export default function RestricoesPage() {
           {predefinedOptions.map(option => {
             const selected = isSelected(option.value);
             const restriction = getRestriction(option.value);
+            const severityLevel = restriction ? SEVERITY_LEVELS.find(s => s.value === restriction.severity) : null;
 
             return (
-              <div key={option.value} style={{ position: 'relative' }}>
+              <div key={option.value} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <button
                   onClick={() => toggleRestriction(option.value)}
                   disabled={saving}
@@ -289,33 +290,27 @@ export default function RestricoesPage() {
                   )}
                 </button>
 
-                {/* Severity indicator for allergies */}
+                {/* Severity button for allergies - separate clickable button */}
                 {selected && activeTab === 'allergy' && restriction && (
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openSeverityModal(restriction);
-                    }}
+                    onClick={() => openSeverityModal(restriction)}
+                    disabled={saving}
                     style={{
-                      position: 'absolute',
-                      top: -6,
-                      right: -6,
-                      width: 20,
-                      height: 20,
-                      borderRadius: '50%',
+                      padding: '8px 12px',
+                      borderRadius: 16,
                       border: 'none',
-                      background: SEVERITY_LEVELS.find(s => s.value === restriction.severity)?.color || '#fed7aa',
-                      cursor: 'pointer',
-                      fontSize: 10,
+                      background: severityLevel?.color || '#fed7aa',
+                      cursor: saving ? 'not-allowed' : 'pointer',
+                      fontSize: 12,
                       fontWeight: 700,
                       color: '#92400e',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      gap: 4
                     }}
-                    title={`Severidade: ${SEVERITY_LEVELS.find(s => s.value === restriction.severity)?.label}`}
                   >
-                    {restriction.severity === 'mild' ? 'L' : restriction.severity === 'moderate' ? 'M' : 'G'}
+                    {severityLevel?.label || 'Moderada'}
+                    <span style={{ fontSize: 10 }}>▼</span>
                   </button>
                 )}
               </div>
