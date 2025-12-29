@@ -1,56 +1,30 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { auth } from '@/auth';
+import { getTenantBySlug } from '@/lib/tenant';
 import AppLayout from './AppLayout';
+import { getSessionData } from '@/lib/types/auth';
 
-export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [isAuthorized, setIsAuthorized] = useState(false);
+export default async function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
+  const session = getSessionData(await auth());
 
-  useEffect(() => {
-    // Rotas públicas que não precisam de auth
-    const publicRoutes = ['/login', '/signup'];
-    if (publicRoutes.some(route => pathname?.startsWith(route))) {
-      setIsAuthorized(true);
-      return;
-    }
-
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      router.push('/login');
-    } else {
-      setIsAuthorized(true);
-    }
-  }, [router, pathname]);
-
-  if (!isAuthorized) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        paddingTop: 'env(safe-area-inset-top)'
-      }}>
-        Carregando...
-      </div>
-    );
+  if (!session) {
+    return <>{children}</>;
   }
 
-  // Se for rota pública, renderiza sem o layout do app (header, menu)
-  const publicRoutes = ['/login', '/signup'];
-  if (publicRoutes.some(route => pathname?.startsWith(route))) {
-    return (
-      <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-        {children}
-      </div>
-    );
+  const tenantSlug = session.tenantSlug;
+  const userName = session.user?.name || session.user?.email || 'User';
+
+  let tenantName = tenantSlug;
+  try {
+    const tenant = await getTenantBySlug(tenantSlug);
+    if (tenant) {
+      tenantName = tenant.name;
+    }
+  } catch (e) {
+    // Ignore error, use slug as fallback
   }
 
   return (
-    <AppLayout tenantName="Food Tracker" userName="Você">
+    <AppLayout tenantName={tenantName} userName={userName}>
       {children}
     </AppLayout>
   );

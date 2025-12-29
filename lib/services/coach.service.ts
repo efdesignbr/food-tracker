@@ -716,43 +716,22 @@ export async function saveCoachAnalysis(params: {
   tenantId: string;
   context: CoachContext;
   analysis: CoachAnalysis;
-  analysisDate?: string; // Timestamp enviado pelo frontend no timezone do usuario
 }): Promise<void> {
   const pool = getPool();
 
-  // Se o frontend enviou a data, usa ela; senao deixa o banco usar NOW()
-  if (params.analysisDate) {
-    await pool.query(
-      `INSERT INTO coach_analyses (
-        tenant_id, user_id, analysis_date, context_data, analysis_text,
-        recommendations, insights, warnings
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [
-        params.tenantId,
-        params.userId,
-        params.analysisDate,
-        JSON.stringify(params.context),
-        params.analysis.analysisText,
-        params.analysis.recommendations,
-        params.analysis.insights,
-        params.analysis.warnings
-      ]
-    );
-  } else {
-    await pool.query(
-      `INSERT INTO coach_analyses (
-        tenant_id, user_id, context_data, analysis_text,
-        recommendations, insights, warnings
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [
-        params.tenantId,
-        params.userId,
-        JSON.stringify(params.context),
-        params.analysis.analysisText,
-        params.analysis.recommendations,
-        params.analysis.insights,
-        params.analysis.warnings
-      ]
-    );
-  }
+  await pool.query(
+    `INSERT INTO coach_analyses (
+      tenant_id, user_id, context_data, analysis_text,
+      recommendations, insights, warnings
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [
+      params.tenantId,
+      params.userId,
+      JSON.stringify(params.context),
+      params.analysis.analysisText,
+      params.analysis.recommendations,
+      params.analysis.insights,
+      params.analysis.warnings
+    ]
+  );
 }

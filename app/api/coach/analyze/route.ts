@@ -50,10 +50,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Obter data/hora do cliente
-    const body = await req.json().catch(() => ({}));
-    const analysisDate = body.analysis_date; // Frontend envia no timezone local
-
     // Coletar contexto
     const context = await gatherUserContext({
       userId: session.userId,
@@ -76,8 +72,7 @@ export async function POST(req: Request) {
       userId: session.userId,
       tenantId: tenant.id,
       context,
-      analysis,
-      analysisDate
+      analysis
     });
 
     return NextResponse.json({

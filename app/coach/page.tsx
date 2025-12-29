@@ -5,7 +5,6 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { PaywallModal } from '@/components/subscription';
 import { PLAN_LIMITS } from '@/lib/constants';
 import { api } from '@/lib/api-client';
-import { getCurrentDateTimeBR } from '@/lib/datetime';
 
 interface CoachAnalysis {
   id?: string;
@@ -81,11 +80,7 @@ export default function CoachPage() {
     setLoading(true);
     setError(null);
     try {
-      const { date, time } = getCurrentDateTimeBR();
-
-      const res = await api.post('/api/coach/analyze', {
-        analysis_date: `${date} ${time}`
-      });
+      const res = await api.post('/api/coach/analyze', {});
       const data = await res.json();
 
       if (!res.ok) {
