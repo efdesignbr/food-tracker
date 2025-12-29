@@ -65,6 +65,12 @@ export interface CoachContext {
     carbs: number;
     fat: number;
   };
+  dietaryRestrictions?: Array<{
+    type: string;
+    value: string;
+    severity: string;
+    notes: string | null;
+  }>;
 }
 
 export interface CoachAnalysis {
@@ -300,6 +306,24 @@ export async function gatherUserContext(params: {
 
   console.log('📊 [COACH] User goals:', context.userGoals);
 
+  // 5. Buscar restricoes alimentares do usuario
+  const { rows: restrictions } = await pool.query(
+    `SELECT restriction_type, restriction_value, severity, notes
+     FROM user_dietary_restrictions
+     WHERE user_id = $1 AND tenant_id = $2`,
+    [params.userId, params.tenantId]
+  );
+
+  if (restrictions.length > 0) {
+    context.dietaryRestrictions = restrictions.map(r => ({
+      type: r.restriction_type,
+      value: r.restriction_value,
+      severity: r.severity,
+      notes: r.notes
+    }));
+    console.log(`📊 [COACH] Found ${restrictions.length} dietary restrictions`);
+  }
+
   return context;
 }
 
@@ -520,6 +544,47 @@ function buildCoachPrompt(context: CoachContext): string {
     prompt += `- Carboidratos: ${context.goals.carbs}g\n`;
     prompt += `- Gorduras: ${context.goals.fat}g\n`;
     prompt += `\n`;
+  }
+
+  // Restricoes alimentares
+  if (context.dietaryRestrictions && context.dietaryRestrictions.length > 0) {
+    prompt += `## RESTRICOES ALIMENTARES DO USUARIO\n`;
+    prompt += `**IMPORTANTE:** O usuario possui as seguintes restricoes que DEVEM ser consideradas em TODAS as recomendacoes:\n\n`;
+
+    const typeLabels: Record<string, string> = {
+      allergy: 'ALERGIAS (risco de reacao alergica)',
+      intolerance: 'INTOLERANCIAS (desconforto digestivo)',
+      diet: 'DIETAS (escolha alimentar)',
+      religious: 'RESTRICOES RELIGIOSAS',
+      medical: 'CONDICOES MEDICAS',
+      preference: 'PREFERENCIAS PESSOAIS'
+    };
+
+    // Agrupar por tipo
+    const grouped: Record<string, typeof context.dietaryRestrictions> = {};
+    context.dietaryRestrictions.forEach(r => {
+      if (!grouped[r.type]) grouped[r.type] = [];
+      grouped[r.type].push(r);
+    });
+
+    for (const [type, items] of Object.entries(grouped)) {
+      prompt += `**${typeLabels[type] || type.toUpperCase()}:**\n`;
+      items.forEach(item => {
+        const severityText = type === 'allergy'
+          ? ` [Severidade: ${item.severity === 'severe' ? 'GRAVE' : item.severity === 'moderate' ? 'Moderada' : 'Leve'}]`
+          : '';
+        prompt += `- ${item.value.charAt(0).toUpperCase() + item.value.slice(1).replace(/_/g, ' ')}${severityText}\n`;
+        if (item.notes) prompt += `  Obs: ${item.notes}\n`;
+      });
+      prompt += `\n`;
+    }
+
+    prompt += `**DIRETRIZES PARA RECOMENDACOES:**\n`;
+    prompt += `- NUNCA recomende alimentos que contenham ingredientes das alergias listadas\n`;
+    prompt += `- Para intolerancias, sugira alternativas ou versoes sem o ingrediente\n`;
+    prompt += `- Respeite dietas e restricoes religiosas em todas as sugestoes\n`;
+    prompt += `- Para condicoes medicas, foque em alimentos adequados para a condicao\n`;
+    prompt += `- Se sugerir um alimento, verifique se nao conflita com nenhuma restricao\n\n`;
   }
 
   // Micronutrientes (se houver dados)

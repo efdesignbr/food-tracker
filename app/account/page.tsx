@@ -579,6 +579,62 @@ export default function AccountPage() {
           )}
         </div>
 
+        {/* 1.5 Restricoes Alimentares */}
+        <div style={{
+          background: 'white',
+          borderRadius: 16,
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          border: expandedSection === 'restrictions' ? '2px solid #ef4444' : '1px solid #e5e7eb'
+        }}>
+          <button
+            onClick={() => toggleSection('restrictions')}
+            style={{
+              width: '100%',
+              padding: 20,
+              border: 'none',
+              background: expandedSection === 'restrictions' ? '#fef2f2' : 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontWeight: 700,
+              fontSize: 16,
+              color: expandedSection === 'restrictions' ? '#ef4444' : '#374151'
+            }}
+          >
+            <span>Restricoes Alimentares</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expandedSection === 'restrictions' ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+
+          {expandedSection === 'restrictions' && (
+            <div style={{ padding: 20, borderTop: '1px solid #e5e7eb' }}>
+              <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>
+                Configure alergias, intolerancias, dietas e outras restricoes para receber recomendacoes personalizadas do Coach IA.
+              </p>
+              <button
+                onClick={() => router.push('/restricoes')}
+                style={{
+                  width: '100%',
+                  padding: 14,
+                  border: 'none',
+                  background: '#ef4444',
+                  color: 'white',
+                  borderRadius: 12,
+                  fontWeight: 700,
+                  fontSize: 16,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+                }}
+              >
+                Gerenciar Restricoes
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* 2. Dados Pessoais */}
         <div style={{
           background: 'white',
