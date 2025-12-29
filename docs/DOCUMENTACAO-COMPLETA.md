@@ -488,12 +488,33 @@ A calculadora recalcula automaticamente:
 - Reseta: is_purchased = false, price = null, purchased_at = null
 - Lista original mantem registro completo para historico de gastos
 
+**Escanear Nota Fiscal:**
+Funcionalidade para importar itens automaticamente a partir de foto de nota/cupom fiscal.
+
+1. Usuario clica no botao "Nota" na pagina de listas
+2. Modal abre com campos: nome da lista, loja (opcional), foto da nota
+3. Usuario tira foto ou seleciona imagem da nota fiscal
+4. IA (Gemini) analisa a imagem e extrai os itens com:
+   - Nome do produto (normalizado)
+   - Quantidade (peso real para produtos por kg)
+   - Unidade (UN, KG, L, etc)
+   - Preco unitario
+   - Preco total
+5. Lista e criada ja como finalizada com todos os itens marcados como comprados
+6. Usuario visualiza lista criada no mesmo formato da lista digitada
+
+**Arquivos da funcionalidade:**
+- `lib/ai/receipt-analyzer.ts` - Analisador de notas fiscais via Gemini
+- `app/api/shopping-lists/scan-receipt/route.ts` - API de scan
+- `lib/repos/shopping-list.repo.ts` - Funcao `createListFromReceipt()`
+
 **APIs consumidas:**
 - GET/POST/PATCH/DELETE /api/shopping-lists
 - GET/POST /api/shopping-lists/items
 - GET /api/shopping-lists/suggestions
 - POST /api/shopping-lists/duplicate
 - POST /api/shopping-lists/complete
+- POST /api/shopping-lists/scan-receipt
 - GET /api/shopping-lists/stats
 - GET/POST /api/stores
 
@@ -798,6 +819,7 @@ A calculadora recalcula automaticamente:
 | GET | /api/shopping-lists/suggestions | Sugestoes baseadas em consumo |
 | POST | /api/shopping-lists/duplicate | Duplicar lista |
 | POST | /api/shopping-lists/complete | Finalizar lista com transferencia de pendentes |
+| POST | /api/shopping-lists/scan-receipt | Escanear nota fiscal e criar lista |
 | GET | /api/shopping-lists/stats | Estatisticas para dashboard de gastos |
 
 **Campos do PATCH /api/shopping-lists/items:**
@@ -844,6 +866,24 @@ A calculadora recalcula automaticamente:
   "ok": true,
   "new_list": { "id": "uuid", "name": "..." }, // null se nao criou nova lista
   "transferred_items": 3 // quantidade de itens transferidos
+}
+```
+
+**POST /api/shopping-lists/scan-receipt (multipart/form-data):**
+- `image`: Arquivo de imagem da nota fiscal (obrigatorio)
+- `name`: Nome da lista (opcional, default: "Compras DD/MM")
+- `store_id`: UUID da loja (opcional)
+
+**Resposta do POST /api/shopping-lists/scan-receipt:**
+```json
+{
+  "ok": true,
+  "list": { "id": "uuid", "name": "Compras 29/12" },
+  "analysis": {
+    "items_count": 15,
+    "total": 234.50,
+    "date": "2024-12-29"
+  }
 }
 ```
 
@@ -930,7 +970,8 @@ A calculadora recalcula automaticamente:
 ### 6.2 IA
 
 - **ai.ts** - Integracao Gemini
-- **ai/nutrition-label-analyzer.ts** - OCR de tabelas
+- **ai/nutrition-label-analyzer.ts** - OCR de tabelas nutricionais
+- **ai/receipt-analyzer.ts** - OCR de notas fiscais
 - **ai/reports-analyzer.ts** - Analise de relatorios
 
 ### 6.3 Services
