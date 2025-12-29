@@ -98,6 +98,27 @@ export default function CalendarView({
   waterGoal = 2000
 }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [expandedFoodId, setExpandedFoodId] = useState<string | null>(null);
+
+  // Helper para verificar se alimento tem micronutrientes
+  const hasMicronutrients = (food: Food) => {
+    return (food.cholesterol_mg || 0) > 0 ||
+      (food.saturated_fat_g || 0) > 0 ||
+      (food.calcium_mg || 0) > 0 ||
+      (food.magnesium_mg || 0) > 0 ||
+      (food.phosphorus_mg || 0) > 0 ||
+      (food.iron_mg || 0) > 0 ||
+      (food.potassium_mg || 0) > 0 ||
+      (food.zinc_mg || 0) > 0 ||
+      (food.copper_mg || 0) > 0 ||
+      (food.manganese_mg || 0) > 0 ||
+      (food.vitamin_c_mg || 0) > 0 ||
+      (food.vitamin_a_mcg || 0) > 0 ||
+      (food.vitamin_b1_mg || 0) > 0 ||
+      (food.vitamin_b2_mg || 0) > 0 ||
+      (food.vitamin_b3_mg || 0) > 0 ||
+      (food.vitamin_b6_mg || 0) > 0;
+  };
   const [selectedDay, setSelectedDay] = useState<DayData | null>(null);
 
   // Gera os dias do calendário
@@ -853,50 +874,204 @@ export default function CalendarView({
                         Alimentos ({meal.foods.length})
                       </div>
                       <div style={{ display: 'grid', gap: 8 }}>
-                        {meal.foods.map((food) => (
-                          <div
-                            key={food.id}
-                            style={{
-                              padding: '10px 12px',
-                              background: '#f9fafb',
-                              borderRadius: 8,
-                              fontSize: 12,
-                              border: '1px solid #e5e7eb'
-                            }}
-                          >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                              <span style={{ fontWeight: 600, color: '#374151' }}>
-                                {food.name}
-                                <span style={{ color: '#9ca3af', marginLeft: 4, fontWeight: 400 }}>
-                                  ({food.quantity} {food.unit})
+                        {meal.foods.map((food) => {
+                          const isFoodExpanded = expandedFoodId === food.id;
+                          const foodHasMicro = hasMicronutrients(food);
+
+                          return (
+                            <div
+                              key={food.id}
+                              style={{
+                                padding: '10px 12px',
+                                background: '#f9fafb',
+                                borderRadius: 8,
+                                fontSize: 12,
+                                border: '1px solid #e5e7eb'
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                <span style={{ fontWeight: 600, color: '#374151' }}>
+                                  {food.name}
+                                  <span style={{ color: '#9ca3af', marginLeft: 4, fontWeight: 400 }}>
+                                    ({food.quantity} {food.unit})
+                                  </span>
                                 </span>
-                              </span>
-                              <span style={{ fontWeight: 600, color: '#6b7280' }}>
-                                {(food.calories || 0).toFixed(0)} kcal
-                              </span>
+                                <span style={{ fontWeight: 600, color: '#6b7280' }}>
+                                  {(food.calories || 0).toFixed(0)} kcal
+                                </span>
+                              </div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, fontSize: 10 }}>
+                                <span style={{ color: '#d97706', background: '#fef3c7', padding: '2px 6px', borderRadius: 4 }}>
+                                  P: {(food.protein_g || 0).toFixed(0)}g
+                                </span>
+                                <span style={{ color: '#2563eb', background: '#dbeafe', padding: '2px 6px', borderRadius: 4 }}>
+                                  C: {(food.carbs_g || 0).toFixed(0)}g
+                                </span>
+                                <span style={{ color: '#db2777', background: '#fce7f3', padding: '2px 6px', borderRadius: 4 }}>
+                                  G: {(food.fat_g || 0).toFixed(0)}g
+                                </span>
+                                <span style={{ color: '#059669', background: '#d1fae5', padding: '2px 6px', borderRadius: 4 }}>
+                                  F: {(food.fiber_g || 0).toFixed(0)}g
+                                </span>
+                                <span style={{ color: '#4f46e5', background: '#e0e7ff', padding: '2px 6px', borderRadius: 4 }}>
+                                  S: {(food.sodium_mg || 0).toFixed(0)}mg
+                                </span>
+                                <span style={{ color: '#ca8a04', background: '#fef9c3', padding: '2px 6px', borderRadius: 4 }}>
+                                  A: {(food.sugar_g || 0).toFixed(0)}g
+                                </span>
+                              </div>
+
+                              {/* Botão Ver Micronutrientes */}
+                              {foodHasMicro && (
+                                <button
+                                  onClick={() => setExpandedFoodId(isFoodExpanded ? null : food.id)}
+                                  style={{
+                                    marginTop: 8,
+                                    padding: '4px 8px',
+                                    border: 'none',
+                                    background: isFoodExpanded ? '#7c3aed' : '#ede9fe',
+                                    color: isFoodExpanded ? 'white' : '#7c3aed',
+                                    borderRadius: 4,
+                                    fontSize: 10,
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 4
+                                  }}
+                                >
+                                  {isFoodExpanded ? 'Ocultar' : 'Ver'} Micronutrientes
+                                  <span style={{
+                                    transform: isFoodExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.2s'
+                                  }}>▼</span>
+                                </button>
+                              )}
+
+                              {/* Seção Micronutrientes Expandida */}
+                              {isFoodExpanded && foodHasMicro && (
+                                <div style={{
+                                  marginTop: 8,
+                                  padding: 10,
+                                  background: '#faf5ff',
+                                  borderRadius: 6,
+                                  border: '1px solid #e9d5ff'
+                                }}>
+                                  <div style={{ fontSize: 10, fontWeight: 600, color: '#7c3aed', marginBottom: 8 }}>
+                                    Micronutrientes
+                                  </div>
+
+                                  {/* Minerais */}
+                                  <div style={{ marginBottom: 8 }}>
+                                    <div style={{ fontSize: 9, fontWeight: 600, color: '#6b7280', marginBottom: 4 }}>Minerais</div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, fontSize: 10 }}>
+                                      {(food.calcium_mg || 0) > 0 && (
+                                        <span style={{ background: '#fef3c7', color: '#92400e', padding: '2px 6px', borderRadius: 4 }}>
+                                          Ca: {food.calcium_mg?.toFixed(1)}mg
+                                        </span>
+                                      )}
+                                      {(food.iron_mg || 0) > 0 && (
+                                        <span style={{ background: '#fee2e2', color: '#991b1b', padding: '2px 6px', borderRadius: 4 }}>
+                                          Fe: {food.iron_mg?.toFixed(1)}mg
+                                        </span>
+                                      )}
+                                      {(food.magnesium_mg || 0) > 0 && (
+                                        <span style={{ background: '#d1fae5', color: '#065f46', padding: '2px 6px', borderRadius: 4 }}>
+                                          Mg: {food.magnesium_mg?.toFixed(1)}mg
+                                        </span>
+                                      )}
+                                      {(food.phosphorus_mg || 0) > 0 && (
+                                        <span style={{ background: '#e0e7ff', color: '#3730a3', padding: '2px 6px', borderRadius: 4 }}>
+                                          P: {food.phosphorus_mg?.toFixed(1)}mg
+                                        </span>
+                                      )}
+                                      {(food.potassium_mg || 0) > 0 && (
+                                        <span style={{ background: '#fce7f3', color: '#9d174d', padding: '2px 6px', borderRadius: 4 }}>
+                                          K: {food.potassium_mg?.toFixed(1)}mg
+                                        </span>
+                                      )}
+                                      {(food.zinc_mg || 0) > 0 && (
+                                        <span style={{ background: '#cffafe', color: '#155e75', padding: '2px 6px', borderRadius: 4 }}>
+                                          Zn: {food.zinc_mg?.toFixed(2)}mg
+                                        </span>
+                                      )}
+                                      {(food.copper_mg || 0) > 0 && (
+                                        <span style={{ background: '#fed7aa', color: '#9a3412', padding: '2px 6px', borderRadius: 4 }}>
+                                          Cu: {food.copper_mg?.toFixed(3)}mg
+                                        </span>
+                                      )}
+                                      {(food.manganese_mg || 0) > 0 && (
+                                        <span style={{ background: '#f5d0fe', color: '#86198f', padding: '2px 6px', borderRadius: 4 }}>
+                                          Mn: {food.manganese_mg?.toFixed(3)}mg
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Vitaminas */}
+                                  {((food.vitamin_c_mg || 0) > 0 || (food.vitamin_a_mcg || 0) > 0 ||
+                                    (food.vitamin_b1_mg || 0) > 0 || (food.vitamin_b2_mg || 0) > 0 ||
+                                    (food.vitamin_b3_mg || 0) > 0 || (food.vitamin_b6_mg || 0) > 0) && (
+                                    <div style={{ marginBottom: 8 }}>
+                                      <div style={{ fontSize: 9, fontWeight: 600, color: '#6b7280', marginBottom: 4 }}>Vitaminas</div>
+                                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, fontSize: 10 }}>
+                                        {(food.vitamin_a_mcg || 0) > 0 && (
+                                          <span style={{ background: '#ffedd5', color: '#9a3412', padding: '2px 6px', borderRadius: 4 }}>
+                                            Vit A: {food.vitamin_a_mcg?.toFixed(1)}mcg
+                                          </span>
+                                        )}
+                                        {(food.vitamin_c_mg || 0) > 0 && (
+                                          <span style={{ background: '#fef9c3', color: '#854d0e', padding: '2px 6px', borderRadius: 4 }}>
+                                            Vit C: {food.vitamin_c_mg?.toFixed(1)}mg
+                                          </span>
+                                        )}
+                                        {(food.vitamin_b1_mg || 0) > 0 && (
+                                          <span style={{ background: '#ecfccb', color: '#3f6212', padding: '2px 6px', borderRadius: 4 }}>
+                                            B1: {food.vitamin_b1_mg?.toFixed(3)}mg
+                                          </span>
+                                        )}
+                                        {(food.vitamin_b2_mg || 0) > 0 && (
+                                          <span style={{ background: '#d9f99d', color: '#365314', padding: '2px 6px', borderRadius: 4 }}>
+                                            B2: {food.vitamin_b2_mg?.toFixed(3)}mg
+                                          </span>
+                                        )}
+                                        {(food.vitamin_b3_mg || 0) > 0 && (
+                                          <span style={{ background: '#a7f3d0', color: '#14532d', padding: '2px 6px', borderRadius: 4 }}>
+                                            B3: {food.vitamin_b3_mg?.toFixed(3)}mg
+                                          </span>
+                                        )}
+                                        {(food.vitamin_b6_mg || 0) > 0 && (
+                                          <span style={{ background: '#99f6e4', color: '#134e4a', padding: '2px 6px', borderRadius: 4 }}>
+                                            B6: {food.vitamin_b6_mg?.toFixed(3)}mg
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Outros */}
+                                  {((food.cholesterol_mg || 0) > 0 || (food.saturated_fat_g || 0) > 0) && (
+                                    <div>
+                                      <div style={{ fontSize: 9, fontWeight: 600, color: '#6b7280', marginBottom: 4 }}>Outros</div>
+                                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, fontSize: 10 }}>
+                                        {(food.cholesterol_mg || 0) > 0 && (
+                                          <span style={{ background: '#fecaca', color: '#991b1b', padding: '2px 6px', borderRadius: 4 }}>
+                                            Colesterol: {food.cholesterol_mg?.toFixed(1)}mg
+                                          </span>
+                                        )}
+                                        {(food.saturated_fat_g || 0) > 0 && (
+                                          <span style={{ background: '#fecdd3', color: '#9f1239', padding: '2px 6px', borderRadius: 4 }}>
+                                            G. Saturada: {food.saturated_fat_g?.toFixed(1)}g
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, fontSize: 10 }}>
-                              <span style={{ color: '#d97706', background: '#fef3c7', padding: '2px 6px', borderRadius: 4 }}>
-                                P: {(food.protein_g || 0).toFixed(0)}g
-                              </span>
-                              <span style={{ color: '#2563eb', background: '#dbeafe', padding: '2px 6px', borderRadius: 4 }}>
-                                C: {(food.carbs_g || 0).toFixed(0)}g
-                              </span>
-                              <span style={{ color: '#db2777', background: '#fce7f3', padding: '2px 6px', borderRadius: 4 }}>
-                                G: {(food.fat_g || 0).toFixed(0)}g
-                              </span>
-                              <span style={{ color: '#059669', background: '#d1fae5', padding: '2px 6px', borderRadius: 4 }}>
-                                F: {(food.fiber_g || 0).toFixed(0)}g
-                              </span>
-                              <span style={{ color: '#4f46e5', background: '#e0e7ff', padding: '2px 6px', borderRadius: 4 }}>
-                                S: {(food.sodium_mg || 0).toFixed(0)}mg
-                              </span>
-                              <span style={{ color: '#ca8a04', background: '#fef9c3', padding: '2px 6px', borderRadius: 4 }}>
-                                A: {(food.sugar_g || 0).toFixed(0)}g
-                              </span>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
 

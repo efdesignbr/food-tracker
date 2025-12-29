@@ -19,6 +19,23 @@ export interface FoodBankItem {
   sugar: number | null;
   saturated_fat: number | null;
 
+  // Micronutrientes
+  cholesterol: number | null;
+  calcium: number | null;
+  magnesium: number | null;
+  phosphorus: number | null;
+  iron: number | null;
+  potassium: number | null;
+  zinc: number | null;
+  vitamin_c: number | null;
+  copper: number | null;
+  manganese: number | null;
+  vitamin_a: number | null;
+  vitamin_b1: number | null;
+  vitamin_b2: number | null;
+  vitamin_b3: number | null;
+  vitamin_b6: number | null;
+
   // Classificação
   purchasable: boolean;
   category: string | null;
@@ -51,6 +68,23 @@ export interface CreateFoodBankItemArgs {
   sugar?: number;
   saturatedFat?: number;
 
+  // Micronutrientes
+  cholesterol?: number;
+  calcium?: number;
+  magnesium?: number;
+  phosphorus?: number;
+  iron?: number;
+  potassium?: number;
+  zinc?: number;
+  vitaminC?: number;
+  copper?: number;
+  manganese?: number;
+  vitaminA?: number;
+  vitaminB1?: number;
+  vitaminB2?: number;
+  vitaminB3?: number;
+  vitaminB6?: number;
+
   // Classificação
   purchasable?: boolean;
   category?: string;
@@ -70,9 +104,11 @@ export async function createFoodBankItem(args: CreateFoodBankItemArgs): Promise<
       `INSERT INTO food_bank (
         tenant_id, user_id, name, brand, serving_size, photo_url,
         calories, protein, carbs, fat, fiber, sodium, sugar, saturated_fat,
+        cholesterol, calcium, magnesium, phosphorus, iron, potassium, zinc, vitamin_c,
+        copper, manganese, vitamin_a, vitamin_b1, vitamin_b2, vitamin_b3, vitamin_b6,
         purchasable, category, source
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32)
       RETURNING *`,
       [
         args.tenantId,
@@ -89,6 +125,21 @@ export async function createFoodBankItem(args: CreateFoodBankItemArgs): Promise<
         args.sodium || null,
         args.sugar || null,
         args.saturatedFat || null,
+        args.cholesterol || null,
+        args.calcium || null,
+        args.magnesium || null,
+        args.phosphorus || null,
+        args.iron || null,
+        args.potassium || null,
+        args.zinc || null,
+        args.vitaminC || null,
+        args.copper || null,
+        args.manganese || null,
+        args.vitaminA || null,
+        args.vitaminB1 || null,
+        args.vitaminB2 || null,
+        args.vitaminB3 || null,
+        args.vitaminB6 || null,
         args.purchasable ?? false,
         args.category || null,
         args.source || 'manual'
@@ -224,6 +275,21 @@ export async function updateFoodBankItem(args: {
   sodium?: number;
   sugar?: number;
   saturatedFat?: number;
+  cholesterol?: number;
+  calcium?: number;
+  magnesium?: number;
+  phosphorus?: number;
+  iron?: number;
+  potassium?: number;
+  zinc?: number;
+  vitaminC?: number;
+  copper?: number;
+  manganese?: number;
+  vitaminA?: number;
+  vitaminB1?: number;
+  vitaminB2?: number;
+  vitaminB3?: number;
+  vitaminB6?: number;
   purchasable?: boolean;
   category?: string;
 }): Promise<FoodBankItem> {
@@ -285,6 +351,66 @@ export async function updateFoodBankItem(args: {
     if (args.saturatedFat !== undefined) {
       updates.push(`saturated_fat = $${paramIndex++}`);
       values.push(args.saturatedFat);
+    }
+    if (args.cholesterol !== undefined) {
+      updates.push(`cholesterol = $${paramIndex++}`);
+      values.push(args.cholesterol);
+    }
+    if (args.calcium !== undefined) {
+      updates.push(`calcium = $${paramIndex++}`);
+      values.push(args.calcium);
+    }
+    if (args.magnesium !== undefined) {
+      updates.push(`magnesium = $${paramIndex++}`);
+      values.push(args.magnesium);
+    }
+    if (args.phosphorus !== undefined) {
+      updates.push(`phosphorus = $${paramIndex++}`);
+      values.push(args.phosphorus);
+    }
+    if (args.iron !== undefined) {
+      updates.push(`iron = $${paramIndex++}`);
+      values.push(args.iron);
+    }
+    if (args.potassium !== undefined) {
+      updates.push(`potassium = $${paramIndex++}`);
+      values.push(args.potassium);
+    }
+    if (args.zinc !== undefined) {
+      updates.push(`zinc = $${paramIndex++}`);
+      values.push(args.zinc);
+    }
+    if (args.vitaminC !== undefined) {
+      updates.push(`vitamin_c = $${paramIndex++}`);
+      values.push(args.vitaminC);
+    }
+    if (args.copper !== undefined) {
+      updates.push(`copper = $${paramIndex++}`);
+      values.push(args.copper);
+    }
+    if (args.manganese !== undefined) {
+      updates.push(`manganese = $${paramIndex++}`);
+      values.push(args.manganese);
+    }
+    if (args.vitaminA !== undefined) {
+      updates.push(`vitamin_a = $${paramIndex++}`);
+      values.push(args.vitaminA);
+    }
+    if (args.vitaminB1 !== undefined) {
+      updates.push(`vitamin_b1 = $${paramIndex++}`);
+      values.push(args.vitaminB1);
+    }
+    if (args.vitaminB2 !== undefined) {
+      updates.push(`vitamin_b2 = $${paramIndex++}`);
+      values.push(args.vitaminB2);
+    }
+    if (args.vitaminB3 !== undefined) {
+      updates.push(`vitamin_b3 = $${paramIndex++}`);
+      values.push(args.vitaminB3);
+    }
+    if (args.vitaminB6 !== undefined) {
+      updates.push(`vitamin_b6 = $${paramIndex++}`);
+      values.push(args.vitaminB6);
     }
     if (args.purchasable !== undefined) {
       updates.push(`purchasable = $${paramIndex++}`);

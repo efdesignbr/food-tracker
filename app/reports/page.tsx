@@ -214,6 +214,56 @@ export default function ReportsPage() {
       sum + meal.foods.reduce((s, f) => s + (f.sugar_g || 0), 0), 0
     );
 
+    // Micronutrientes
+    const totalCholesterol = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.cholesterol_mg || 0), 0), 0
+    );
+    const totalSaturatedFat = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.saturated_fat_g || 0), 0), 0
+    );
+    const totalCalcium = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.calcium_mg || 0), 0), 0
+    );
+    const totalMagnesium = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.magnesium_mg || 0), 0), 0
+    );
+    const totalPhosphorus = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.phosphorus_mg || 0), 0), 0
+    );
+    const totalIron = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.iron_mg || 0), 0), 0
+    );
+    const totalPotassium = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.potassium_mg || 0), 0), 0
+    );
+    const totalZinc = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.zinc_mg || 0), 0), 0
+    );
+    const totalCopper = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.copper_mg || 0), 0), 0
+    );
+    const totalManganese = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.manganese_mg || 0), 0), 0
+    );
+    const totalVitaminC = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.vitamin_c_mg || 0), 0), 0
+    );
+    const totalVitaminA = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.vitamin_a_mcg || 0), 0), 0
+    );
+    const totalVitaminB1 = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.vitamin_b1_mg || 0), 0), 0
+    );
+    const totalVitaminB2 = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.vitamin_b2_mg || 0), 0), 0
+    );
+    const totalVitaminB3 = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.vitamin_b3_mg || 0), 0), 0
+    );
+    const totalVitaminB6 = filteredMeals.reduce((sum, meal) =>
+      sum + meal.foods.reduce((s, f) => s + (f.vitamin_b6_mg || 0), 0), 0
+    );
+
     const avgCaloriesPerMeal = totalMeals > 0 ? totalCalories / totalMeals : 0;
 
     // Calorias por tipo de refeição
@@ -343,7 +393,24 @@ export default function ReportsPage() {
       avgWaterPerDay,
       daysWithWater,
       locationCounts,
-      topRestaurants
+      topRestaurants,
+      // Micronutrientes
+      totalCholesterol,
+      totalSaturatedFat,
+      totalCalcium,
+      totalMagnesium,
+      totalPhosphorus,
+      totalIron,
+      totalPotassium,
+      totalZinc,
+      totalCopper,
+      totalManganese,
+      totalVitaminC,
+      totalVitaminA,
+      totalVitaminB1,
+      totalVitaminB2,
+      totalVitaminB3,
+      totalVitaminB6
     };
   }, [filteredMeals, filteredWater, period, customStartDate, customEndDate]);
 
@@ -1064,6 +1131,177 @@ export default function ReportsPage() {
               </div>
             </div>
           </div>
+
+          {/* Micronutrientes no Período */}
+          {(stats.totalCalcium > 0 || stats.totalIron > 0 || stats.totalVitaminC > 0 ||
+            stats.totalMagnesium > 0 || stats.totalPotassium > 0 || stats.totalZinc > 0) && (
+            <div style={{
+              background: 'white',
+              borderRadius: 16,
+              padding: 20,
+              marginBottom: 24,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e5e7eb'
+            }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
+                Micronutrientes no Período
+              </h2>
+
+              {/* Minerais */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', marginBottom: 8 }}>Minerais</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                  {stats.totalCalcium > 0 && (
+                    <div style={{ background: '#fef3c7', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                      <div style={{ fontSize: 10, color: '#92400e', marginBottom: 2 }}>Cálcio</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#b45309' }}>{stats.totalCalcium.toFixed(0)}mg</div>
+                      <div style={{ fontSize: 9, color: '#92400e' }}>Meta: {1000 * stats.last7Days.length}mg</div>
+                    </div>
+                  )}
+                  {stats.totalIron > 0 && (
+                    <div style={{ background: '#fee2e2', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                      <div style={{ fontSize: 10, color: '#991b1b', marginBottom: 2 }}>Ferro</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#dc2626' }}>{stats.totalIron.toFixed(1)}mg</div>
+                      <div style={{ fontSize: 9, color: '#991b1b' }}>Meta: {14 * stats.last7Days.length}mg</div>
+                    </div>
+                  )}
+                  {stats.totalMagnesium > 0 && (
+                    <div style={{ background: '#d1fae5', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                      <div style={{ fontSize: 10, color: '#065f46', marginBottom: 2 }}>Magnésio</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#059669' }}>{stats.totalMagnesium.toFixed(0)}mg</div>
+                      <div style={{ fontSize: 9, color: '#065f46' }}>Meta: {400 * stats.last7Days.length}mg</div>
+                    </div>
+                  )}
+                  {stats.totalPhosphorus > 0 && (
+                    <div style={{ background: '#e0e7ff', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                      <div style={{ fontSize: 10, color: '#3730a3', marginBottom: 2 }}>Fósforo</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#4f46e5' }}>{stats.totalPhosphorus.toFixed(0)}mg</div>
+                      <div style={{ fontSize: 9, color: '#3730a3' }}>Meta: {700 * stats.last7Days.length}mg</div>
+                    </div>
+                  )}
+                  {stats.totalPotassium > 0 && (
+                    <div style={{ background: '#fce7f3', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                      <div style={{ fontSize: 10, color: '#9d174d', marginBottom: 2 }}>Potássio</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#db2777' }}>{(stats.totalPotassium / 1000).toFixed(1)}g</div>
+                      <div style={{ fontSize: 9, color: '#9d174d' }}>Meta: {(3500 * stats.last7Days.length / 1000).toFixed(1)}g</div>
+                    </div>
+                  )}
+                  {stats.totalZinc > 0 && (
+                    <div style={{ background: '#cffafe', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                      <div style={{ fontSize: 10, color: '#155e75', marginBottom: 2 }}>Zinco</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#0891b2' }}>{stats.totalZinc.toFixed(1)}mg</div>
+                      <div style={{ fontSize: 9, color: '#155e75' }}>Meta: {11 * stats.last7Days.length}mg</div>
+                    </div>
+                  )}
+                  {stats.totalCopper > 0 && (
+                    <div style={{ background: '#fed7aa', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                      <div style={{ fontSize: 10, color: '#9a3412', marginBottom: 2 }}>Cobre</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#ea580c' }}>{stats.totalCopper.toFixed(2)}mg</div>
+                      <div style={{ fontSize: 9, color: '#9a3412' }}>Meta: {0.9 * stats.last7Days.length}mg</div>
+                    </div>
+                  )}
+                  {stats.totalManganese > 0 && (
+                    <div style={{ background: '#f5d0fe', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                      <div style={{ fontSize: 10, color: '#86198f', marginBottom: 2 }}>Manganês</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#a21caf' }}>{stats.totalManganese.toFixed(2)}mg</div>
+                      <div style={{ fontSize: 9, color: '#86198f' }}>Meta: {2.3 * stats.last7Days.length}mg</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Vitaminas */}
+              {(stats.totalVitaminC > 0 || stats.totalVitaminA > 0 || stats.totalVitaminB1 > 0 ||
+                stats.totalVitaminB2 > 0 || stats.totalVitaminB3 > 0 || stats.totalVitaminB6 > 0) && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', marginBottom: 8 }}>Vitaminas</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                    {stats.totalVitaminA > 0 && (
+                      <div style={{ background: '#ffedd5', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                        <div style={{ fontSize: 10, color: '#9a3412', marginBottom: 2 }}>Vitamina A</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#ea580c' }}>{stats.totalVitaminA.toFixed(0)}mcg</div>
+                        <div style={{ fontSize: 9, color: '#9a3412' }}>Meta: {900 * stats.last7Days.length}mcg</div>
+                      </div>
+                    )}
+                    {stats.totalVitaminC > 0 && (
+                      <div style={{ background: '#fef9c3', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                        <div style={{ fontSize: 10, color: '#854d0e', marginBottom: 2 }}>Vitamina C</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#ca8a04' }}>{stats.totalVitaminC.toFixed(0)}mg</div>
+                        <div style={{ fontSize: 9, color: '#854d0e' }}>Meta: {90 * stats.last7Days.length}mg</div>
+                      </div>
+                    )}
+                    {stats.totalVitaminB1 > 0 && (
+                      <div style={{ background: '#ecfccb', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                        <div style={{ fontSize: 10, color: '#3f6212', marginBottom: 2 }}>Vitamina B1</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#65a30d' }}>{stats.totalVitaminB1.toFixed(2)}mg</div>
+                        <div style={{ fontSize: 9, color: '#3f6212' }}>Meta: {1.2 * stats.last7Days.length}mg</div>
+                      </div>
+                    )}
+                    {stats.totalVitaminB2 > 0 && (
+                      <div style={{ background: '#d9f99d', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                        <div style={{ fontSize: 10, color: '#365314', marginBottom: 2 }}>Vitamina B2</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#4d7c0f' }}>{stats.totalVitaminB2.toFixed(2)}mg</div>
+                        <div style={{ fontSize: 9, color: '#365314' }}>Meta: {1.3 * stats.last7Days.length}mg</div>
+                      </div>
+                    )}
+                    {stats.totalVitaminB3 > 0 && (
+                      <div style={{ background: '#a7f3d0', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                        <div style={{ fontSize: 10, color: '#14532d', marginBottom: 2 }}>Vitamina B3</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#16a34a' }}>{stats.totalVitaminB3.toFixed(1)}mg</div>
+                        <div style={{ fontSize: 9, color: '#14532d' }}>Meta: {16 * stats.last7Days.length}mg</div>
+                      </div>
+                    )}
+                    {stats.totalVitaminB6 > 0 && (
+                      <div style={{ background: '#99f6e4', padding: 10, borderRadius: 8, textAlign: 'center' }}>
+                        <div style={{ fontSize: 10, color: '#134e4a', marginBottom: 2 }}>Vitamina B6</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#0d9488' }}>{stats.totalVitaminB6.toFixed(2)}mg</div>
+                        <div style={{ fontSize: 9, color: '#134e4a' }}>Meta: {1.7 * stats.last7Days.length}mg</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Outros (Colesterol e Gordura Saturada) */}
+              {(stats.totalCholesterol > 0 || stats.totalSaturatedFat > 0) && (
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', marginBottom: 8 }}>Limites de Atenção</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                    {stats.totalCholesterol > 0 && (
+                      <div style={{
+                        background: stats.totalCholesterol > 300 * stats.last7Days.length ? '#fecaca' : '#f3f4f6',
+                        padding: 10,
+                        borderRadius: 8,
+                        textAlign: 'center',
+                        border: stats.totalCholesterol > 300 * stats.last7Days.length ? '2px solid #ef4444' : '1px solid #e5e7eb'
+                      }}>
+                        <div style={{ fontSize: 10, color: '#991b1b', marginBottom: 2 }}>Colesterol</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: stats.totalCholesterol > 300 * stats.last7Days.length ? '#ef4444' : '#374151' }}>
+                          {stats.totalCholesterol.toFixed(0)}mg
+                        </div>
+                        <div style={{ fontSize: 9, color: '#991b1b' }}>Limite: {300 * stats.last7Days.length}mg</div>
+                      </div>
+                    )}
+                    {stats.totalSaturatedFat > 0 && (
+                      <div style={{
+                        background: stats.totalSaturatedFat > 22 * stats.last7Days.length ? '#fecaca' : '#f3f4f6',
+                        padding: 10,
+                        borderRadius: 8,
+                        textAlign: 'center',
+                        border: stats.totalSaturatedFat > 22 * stats.last7Days.length ? '2px solid #ef4444' : '1px solid #e5e7eb'
+                      }}>
+                        <div style={{ fontSize: 10, color: '#9f1239', marginBottom: 2 }}>G. Saturada</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: stats.totalSaturatedFat > 22 * stats.last7Days.length ? '#ef4444' : '#374151' }}>
+                          {stats.totalSaturatedFat.toFixed(1)}g
+                        </div>
+                        <div style={{ fontSize: 9, color: '#9f1239' }}>Limite: {22 * stats.last7Days.length}g</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Charts Grid */}
           <div style={{ display: 'grid', gap: 16, marginBottom: 24 }}>

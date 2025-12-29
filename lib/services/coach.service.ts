@@ -33,6 +33,23 @@ export interface CoachContext {
       fat: number;
     }>;
   };
+  micronutrients?: {
+    totals: {
+      calcium_mg: number;
+      iron_mg: number;
+      magnesium_mg: number;
+      phosphorus_mg: number;
+      potassium_mg: number;
+      zinc_mg: number;
+      vitamin_c_mg: number;
+      vitamin_a_mcg: number;
+      vitamin_b1_mg: number;
+      vitamin_b2_mg: number;
+      vitamin_b3_mg: number;
+      vitamin_b6_mg: number;
+    };
+    daysWithData: number;
+  };
   userGoals?: {
     goal_type?: string;
     height_cm?: number;
@@ -200,6 +217,51 @@ export async function gatherUserContext(params: {
       };
     })
   };
+
+  // 3.5. Buscar micronutrientes agregados (últimos 30 dias)
+  const { rows: microRows } = await pool.query(
+    `SELECT
+       COUNT(DISTINCT DATE(m.consumed_at)) as days_with_data,
+       SUM(COALESCE(nd.calcium_mg, 0)) as total_calcium,
+       SUM(COALESCE(nd.iron_mg, 0)) as total_iron,
+       SUM(COALESCE(nd.magnesium_mg, 0)) as total_magnesium,
+       SUM(COALESCE(nd.phosphorus_mg, 0)) as total_phosphorus,
+       SUM(COALESCE(nd.potassium_mg, 0)) as total_potassium,
+       SUM(COALESCE(nd.zinc_mg, 0)) as total_zinc,
+       SUM(COALESCE(nd.vitamin_c_mg, 0)) as total_vitamin_c,
+       SUM(COALESCE(nd.vitamin_a_mcg, 0)) as total_vitamin_a,
+       SUM(COALESCE(nd.vitamin_b1_mg, 0)) as total_vitamin_b1,
+       SUM(COALESCE(nd.vitamin_b2_mg, 0)) as total_vitamin_b2,
+       SUM(COALESCE(nd.vitamin_b3_mg, 0)) as total_vitamin_b3,
+       SUM(COALESCE(nd.vitamin_b6_mg, 0)) as total_vitamin_b6
+     FROM meals m
+     LEFT JOIN food_items fi ON fi.meal_id = m.id
+     LEFT JOIN nutrition_data nd ON nd.food_item_id = fi.id
+     WHERE m.user_id = $1 AND m.tenant_id = $2
+       AND m.consumed_at >= CURRENT_DATE - INTERVAL '30 days'`,
+    [params.userId, params.tenantId]
+  );
+
+  if (microRows.length > 0 && microRows[0].days_with_data > 0) {
+    const m = microRows[0];
+    context.micronutrients = {
+      totals: {
+        calcium_mg: parseFloat(m.total_calcium) || 0,
+        iron_mg: parseFloat(m.total_iron) || 0,
+        magnesium_mg: parseFloat(m.total_magnesium) || 0,
+        phosphorus_mg: parseFloat(m.total_phosphorus) || 0,
+        potassium_mg: parseFloat(m.total_potassium) || 0,
+        zinc_mg: parseFloat(m.total_zinc) || 0,
+        vitamin_c_mg: parseFloat(m.total_vitamin_c) || 0,
+        vitamin_a_mcg: parseFloat(m.total_vitamin_a) || 0,
+        vitamin_b1_mg: parseFloat(m.total_vitamin_b1) || 0,
+        vitamin_b2_mg: parseFloat(m.total_vitamin_b2) || 0,
+        vitamin_b3_mg: parseFloat(m.total_vitamin_b3) || 0,
+        vitamin_b6_mg: parseFloat(m.total_vitamin_b6) || 0
+      },
+      daysWithData: parseInt(m.days_with_data) || 0
+    };
+  }
 
   // 4. Buscar objetivos e metas do usuário
   const { rows: userGoals } = await pool.query(
@@ -460,6 +522,56 @@ function buildCoachPrompt(context: CoachContext): string {
     prompt += `\n`;
   }
 
+  // Micronutrientes (se houver dados)
+  if (context.micronutrients && context.micronutrients.daysWithData > 0) {
+    const micro = context.micronutrients;
+    const days = micro.daysWithData;
+
+    // Valores de Referência Diária (RDA) para adultos - baseados em diretrizes internacionais
+    const RDA = {
+      calcium_mg: 1000,      // mg/dia
+      iron_mg: 14,           // mg/dia (média homem/mulher)
+      magnesium_mg: 400,     // mg/dia
+      phosphorus_mg: 700,    // mg/dia
+      potassium_mg: 3500,    // mg/dia
+      zinc_mg: 11,           // mg/dia
+      vitamin_c_mg: 90,      // mg/dia
+      vitamin_a_mcg: 900,    // mcg/dia
+      vitamin_b1_mg: 1.2,    // mg/dia (Tiamina)
+      vitamin_b2_mg: 1.3,    // mg/dia (Riboflavina)
+      vitamin_b3_mg: 16,     // mg/dia (Niacina)
+      vitamin_b6_mg: 1.7     // mg/dia
+    };
+
+    prompt += `## MICRONUTRIENTES (últimos ${days} dias com dados)\n\n`;
+    prompt += `**VALORES DE REFERÊNCIA:** RDA (Recommended Dietary Allowance) para adultos.\n\n`;
+
+    prompt += `| Nutriente | Consumo Total | Média/Dia | RDA/Dia | % da RDA |\n`;
+    prompt += `|-----------|---------------|-----------|---------|----------|\n`;
+
+    const formatMicro = (name: string, total: number, rda: number, unit: string) => {
+      const avg = total / days;
+      const percent = (avg / rda) * 100;
+      return `| ${name} | ${total.toFixed(1)}${unit} | ${avg.toFixed(1)}${unit} | ${rda}${unit} | ${percent.toFixed(0)}% |`;
+    };
+
+    prompt += formatMicro('Cálcio', micro.totals.calcium_mg, RDA.calcium_mg, 'mg') + '\n';
+    prompt += formatMicro('Ferro', micro.totals.iron_mg, RDA.iron_mg, 'mg') + '\n';
+    prompt += formatMicro('Magnésio', micro.totals.magnesium_mg, RDA.magnesium_mg, 'mg') + '\n';
+    prompt += formatMicro('Fósforo', micro.totals.phosphorus_mg, RDA.phosphorus_mg, 'mg') + '\n';
+    prompt += formatMicro('Potássio', micro.totals.potassium_mg, RDA.potassium_mg, 'mg') + '\n';
+    prompt += formatMicro('Zinco', micro.totals.zinc_mg, RDA.zinc_mg, 'mg') + '\n';
+    prompt += formatMicro('Vitamina C', micro.totals.vitamin_c_mg, RDA.vitamin_c_mg, 'mg') + '\n';
+    prompt += formatMicro('Vitamina A', micro.totals.vitamin_a_mcg, RDA.vitamin_a_mcg, 'mcg') + '\n';
+    prompt += formatMicro('Vitamina B1', micro.totals.vitamin_b1_mg, RDA.vitamin_b1_mg, 'mg') + '\n';
+    prompt += formatMicro('Vitamina B2', micro.totals.vitamin_b2_mg, RDA.vitamin_b2_mg, 'mg') + '\n';
+    prompt += formatMicro('Vitamina B3', micro.totals.vitamin_b3_mg, RDA.vitamin_b3_mg, 'mg') + '\n';
+    prompt += formatMicro('Vitamina B6', micro.totals.vitamin_b6_mg, RDA.vitamin_b6_mg, 'mg') + '\n';
+
+    prompt += `\n**NOTA IMPORTANTE:** Os dados de micronutrientes dependem da qualidade dos registros alimentares. `;
+    prompt += `Se muitos alimentos foram cadastrados sem informações de micronutrientes, os valores podem estar subestimados.\n\n`;
+  }
+
   prompt += `---\n\n`;
   prompt += `## INSTRUÇÕES DE ANÁLISE PROFISSIONAL\n\n`;
 
@@ -475,22 +587,36 @@ function buildCoachPrompt(context: CoachContext): string {
     }
   }
 
-  prompt += `\n**PASSO 2: ANÁLISE TEMPORAL**\n`;
+  prompt += `\n**PASSO 2: ANÁLISE DE MICRONUTRIENTES (se houver dados)**\n`;
+  prompt += `DIRETRIZES PROFISSIONAIS:\n`;
+  prompt += `- Analise APENAS se houver dados suficientes (mínimo 7 dias com registros)\n`;
+  prompt += `- Compare consumo médio diário com RDA (Recommended Dietary Allowance)\n`;
+  prompt += `- Identifique nutrientes com consumo < 70% da RDA como "atenção necessária"\n`;
+  prompt += `- Identifique nutrientes com consumo < 50% da RDA como "possível deficiência"\n`;
+  prompt += `- NÃO faça diagnósticos médicos - apenas observações educativas\n`;
+  prompt += `- Sugira fontes alimentares naturais para nutrientes em baixa\n`;
+  prompt += `- Mencione que suplementação deve ser avaliada por profissional de saúde\n`;
+  prompt += `- Reconheça limitações: dados podem estar incompletos\n\n`;
+
+  prompt += `**PASSO 3: ANÁLISE TEMPORAL**\n`;
   prompt += `- Compare dados atuais vs anteriores (se houver histórico)\n`;
   prompt += `- Identifique tendências e correlações\n`;
   prompt += `- Avalie consistência do padrão alimentar\n\n`;
 
-  prompt += `**PASSO 3: ESTRUTURE A RESPOSTA JSON**\n\n`;
-  prompt += `1. **analysis_text**: Análise técnica completa (3-5 parágrafos) incluindo:\n`;
+  prompt += `**PASSO 4: ESTRUTURE A RESPOSTA JSON**\n\n`;
+  prompt += `1. **analysis_text**: Análise técnica completa (4-6 parágrafos) incluindo:\n`;
   prompt += `   - PARÁGRAFO 1: Composição corporal com NÚMEROS (peso atual, % gordura estimado, massa magra aproximada)\n`;
   prompt += `   - PARÁGRAFO 2: Balanço energético com CÁLCULOS (TMB, TDEE, consumo médio, déficit/superávit)\n`;
   prompt += `   - PARÁGRAFO 3: Análise de macronutrientes com PERCENTUAIS e comparação com recomendações\n`;
-  prompt += `   - PARÁGRAFO 4: Evolução temporal (se houver dados históricos) com taxas de mudança\n`;
-  prompt += `   - PARÁGRAFO 5: Síntese e prognóstico baseado nos dados\n\n`;
+  prompt += `   - PARÁGRAFO 4: Análise de MICRONUTRIENTES (se houver dados) - identifique nutrientes em baixa e sugira fontes alimentares\n`;
+  prompt += `   - PARÁGRAFO 5: Evolução temporal (se houver dados históricos) com taxas de mudança\n`;
+  prompt += `   - PARÁGRAFO 6: Síntese e prognóstico baseado nos dados\n\n`;
 
   prompt += `2. **recommendations**: Array de 3-5 ações ESPECÍFICAS com números exatos:\n`;
   prompt += `   - Ex: "Aumente proteína de ${context.meals?.recent.length ? '120g' : 'X g'} para 150g/dia (distribuir 40g café, 50g almoço, 40g jantar, 20g lanches)"\n`;
   prompt += `   - Ex: "Ajuste déficit calórico de 800kcal para 500kcal/dia para perda sustentável de ~0.5kg/semana"\n`;
+  prompt += `   - Ex MICRONUTRIENTES: "Inclua mais fontes de cálcio: 1 copo de leite (300mg), 30g queijo (200mg), ou vegetais verde-escuros"\n`;
+  prompt += `   - Ex MICRONUTRIENTES: "Para aumentar ferro: inclua carnes vermelhas magras 2-3x/semana, ou combine leguminosas com vitamina C"\n`;
   prompt += `   - Sempre inclua números específicos e contexto\n\n`;
 
   prompt += `3. **insights**: Array de 3-5 descobertas baseadas NOS DADOS REAIS:\n`;
@@ -503,6 +629,12 @@ function buildCoachPrompt(context: CoachContext): string {
   prompt += `   - Proteína < 1.2g/kg peso (risco de perda muscular)\n`;
   prompt += `   - Carboidratos < 50g/dia sem supervisão médica\n`;
   prompt += `   - Padrão alimentar muito irregular\n`;
+  prompt += `   - MICRONUTRIENTES (tom educativo, não alarmista):\n`;
+  prompt += `     * Ferro < 50% RDA por período prolongado: "Seu consumo de ferro está abaixo do ideal. Considere incluir mais fontes como carnes, leguminosas e vegetais verde-escuros. Se sentir fadiga persistente, consulte um profissional de saúde."\n`;
+  prompt += `     * Cálcio < 50% RDA: "Consumo de cálcio está baixo. Laticínios, vegetais verde-escuros e peixes com ossos são boas fontes. Importante para saúde óssea a longo prazo."\n`;
+  prompt += `     * Vitamina C < 50% RDA: "Vitamina C abaixo do recomendado. Frutas cítricas, morangos, pimentões e brócolis são excelentes fontes."\n`;
+  prompt += `   - NÃO use termos alarmistas como "deficiência grave" ou "risco imediato"\n`;
+  prompt += `   - Sempre sugira consultar profissional de saúde para avaliação completa\n`;
   prompt += `   - Se não houver riscos sérios, retorne array vazio []\n\n`;
 
   prompt += `**IMPORTANTE**: Use NÚMEROS REAIS dos dados fornecidos. Não invente valores. Se faltar algum dado para cálculo, mencione isso explicitamente.\n\n`;

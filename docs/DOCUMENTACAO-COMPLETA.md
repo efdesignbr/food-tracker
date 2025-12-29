@@ -1,7 +1,7 @@
 # DOCUMENTACAO COMPLETA - FOOD TRACKER
 
-**Versao:** 1.1
-**Data:** 27/12/2024
+**Versao:** 1.2
+**Data:** 28/12/2024
 **Autor:** Documentacao gerada automaticamente
 
 ---
@@ -102,6 +102,22 @@ Valores nutricionais (1-to-1 com food_items).
 | fiber_g | NUMERIC | Fibra (g) |
 | sodium_mg | NUMERIC | Sodio (mg) |
 | sugar_g | NUMERIC | Acucar (g) |
+| cholesterol_mg | NUMERIC | Colesterol (mg) |
+| saturated_fat_g | NUMERIC | Gordura saturada (g) |
+| calcium_mg | NUMERIC | Calcio (mg) |
+| magnesium_mg | NUMERIC | Magnesio (mg) |
+| phosphorus_mg | NUMERIC | Fosforo (mg) |
+| iron_mg | NUMERIC | Ferro (mg) |
+| potassium_mg | NUMERIC | Potassio (mg) |
+| zinc_mg | NUMERIC | Zinco (mg) |
+| copper_mg | NUMERIC | Cobre (mg) |
+| manganese_mg | NUMERIC | Manganes (mg) |
+| vitamin_c_mg | NUMERIC | Vitamina C (mg) |
+| vitamin_a_mcg | NUMERIC | Vitamina A (mcg) |
+| vitamin_b1_mg | NUMERIC | Vitamina B1/Tiamina (mg) |
+| vitamin_b2_mg | NUMERIC | Vitamina B2/Riboflavina (mg) |
+| vitamin_b3_mg | NUMERIC | Vitamina B3/Niacina (mg) |
+| vitamin_b6_mg | NUMERIC | Vitamina B6 (mg) |
 
 ### 2.5 Tabela: weight_logs
 
@@ -174,6 +190,12 @@ Banco de alimentos do usuario.
 | brand | VARCHAR(255) | Marca (opcional) |
 | serving_size | VARCHAR(100) | Porcao (ex: 100g) |
 | calories, protein, carbs, fat, fiber | NUMERIC | Macros |
+| sodium, sugar, saturated_fat | NUMERIC | Detalhes nutricionais |
+| cholesterol, calcium, magnesium | NUMERIC | Micronutrientes (minerais) |
+| phosphorus, iron, potassium, zinc | NUMERIC | Micronutrientes (minerais) |
+| copper, manganese | NUMERIC | Micronutrientes (minerais) |
+| vitamin_c, vitamin_a | NUMERIC | Vitaminas |
+| vitamin_b1, vitamin_b2, vitamin_b3, vitamin_b6 | NUMERIC | Vitaminas do complexo B |
 | usage_count | INT | Vezes usado |
 | last_used_at | TIMESTAMP | Ultimo uso |
 | source | VARCHAR(50) | manual, ai_analyzed |
@@ -317,6 +339,10 @@ Cadastro de lojas/estabelecimentos onde as compras sao realizadas.
 - Lista ultimas 3 refeicoes
 - CTA principal: "Registrar Refeicao"
 - Cards expansiveis para detalhes
+- **Micronutrientes:** Botao "Ver Micronutrientes" nos alimentos (quando disponivel)
+  - Exibe minerais: Calcio, Ferro, Magnesio, Fosforo, Potassio, Zinco, Cobre, Manganes
+  - Exibe vitaminas: A, C, B1, B2, B3, B6
+  - Exibe outros: Colesterol, Gordura Saturada
 
 **APIs consumidas:**
 - GET /api/meals
@@ -351,6 +377,8 @@ Cadastro de lojas/estabelecimentos onde as compras sao realizadas.
 - Clique em dia para ver detalhes
 - Export CSV (PREMIUM only)
 - Filtros por periodo
+- **Micronutrientes:** Botao "Ver Micronutrientes" nos alimentos expandidos
+  - Mesmo formato da Home: minerais, vitaminas e outros
 
 ### 3.4 /peso (Peso e Medidas)
 
@@ -370,10 +398,15 @@ Cadastro de lojas/estabelecimentos onde as compras sao realizadas.
 **Proposito:** Gerenciar alimentos reutilizaveis.
 
 **Funcionalidades:**
-- Cadastro manual
-- Analise de foto de tabela nutricional (OCR)
+- Cadastro manual com macros e micronutrientes
+- Analise de foto de tabela nutricional (OCR) com extracao de micronutrientes
 - Busca e listagem
 - Marcacao como "purchasable"
+- **Micronutrientes:**
+  - Exibicao na listagem expandida (quando disponivel)
+  - Campos editaveis no modal de edicao
+  - Campos: Colesterol, Calcio, Ferro, Magnesio, Fosforo, Potassio, Zinco, Vit. C
+  - Campos adicionais no banco: Cobre, Manganes, Vit. A, B1, B2, B3, B6
 
 ### 3.6 /lista-compras (Listas de Compras)
 
@@ -477,6 +510,30 @@ A calculadora recalcula automaticamente:
 - Recomendacoes personalizadas
 - Historico de analises
 - PREMIUM ONLY
+- **Analise de Micronutrientes:**
+  - Coleta dados de micronutrientes dos ultimos 30 dias
+  - Compara consumo medio diario com RDA (Recommended Dietary Allowance)
+  - Identifica nutrientes < 70% RDA como "atencao necessaria"
+  - Identifica nutrientes < 50% RDA como "possivel deficiencia"
+  - Sugere fontes alimentares naturais para nutrientes em baixa
+  - Tom profissional e educativo (nao faz diagnosticos medicos)
+  - Recomenda consultar profissional de saude para avaliacao completa
+
+**Valores de Referencia (RDA) utilizados:**
+| Nutriente | RDA/dia |
+|-----------|---------|
+| Calcio | 1000 mg |
+| Ferro | 14 mg |
+| Magnesio | 400 mg |
+| Fosforo | 700 mg |
+| Potassio | 3500 mg |
+| Zinco | 11 mg |
+| Vitamina C | 90 mg |
+| Vitamina A | 900 mcg |
+| Vitamina B1 | 1.2 mg |
+| Vitamina B2 | 1.3 mg |
+| Vitamina B3 | 16 mg |
+| Vitamina B6 | 1.7 mg |
 
 ### 3.8 /objetivos (Configurar Metas)
 
@@ -510,6 +567,16 @@ A calculadora recalcula automaticamente:
 ### 3.12 /reports (Relatorios)
 
 **Proposito:** Analises estatisticas (PREMIUM).
+
+**Funcionalidades:**
+- Resumo de macronutrientes no periodo
+- Grafico de evolucao de calorias
+- **Secao "Micronutrientes no Periodo":**
+  - Minerais: Calcio, Ferro, Magnesio, Fosforo, Potassio, Zinco, Cobre, Manganes
+  - Vitaminas: A, C, B1, B2, B3, B6
+  - Limites de atencao: Colesterol e Gordura Saturada (destacados em vermelho se acima do limite)
+  - Cada nutriente mostra: total consumido, meta para o periodo, % da meta
+  - So exibe se houver dados de micronutrientes no periodo
 
 ### 3.13 /login e /signup (Autenticacao)
 
@@ -997,7 +1064,64 @@ food-tracker/
 **Correcoes:**
 - Fix na navegacao do botao "Painel": trocado `window.location.href` por `router.push()` para compatibilidade com Capacitor/iOS (navegacao client-side evita perda de sessao)
 
+### 28/12/2024
+
+**Sistema de Micronutrientes (16 campos adicionais):**
+
+Expansao do sistema de nutrientes de 7 campos basicos para 23 campos, incluindo vitaminas e minerais.
+
+**Novos campos na tabela `nutrition_data`:**
+- Colesterol (mg), Gordura Saturada (g)
+- Minerais: Calcio, Magnesio, Fosforo, Ferro, Potassio, Zinco, Cobre, Manganes (mg)
+- Vitaminas: C (mg), A (mcg), B1, B2, B3, B6 (mg)
+
+**Novos campos na tabela `food_bank`:**
+- Mesmos 15 micronutrientes para banco de alimentos do usuario
+
+**Paginas atualizadas:**
+
+1. **Home (app/page.tsx):**
+   - Tipo Food atualizado com 16 micronutrientes
+   - Botao "Ver Micronutrientes" nos cards de alimentos expandidos
+   - Secao expansivel com Minerais, Vitaminas e Outros
+
+2. **Historico (components/CalendarView.tsx):**
+   - Mesmo sistema de exibicao de micronutrientes da Home
+
+3. **Relatorios (app/reports/page.tsx):**
+   - Secao "Micronutrientes no Periodo" com totais e metas
+   - Minerais em grid de 4 colunas com cores distintas
+   - Vitaminas em grid de 3 colunas
+   - Limites de atencao para Colesterol e Gordura Saturada
+
+4. **Meus Alimentos (app/meus-alimentos/page.tsx):**
+   - Interface FoodBankItem atualizada com micronutrientes
+   - Exibicao de micronutrientes na listagem expandida
+   - Campos de micronutrientes no modal de edicao
+   - Payload de salvamento atualizado
+
+5. **Coach IA (lib/services/coach.service.ts):**
+   - Coleta de micronutrientes agregados dos ultimos 30 dias
+   - Tabela com consumo vs RDA no prompt
+   - Diretrizes profissionais para analise de micronutrientes
+   - Tom educativo, nao alarmista
+   - Sugere fontes alimentares naturais
+   - Reconhece limitacoes dos dados
+
+**APIs atualizadas:**
+
+- `/api/food-bank` (route.ts): Schemas Zod com 15 micronutrientes
+- `lib/repos/food-bank.repo.ts`: INSERT/UPDATE com todos os campos
+- `lib/repos/meal.repo.ts`: INSERT/SELECT com 23 campos (ja feito anteriormente)
+- `lib/ai/nutrition-label-analyzer.ts`: Extracao de micronutrientes via OCR (ja feito anteriormente)
+
+**Valores de Referencia (RDA) implementados no Coach:**
+- Calcio: 1000mg, Ferro: 14mg, Magnesio: 400mg
+- Fosforo: 700mg, Potassio: 3500mg, Zinco: 11mg
+- Vitamina C: 90mg, A: 900mcg, B1: 1.2mg
+- B2: 1.3mg, B3: 16mg, B6: 1.7mg
+
 ---
 
 *Documentacao gerada em 25/12/2024*
-*Atualizada em 27/12/2024*
+*Atualizada em 28/12/2024*

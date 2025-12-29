@@ -20,6 +20,15 @@ interface FoodBankItem {
   sodium: number | null;
   sugar: number | null;
   saturated_fat: number | null;
+  // Micronutrientes
+  cholesterol: number | null;
+  calcium: number | null;
+  magnesium: number | null;
+  phosphorus: number | null;
+  iron: number | null;
+  potassium: number | null;
+  zinc: number | null;
+  vitamin_c: number | null;
   purchasable: boolean;
   category: string | null;
   usage_count: number;
@@ -394,6 +403,15 @@ export default function MeusAlimentosPage() {
         sodium: typeof editingItem.sodium === 'number' ? editingItem.sodium : undefined,
         sugar: typeof editingItem.sugar === 'number' ? editingItem.sugar : undefined,
         saturated_fat: typeof editingItem.saturated_fat === 'number' ? editingItem.saturated_fat : undefined,
+        // Micronutrientes
+        cholesterol: typeof editingItem.cholesterol === 'number' ? editingItem.cholesterol : undefined,
+        calcium: typeof editingItem.calcium === 'number' ? editingItem.calcium : undefined,
+        iron: typeof editingItem.iron === 'number' ? editingItem.iron : undefined,
+        magnesium: typeof editingItem.magnesium === 'number' ? editingItem.magnesium : undefined,
+        phosphorus: typeof editingItem.phosphorus === 'number' ? editingItem.phosphorus : undefined,
+        potassium: typeof editingItem.potassium === 'number' ? editingItem.potassium : undefined,
+        zinc: typeof editingItem.zinc === 'number' ? editingItem.zinc : undefined,
+        vitamin_c: typeof editingItem.vitamin_c === 'number' ? editingItem.vitamin_c : undefined,
         purchasable: editingItem.purchasable,
         category: editingItem.category || undefined
       };
@@ -1640,6 +1658,55 @@ export default function MeusAlimentosPage() {
                           </div>
                         )}
 
+                        {/* Micronutrientes */}
+                        {(item.cholesterol || item.calcium || item.magnesium || item.phosphorus || item.iron || item.potassium || item.zinc || item.vitamin_c) && (
+                          <div style={{ marginTop: 12 }}>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: '#7c3aed', marginBottom: 8 }}>Micronutrientes</div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, fontSize: 11 }}>
+                              {item.cholesterol && (
+                                <span style={{ background: '#fecaca', color: '#991b1b', padding: '3px 8px', borderRadius: 4 }}>
+                                  Colesterol: {parseFloat(item.cholesterol.toString()).toFixed(0)}mg
+                                </span>
+                              )}
+                              {item.calcium && (
+                                <span style={{ background: '#fef3c7', color: '#92400e', padding: '3px 8px', borderRadius: 4 }}>
+                                  Cálcio: {parseFloat(item.calcium.toString()).toFixed(0)}mg
+                                </span>
+                              )}
+                              {item.iron && (
+                                <span style={{ background: '#fee2e2', color: '#991b1b', padding: '3px 8px', borderRadius: 4 }}>
+                                  Ferro: {parseFloat(item.iron.toString()).toFixed(1)}mg
+                                </span>
+                              )}
+                              {item.magnesium && (
+                                <span style={{ background: '#d1fae5', color: '#065f46', padding: '3px 8px', borderRadius: 4 }}>
+                                  Magnésio: {parseFloat(item.magnesium.toString()).toFixed(0)}mg
+                                </span>
+                              )}
+                              {item.phosphorus && (
+                                <span style={{ background: '#e0e7ff', color: '#3730a3', padding: '3px 8px', borderRadius: 4 }}>
+                                  Fósforo: {parseFloat(item.phosphorus.toString()).toFixed(0)}mg
+                                </span>
+                              )}
+                              {item.potassium && (
+                                <span style={{ background: '#fce7f3', color: '#9d174d', padding: '3px 8px', borderRadius: 4 }}>
+                                  Potássio: {parseFloat(item.potassium.toString()).toFixed(0)}mg
+                                </span>
+                              )}
+                              {item.zinc && (
+                                <span style={{ background: '#cffafe', color: '#155e75', padding: '3px 8px', borderRadius: 4 }}>
+                                  Zinco: {parseFloat(item.zinc.toString()).toFixed(2)}mg
+                                </span>
+                              )}
+                              {item.vitamin_c && (
+                                <span style={{ background: '#fef9c3', color: '#854d0e', padding: '3px 8px', borderRadius: 4 }}>
+                                  Vit. C: {parseFloat(item.vitamin_c.toString()).toFixed(0)}mg
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
                         {item.usage_count > 0 && (
                           <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 8 }}>
                             Usado {item.usage_count}x
@@ -1909,7 +1976,7 @@ export default function MeusAlimentosPage() {
                 </div>
               </div>
 
-              {/* Micronutrientes */}
+              {/* Detalhes Nutricionais */}
               <h3 style={{
                 fontSize: 15,
                 fontWeight: 700,
@@ -2004,6 +2071,61 @@ export default function MeusAlimentosPage() {
                       boxSizing: 'border-box'
                     }}
                   />
+                </div>
+              </div>
+
+              {/* Micronutrientes */}
+              <h3 style={{
+                fontSize: 15,
+                fontWeight: 700,
+                marginTop: 20,
+                marginBottom: 12,
+                color: '#7c3aed',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                Micronutrientes
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Colesterol (mg)</label>
+                  <input type="number" step="0.1" value={editingItem.cholesterol || ''} onChange={e => setEditingItem({ ...editingItem, cholesterol: e.target.value ? parseFloat(e.target.value) : null })} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Cálcio (mg)</label>
+                  <input type="number" step="0.1" value={editingItem.calcium || ''} onChange={e => setEditingItem({ ...editingItem, calcium: e.target.value ? parseFloat(e.target.value) : null })} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Ferro (mg)</label>
+                  <input type="number" step="0.1" value={editingItem.iron || ''} onChange={e => setEditingItem({ ...editingItem, iron: e.target.value ? parseFloat(e.target.value) : null })} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Magnésio (mg)</label>
+                  <input type="number" step="0.1" value={editingItem.magnesium || ''} onChange={e => setEditingItem({ ...editingItem, magnesium: e.target.value ? parseFloat(e.target.value) : null })} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Fósforo (mg)</label>
+                  <input type="number" step="0.1" value={editingItem.phosphorus || ''} onChange={e => setEditingItem({ ...editingItem, phosphorus: e.target.value ? parseFloat(e.target.value) : null })} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Potássio (mg)</label>
+                  <input type="number" step="0.1" value={editingItem.potassium || ''} onChange={e => setEditingItem({ ...editingItem, potassium: e.target.value ? parseFloat(e.target.value) : null })} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Zinco (mg)</label>
+                  <input type="number" step="0.01" value={editingItem.zinc || ''} onChange={e => setEditingItem({ ...editingItem, zinc: e.target.value ? parseFloat(e.target.value) : null })} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Vit. C (mg)</label>
+                  <input type="number" step="0.1" value={editingItem.vitamin_c || ''} onChange={e => setEditingItem({ ...editingItem, vitamin_c: e.target.value ? parseFloat(e.target.value) : null })} placeholder="mg"
+                    style={{ width: '100%', padding: 10, fontSize: 15, border: '2px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
                 </div>
               </div>
 
