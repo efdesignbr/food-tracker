@@ -5,6 +5,7 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { PaywallModal } from '@/components/subscription';
 import { PLAN_LIMITS } from '@/lib/constants';
 import { api } from '@/lib/api-client';
+import { getCurrentDateTimeBR } from '@/lib/datetime';
 
 interface CoachAnalysis {
   id?: string;
@@ -80,17 +81,10 @@ export default function CoachPage() {
     setLoading(true);
     setError(null);
     try {
-      // Envia timestamp local do usuario (formato ISO sem timezone)
-      const now = new Date();
-      const localDate = now.getFullYear() + '-' +
-        String(now.getMonth() + 1).padStart(2, '0') + '-' +
-        String(now.getDate()).padStart(2, '0') + ' ' +
-        String(now.getHours()).padStart(2, '0') + ':' +
-        String(now.getMinutes()).padStart(2, '0') + ':' +
-        String(now.getSeconds()).padStart(2, '0');
+      const { date, time } = getCurrentDateTimeBR();
 
       const res = await api.post('/api/coach/analyze', {
-        analysis_date: localDate
+        analysis_date: `${date} ${time}`
       });
       const data = await res.json();
 
