@@ -1,7 +1,7 @@
 # DOCUMENTACAO COMPLETA - FOOD TRACKER
 
-**Versao:** 1.2
-**Data:** 28/12/2024
+**Versao:** 1.3
+**Data:** 29/12/2024
 **Autor:** Documentacao gerada automaticamente
 
 ---
@@ -325,6 +325,39 @@ Cadastro de lojas/estabelecimentos onde as compras sao realizadas.
 **Relacionamentos:**
 - `shopping_lists.store_id` referencia `stores.id`
 
+### 2.18 Tabela: user_dietary_restrictions
+
+Restricoes alimentares do usuario (alergias, intolerancias, dietas, etc).
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| id | UUID (PK) | Identificador unico |
+| user_id | UUID (FK) | Usuario |
+| tenant_id | UUID (FK) | Tenant |
+| restriction_type | VARCHAR(20) | allergy, intolerance, diet, religious, medical, preference |
+| restriction_value | VARCHAR(100) | Valor da restricao (ex: gluten, lactose, vegetarian) |
+| severity | VARCHAR(20) | mild, moderate, severe (principalmente para alergias) |
+| notes | TEXT | Observacoes adicionais |
+| created_at | TIMESTAMP | Data de criacao |
+| updated_at | TIMESTAMP | Data de atualizacao |
+
+**Constraint:**
+- UNIQUE (user_id, tenant_id, restriction_type, restriction_value)
+
+**Indices:**
+- `idx_dietary_restrictions_user` - (user_id, tenant_id)
+- `idx_dietary_restrictions_type` - (restriction_type)
+
+**Tipos de Restricao:**
+| Tipo | Descricao | Exemplos |
+|------|-----------|----------|
+| allergy | Alergias alimentares | gluten, lactose, amendoim, frutos do mar, ovo, soja |
+| intolerance | Intolerancias | lactose, frutose, histamina, FODMAPs |
+| diet | Dietas por escolha | vegetariano, vegano, low carb, cetogenica, paleo |
+| religious | Restricoes religiosas | halal, kosher, sem carne de porco, sem carne bovina |
+| medical | Condicoes medicas | diabetes, hipertensao, doenca celiaca, gota |
+| preference | Preferencias pessoais | sem acucar refinado, apenas organicos, sem ultraprocessados |
+
 ---
 
 ## 3. PAGINAS DA APLICACAO
@@ -439,16 +472,28 @@ A calculadora recalcula automaticamente:
 - Util para produtos pesaveis onde o preco final so e conhecido na hora
 
 **Fluxo de finalizacao:**
-1. Usuario marca todos os itens como comprados
-2. Botao "Finalizar Lista" aparece
+1. Usuario compra itens e marca como comprados
+2. Botao "Finalizar Lista" aparece quando ha pelo menos 1 item comprado
 3. Modal abre para selecionar/criar loja
-4. Lista e marcada como completed com store_id
+4. Se houver itens NAO comprados:
+   - Sistema exibe aviso com quantidade de itens pendentes
+   - Apos selecionar loja, passo 2 pergunta nome para nova lista
+   - Itens nao comprados sao transferidos para nova lista automaticamente
+5. Lista original e marcada como completed com store_id
+6. Nova lista (se criada) fica com status active
+
+**Transferencia de itens pendentes:**
+- Itens nao comprados sao copiados para nova lista
+- Mantem: nome, quantidade, unidade, categoria, notas, preco unitario
+- Reseta: is_purchased = false, price = null, purchased_at = null
+- Lista original mantem registro completo para historico de gastos
 
 **APIs consumidas:**
 - GET/POST/PATCH/DELETE /api/shopping-lists
 - GET/POST /api/shopping-lists/items
 - GET /api/shopping-lists/suggestions
 - POST /api/shopping-lists/duplicate
+- POST /api/shopping-lists/complete
 - GET /api/shopping-lists/stats
 - GET/POST /api/stores
 
@@ -518,6 +563,12 @@ A calculadora recalcula automaticamente:
   - Sugere fontes alimentares naturais para nutrientes em baixa
   - Tom profissional e educativo (nao faz diagnosticos medicos)
   - Recomenda consultar profissional de saude para avaliacao completa
+- **Integracao com Restricoes Alimentares:**
+  - Busca automatica das restricoes do usuario
+  - Inclui restricoes no contexto enviado a IA
+  - Agrupa por tipo (alergias, intolerancias, dietas, etc)
+  - Informa severidade de alergias (leve, moderada, grave)
+  - Diretrizes especificas para recomendacoes seguras
 
 **Valores de Referencia (RDA) utilizados:**
 | Nutriente | RDA/dia |
@@ -557,8 +608,55 @@ A calculadora recalcula automaticamente:
 - Edicao de perfil
 - Metas nutricionais
 - Visualizacao de plano
+- Acesso a restricoes alimentares
 - Deletar conta
 - Logout
+
+### 3.10.1 /restricoes (Restricoes Alimentares)
+
+**Proposito:** Gerenciar alergias, intolerancias, dietas e outras restricoes alimentares.
+
+**Funcionalidades:**
+- Interface com abas por tipo de restricao (6 categorias)
+- Selecao de restricoes pre-definidas (chips clicaveis)
+- Adicao de restricoes personalizadas
+- Configuracao de severidade para alergias (leve, moderada, grave)
+- Integracao automatica com Coach IA
+
+**Abas disponiveis:**
+| Aba | Cor | Descricao |
+|-----|-----|-----------|
+| Alergias | Vermelho | Alergias alimentares com indicador de severidade |
+| Intolerancias | Laranja | Intolerancias digestivas |
+| Dietas | Verde | Dietas por escolha (vegetariano, vegano, etc) |
+| Religiosas | Indigo | Restricoes religiosas (halal, kosher, etc) |
+| Medicas | Rosa | Condicoes medicas (diabetes, hipertensao, etc) |
+| Preferencias | Roxo | Preferencias pessoais |
+
+**Restricoes pre-definidas:**
+- **Alergias:** Gluten, Lactose, Amendoim, Castanhas/Nozes, Frutos do Mar, Peixes, Ovo, Soja, Trigo, Gergelim
+- **Intolerancias:** Lactose, Frutose, Histamina, FODMAPs
+- **Dietas:** Vegetariano, Vegano, Pescatariano, Low Carb, Cetogenica, Paleo, Mediterranea
+- **Religiosas:** Halal, Kosher, Sem Carne de Porco, Sem Carne Bovina
+- **Medicas:** Diabetes, Hipertensao, Doenca Celiaca, Fenilcetonuria, Gota, Doenca Renal
+- **Preferencias:** Sem Acucar Refinado, Apenas Organicos, Sem Ultraprocessados
+
+**Severidade de alergias:**
+- **Leve:** Desconforto leve, pode consumir em pequenas quantidades
+- **Moderada:** Reacao moderada, evitar consumo
+- **Grave:** Risco de anafilaxia, evitar completamente
+
+**Visual do chip de alergia selecionado:**
+- Nome da alergia em cima
+- Indicador colorido + nome da severidade embaixo
+- Botao X separado para remover
+- Clique na area principal abre modal de severidade
+
+**APIs consumidas:**
+- GET /api/dietary-restrictions
+- POST /api/dietary-restrictions
+- PATCH /api/dietary-restrictions
+- DELETE /api/dietary-restrictions?id=UUID
 
 ### 3.11 /upgrade (Planos)
 
@@ -699,6 +797,7 @@ A calculadora recalcula automaticamente:
 | DELETE | /api/shopping-lists/items | Deletar item |
 | GET | /api/shopping-lists/suggestions | Sugestoes baseadas em consumo |
 | POST | /api/shopping-lists/duplicate | Duplicar lista |
+| POST | /api/shopping-lists/complete | Finalizar lista com transferencia de pendentes |
 | GET | /api/shopping-lists/stats | Estatisticas para dashboard de gastos |
 
 **Campos do PATCH /api/shopping-lists/items:**
@@ -730,14 +829,60 @@ A calculadora recalcula automaticamente:
 }
 ```
 
-### 4.14 Relatorios
+**Campos do POST /api/shopping-lists/complete:**
+```json
+{
+  "list_id": "uuid-da-lista",
+  "store_id": "uuid-da-loja", // opcional
+  "new_list_name": "Pendentes Mercado - 29/12" // obrigatorio se houver itens nao comprados
+}
+```
+
+**Resposta do POST /api/shopping-lists/complete:**
+```json
+{
+  "ok": true,
+  "new_list": { "id": "uuid", "name": "..." }, // null se nao criou nova lista
+  "transferred_items": 3 // quantidade de itens transferidos
+}
+```
+
+### 4.14 Restricoes Alimentares
+
+| Metodo | Rota | Descricao |
+|--------|------|-----------|
+| GET | /api/dietary-restrictions | Listar restricoes do usuario |
+| POST | /api/dietary-restrictions | Adicionar restricao |
+| PATCH | /api/dietary-restrictions | Atualizar restricao (severidade, notas) |
+| DELETE | /api/dietary-restrictions?id=UUID | Remover restricao |
+
+**Campos do POST:**
+```json
+{
+  "restriction_type": "allergy", // allergy, intolerance, diet, religious, medical, preference
+  "restriction_value": "gluten",
+  "severity": "moderate", // opcional, para alergias: mild, moderate, severe
+  "notes": "Confirmado por exame" // opcional
+}
+```
+
+**Campos do PATCH:**
+```json
+{
+  "id": "uuid-da-restricao",
+  "severity": "severe",
+  "notes": "Atualizado apos reacao"
+}
+```
+
+### 4.15 Relatorios
 
 | Metodo | Rota | Descricao |
 |--------|------|-----------|
 | GET | /api/reports/analysis | Analise (PREMIUM) |
 | GET | /api/reports/inflammation | Inflamacao intestinal |
 
-### 4.15 Conta
+### 4.16 Conta
 
 | Metodo | Rota | Descricao |
 |--------|------|-----------|
@@ -803,6 +948,7 @@ A calculadora recalcula automaticamente:
   - shopping-list.repo.ts
   - store.repo.ts
   - bowel-movement.repo.ts
+  - dietary-restrictions.repo.ts
   - taco.repo.ts
 
 ### 6.5 Storage
@@ -961,6 +1107,7 @@ food-tracker/
 │   ├── coach/
 │   ├── objetivos/
 │   ├── restaurants/
+│   ├── restricoes/
 │   ├── account/
 │   ├── upgrade/
 │   ├── reports/
@@ -983,7 +1130,10 @@ food-tracker/
 │       │   ├── items/route.ts (POST, PATCH, DELETE itens)
 │       │   ├── suggestions/route.ts (GET sugestoes)
 │       │   ├── duplicate/route.ts (POST duplicar)
+│       │   ├── complete/route.ts (POST finalizar com transferencia)
 │       │   └── stats/route.ts (GET estatisticas)
+│       ├── dietary-restrictions/
+│       │   └── route.ts (GET, POST, PATCH, DELETE)
 │       ├── stores/
 │       ├── coach/
 │       ├── user/
@@ -1121,7 +1271,69 @@ Expansao do sistema de nutrientes de 7 campos basicos para 23 campos, incluindo 
 - Vitamina C: 90mg, A: 900mcg, B1: 1.2mg
 - B2: 1.3mg, B3: 16mg, B6: 1.7mg
 
+### 29/12/2024
+
+**Sistema de Restricoes Alimentares:**
+
+Nova funcionalidade para gerenciar alergias, intolerancias, dietas e outras restricoes alimentares do usuario.
+
+**Tabela `user_dietary_restrictions`:**
+- Campos: restriction_type, restriction_value, severity, notes
+- 6 tipos de restricao: allergy, intolerance, diet, religious, medical, preference
+- Severidade configuravel para alergias (mild, moderate, severe)
+- Constraint UNIQUE por usuario/tipo/valor
+
+**Nova pagina `/restricoes`:**
+- Interface com 6 abas coloridas por tipo
+- Restricoes pre-definidas como chips clicaveis
+- Adicao de restricoes personalizadas via modal
+- Alergias mostram severidade em chip expandido
+- Modal para editar severidade de alergias
+
+**Novos arquivos:**
+- `lib/constants/dietary-restrictions.ts` - Tipos e constantes
+- `lib/repos/dietary-restrictions.repo.ts` - Repository
+- `app/api/dietary-restrictions/route.ts` - API (GET, POST, PATCH, DELETE)
+- `app/restricoes/page.tsx` - Pagina de gerenciamento
+
+**Integracao com Coach IA:**
+- Busca automatica de restricoes em `gatherUserContext()`
+- Novo campo `dietaryRestrictions` no contexto
+- Secao dedicada no prompt com agrupamento por tipo
+- Diretrizes para recomendacoes seguras:
+  - NUNCA recomendar ingredientes de alergias
+  - Sugerir alternativas para intolerancias
+  - Respeitar dietas e restricoes religiosas
+  - Considerar condicoes medicas nas sugestoes
+
+**Atualizacao na pagina `/account`:**
+- Nova secao "Restricoes Alimentares" no accordion
+- Link para pagina `/restricoes`
+
+---
+
+**Finalizacao de Lista com Transferencia de Pendentes:**
+
+Novo fluxo permite finalizar lista mesmo com itens nao comprados.
+
+**Mudancas no fluxo:**
+- Botao "Finalizar" aparece quando ha pelo menos 1 item comprado
+- Se houver pendentes: aviso amarelo mostra quantidade
+- Apos selecionar loja, passo 2 pergunta nome da nova lista
+- Itens nao comprados transferidos automaticamente
+
+**Nova API `/api/shopping-lists/complete`:**
+- Recebe: list_id, store_id, new_list_name
+- Retorna: ok, new_list (se criada), transferred_items
+- Cria nova lista ativa com itens pendentes
+- Finaliza lista original como completed
+
+**Nova funcao no repository:**
+- `createListFromUnpurchasedItems()` em shopping-list.repo.ts
+- Copia itens nao comprados para nova lista
+- Mantem dados do item, reseta status de compra
+
 ---
 
 *Documentacao gerada em 25/12/2024*
-*Atualizada em 28/12/2024*
+*Atualizada em 29/12/2024*
