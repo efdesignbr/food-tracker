@@ -222,7 +222,7 @@ export default function ListaComprasPage() {
     }
   }
 
-  async function handleUpdateItemDetails(itemId: string, updates: { quantity?: number; unit?: string; price?: number | null }) {
+  async function handleUpdateItemDetails(itemId: string, updates: { quantity?: number; unit?: string; price?: number | null; unitPrice?: number | null }) {
     try {
       await api.patch(`/api/shopping-lists/items?id=${itemId}`, updates);
       if (selectedList) {
@@ -738,49 +738,128 @@ export default function ListaComprasPage() {
                   alignItems: 'center',
                   gap: 12,
                   padding: 12,
-                  background: 'white',
-                  border: '2px solid #e5e7eb',
+                  background: '#f0fdf4',
                   borderRadius: 12
                 }}
               >
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 15 }}>{item.name}</div>
-                  <div style={{ fontSize: 13, color: '#6b7280' }}>
-                    {item.quantity} {item.unit || 'un'}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: 15, color: '#374151' }}>{item.name}</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginTop: 6 }}>
+                    {/* Quantidade */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <label style={{ fontSize: 10, color: '#9ca3af' }}>Qtd</label>
+                      <div style={{
+                        width: 60,
+                        padding: '6px',
+                        fontSize: 13,
+                        background: 'white',
+                        border: '1px solid #d1d5db',
+                        borderRadius: 6,
+                        textAlign: 'center'
+                      }}>
+                        {item.quantity}
+                      </div>
+                    </div>
+
+                    {/* Unidade */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <label style={{ fontSize: 10, color: '#9ca3af' }}>Unid</label>
+                      <div style={{
+                        width: 50,
+                        padding: '6px',
+                        fontSize: 13,
+                        background: 'white',
+                        border: '1px solid #d1d5db',
+                        borderRadius: 6,
+                        textAlign: 'center'
+                      }}>
+                        {item.unit || 'un'}
+                      </div>
+                    </div>
+
+                    {/* Preço Unitário */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <label style={{ fontSize: 10, color: '#9ca3af' }}>R$ Unit.</label>
+                      {isEditingCompleted ? (
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0,00"
+                          defaultValue={item.unit_price ? Number(item.unit_price).toFixed(2) : ''}
+                          onBlur={(e) => {
+                            const value = e.target.value ? parseFloat(e.target.value) : null;
+                            handleUpdateItemDetails(item.id, { unitPrice: value });
+                          }}
+                          style={{
+                            width: 70,
+                            padding: '6px',
+                            fontSize: 13,
+                            border: '1px solid #d1d5db',
+                            borderRadius: 6,
+                            textAlign: 'right'
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: 70,
+                          padding: '6px',
+                          fontSize: 13,
+                          background: 'white',
+                          border: '1px solid #d1d5db',
+                          borderRadius: 6,
+                          textAlign: 'right'
+                        }}>
+                          {item.unit_price ? Number(item.unit_price).toFixed(2) : '-'}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Preço Total */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <label style={{ fontSize: 10, color: '#166534', fontWeight: 600 }}>R$ Total</label>
+                      {isEditingCompleted ? (
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0,00"
+                          defaultValue={item.price ? Number(item.price).toFixed(2) : ''}
+                          onBlur={(e) => {
+                            const value = e.target.value ? parseFloat(e.target.value) : null;
+                            if (value !== item.price) {
+                              handleUpdatePrice(item.id, value);
+                            }
+                          }}
+                          style={{
+                            width: 80,
+                            padding: '6px',
+                            fontSize: 13,
+                            border: '1px solid #10b981',
+                            borderRadius: 6,
+                            textAlign: 'right',
+                            fontWeight: 600,
+                            color: '#166534'
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: 80,
+                          padding: '6px',
+                          fontSize: 13,
+                          background: 'white',
+                          border: '1px solid #10b981',
+                          borderRadius: 6,
+                          textAlign: 'right',
+                          fontWeight: 600,
+                          color: '#166534'
+                        }}>
+                          {item.price ? Number(item.price).toFixed(2) : '-'}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-                {isEditingCompleted ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 13, color: '#6b7280' }}>R$</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0,00"
-                      defaultValue={item.price || ''}
-                      onBlur={(e) => {
-                        const value = e.target.value ? parseFloat(e.target.value) : null;
-                        if (value !== item.price) {
-                          handleUpdatePrice(item.id, value);
-                        }
-                      }}
-                      style={{
-                        width: 70,
-                        padding: '6px 8px',
-                        fontSize: 14,
-                        border: '1px solid #e5e7eb',
-                        borderRadius: 6,
-                        textAlign: 'right'
-                      }}
-                    />
-                  </div>
-                ) : (
-                  item.price && (
-                    <div style={{ fontSize: 14, fontWeight: 600, color: '#166534' }}>
-                      {formatPrice(Number(item.price))}
-                    </div>
-                  )
-                )}
               </div>
             ))}
           </div>
