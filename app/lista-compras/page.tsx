@@ -89,6 +89,15 @@ export default function ListaComprasPage() {
   const [completeStep, setCompleteStep] = useState<1 | 2>(1);
   const [newListNameForTransfer, setNewListNameForTransfer] = useState('');
 
+  // Scan receipt states
+  const [showScanModal, setShowScanModal] = useState(false);
+  const [scanLoading, setScanLoading] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [scanListName, setScanListName] = useState('');
+  const [scanStoreId, setScanStoreId] = useState<string>('');
+  const [showScanNewStore, setShowScanNewStore] = useState(false);
+  const [scanNewStoreName, setScanNewStoreName] = useState('');
+
   useEffect(() => {
     fetchLists();
     fetchStores();
@@ -477,6 +486,74 @@ export default function ListaComprasPage() {
   function formatDate(dateStr: string) {
     const date = new Date(dateStr);
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  }
+
+  function openScanModal() {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    setScanListName(`Compras ${dateStr}`);
+    setScanStoreId('');
+    setShowScanNewStore(false);
+    setScanNewStoreName('');
+    setScanError(null);
+    setShowScanModal(true);
+  }
+
+  async function handleScanReceipt(e: React.FormEvent) {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const fileInput = form.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = fileInput?.files?.[0];
+
+    if (!file) {
+      setScanError('Selecione uma imagem da nota fiscal');
+      return;
+    }
+
+    setScanLoading(true);
+    setScanError(null);
+
+    try {
+      let storeId = scanStoreId || null;
+
+      if (showScanNewStore && scanNewStoreName.trim()) {
+        const storeRes = await api.post('/api/stores', { name: scanNewStoreName.trim() });
+        const storeJson = await storeRes.json();
+        if (storeRes.ok && storeJson.store) {
+          storeId = storeJson.store.id;
+          await fetchStores();
+        }
+      }
+
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('name', scanListName || `Compras ${new Date().toLocaleDateString('pt-BR')}`);
+      if (storeId) {
+        formData.append('store_id', storeId);
+      }
+
+      const res = await fetch('/api/shopping-lists/scan-receipt', {
+        method: 'POST',
+        body: formData
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json.error || 'Erro ao analisar nota');
+      }
+
+      setShowScanModal(false);
+      await fetchLists();
+
+      if (json.list?.id) {
+        openCompletedList({ id: json.list.id, name: json.list.name } as ShoppingList);
+      }
+    } catch (err: any) {
+      setScanError(err.message || 'Erro ao processar nota fiscal');
+    } finally {
+      setScanLoading(false);
+    }
   }
 
   const activeLists = lists.filter(l => l.status === 'active');
@@ -1595,13 +1672,13 @@ export default function ListaComprasPage() {
   // Lista principal
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700 }}>Lista de Compras</h1>
-        <div style={{ display: 'flex', gap: 12 }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16 }}>Lista de Compras</h1>
+        <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={() => router.push('/lista-compras/dashboard')}
             style={{
-              padding: '0 16px',
+              flex: 1,
               height: 44,
               background: 'white',
               color: '#374151',
@@ -1612,35 +1689,64 @@ export default function ListaComprasPage() {
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
-              gap: 8
+              justifyContent: 'center',
+              gap: 6
             }}
-            title="Painel de Gastos"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 20V10M12 20V4M6 20v-6" />
             </svg>
             Painel
           </button>
           <button
+            onClick={openScanModal}
+            style={{
+              flex: 1,
+              height: 44,
+              background: '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <line x1="7" y1="8" x2="17" y2="8" />
+              <line x1="7" y1="12" x2="13" y2="12" />
+              <line x1="7" y1="16" x2="10" y2="16" />
+            </svg>
+            Nota
+          </button>
+          <button
             onClick={() => setShowNewListModal(true)}
             style={{
-              width: 44,
+              flex: 1,
               height: 44,
               background: '#2196F3',
               color: 'white',
               border: 'none',
               borderRadius: 8,
               cursor: 'pointer',
-              fontSize: 28,
-              fontWeight: 400,
+              fontSize: 14,
+              fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              lineHeight: 1
+              gap: 6
             }}
-            title="Nova lista"
           >
-            +
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Nova
           </button>
         </div>
       </div>
@@ -1999,6 +2105,213 @@ export default function ListaComprasPage() {
                   }}
                 >
                   Duplicar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Scan Nota Fiscal */}
+      {showScanModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24,
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            padding: 24,
+            width: '100%',
+            maxWidth: 400
+          }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Escanear Nota Fiscal</h2>
+            <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>
+              Tire uma foto da nota para importar os itens automaticamente.
+            </p>
+
+            <form onSubmit={handleScanReceipt}>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                  Nome da lista
+                </label>
+                <input
+                  type="text"
+                  value={scanListName}
+                  onChange={e => setScanListName(e.target.value)}
+                  placeholder="Ex: Compras 29/12"
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    fontSize: 16,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                  Loja (opcional)
+                </label>
+                {!showScanNewStore ? (
+                  <>
+                    <select
+                      value={scanStoreId}
+                      onChange={e => setScanStoreId(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: 12,
+                        fontSize: 16,
+                        border: '2px solid #e5e7eb',
+                        borderRadius: 8,
+                        marginBottom: 8,
+                        boxSizing: 'border-box',
+                        background: 'white'
+                      }}
+                    >
+                      <option value="">Selecione uma loja</option>
+                      {stores.map(store => (
+                        <option key={store.id} value={store.id}>{store.name}</option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => setShowScanNewStore(true)}
+                      style={{
+                        width: '100%',
+                        padding: 10,
+                        background: '#f3f4f6',
+                        border: '1px dashed #d1d5db',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontSize: 14,
+                        color: '#6b7280'
+                      }}
+                    >
+                      + Nova loja
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      value={scanNewStoreName}
+                      onChange={e => setScanNewStoreName(e.target.value)}
+                      placeholder="Nome da loja"
+                      style={{
+                        width: '100%',
+                        padding: 12,
+                        fontSize: 16,
+                        border: '2px solid #e5e7eb',
+                        borderRadius: 8,
+                        marginBottom: 8,
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => { setShowScanNewStore(false); setScanNewStoreName(''); }}
+                      style={{
+                        width: '100%',
+                        padding: 10,
+                        background: '#f3f4f6',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontSize: 14,
+                        color: '#6b7280'
+                      }}
+                    >
+                      Voltar para lista
+                    </button>
+                  </>
+                )}
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                  Foto da nota *
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    fontSize: 14,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    boxSizing: 'border-box',
+                    background: '#f9fafb'
+                  }}
+                />
+                <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
+                  Tire uma foto clara da nota fiscal completa
+                </p>
+              </div>
+
+              {scanError && (
+                <div style={{
+                  padding: 12,
+                  background: '#fee2e2',
+                  border: '2px solid #ef4444',
+                  borderRadius: 8,
+                  color: '#991b1b',
+                  marginBottom: 16,
+                  fontSize: 14
+                }}>
+                  {scanError}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowScanModal(false)}
+                  disabled={scanLoading}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: '#f3f4f6',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: scanLoading ? 'not-allowed' : 'pointer',
+                    fontSize: 16,
+                    fontWeight: 600,
+                    opacity: scanLoading ? 0.7 : 1
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={scanLoading}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: scanLoading ? '#9ca3af' : '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: scanLoading ? 'not-allowed' : 'pointer',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                >
+                  {scanLoading ? 'Analisando...' : 'Escanear'}
                 </button>
               </div>
             </form>

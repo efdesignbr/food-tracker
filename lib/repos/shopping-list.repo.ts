@@ -749,3 +749,64 @@ export async function getShoppingStats(args: {
     client.release();
   }
 }
+
+// ============ SCAN RECEIPT ============
+
+export interface ReceiptItemInput {
+  name: string;
+  quantity: number;
+  unit: string;
+  unit_price: number;
+  total_price: number;
+}
+
+export async function createListFromReceipt(args: {
+  tenantId: string;
+  userId: string;
+  name: string;
+  storeId?: string | null;
+  items: ReceiptItemInput[];
+}): Promise<ShoppingList> {
+  const pool = getPool();
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+    await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
+
+    const listResult = await client.query<ShoppingList>(
+      `INSERT INTO shopping_lists (tenant_id, user_id, name, status, store_id, completed_at)
+       VALUES ($1, $2, $3, 'completed', $4, NOW())
+       RETURNING *`,
+      [args.tenantId, args.userId, args.name, args.storeId || null]
+    );
+    const newList = listResult.rows[0];
+
+    for (const item of args.items) {
+      await client.query(
+        `INSERT INTO shopping_items (
+          tenant_id, list_id, name, quantity, unit,
+          is_purchased, purchased_at, price, unit_price, source
+        )
+        VALUES ($1, $2, $3, $4, $5, true, NOW(), $6, $7, 'manual')`,
+        [
+          args.tenantId,
+          newList.id,
+          item.name,
+          item.quantity,
+          item.unit,
+          item.total_price,
+          item.unit_price
+        ]
+      );
+    }
+
+    await client.query('COMMIT');
+    return newList;
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}
