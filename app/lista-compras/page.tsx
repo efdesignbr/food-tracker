@@ -85,6 +85,10 @@ export default function ListaComprasPage() {
   const [showAllCompleted, setShowAllCompleted] = useState(false);
   const [editStoreId, setEditStoreId] = useState<string>('');
 
+  // Complete with transfer states
+  const [completeStep, setCompleteStep] = useState<1 | 2>(1);
+  const [newListNameForTransfer, setNewListNameForTransfer] = useState('');
+
   useEffect(() => {
     fetchLists();
     fetchStores();
@@ -305,11 +309,25 @@ export default function ListaComprasPage() {
     setSelectedStoreId('');
     setShowNewStoreInput(false);
     setNewStoreName('');
+    setCompleteStep(1);
+    setNewListNameForTransfer('');
     setShowCompleteModal(true);
   }
 
   async function handleCompleteList() {
     if (!selectedList) return;
+
+    const hasPendingItems = pendingItems.length > 0;
+
+    // Se está no passo 1 e há itens pendentes, vai para passo 2
+    if (completeStep === 1 && hasPendingItems) {
+      // Sugestão de nome para nova lista
+      const today = new Date();
+      const dateStr = today.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      setNewListNameForTransfer(`Pendentes ${selectedList.name} - ${dateStr}`);
+      setCompleteStep(2);
+      return;
+    }
 
     try {
       let storeId = selectedStoreId || null;
@@ -324,15 +342,27 @@ export default function ListaComprasPage() {
         }
       }
 
-      await api.patch(`/api/shopping-lists/${selectedList.id}`, {
-        status: 'completed',
-        store_id: storeId
+      // Usar o novo endpoint de complete
+      const res = await api.post('/api/shopping-lists/complete', {
+        list_id: selectedList.id,
+        store_id: storeId,
+        new_list_name: hasPendingItems ? newListNameForTransfer : undefined
       });
+
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error || 'Erro ao finalizar lista');
+      }
 
       setShowCompleteModal(false);
       setSelectedList(null);
       setItems([]);
       await fetchLists();
+
+      // Se criou nova lista, mostrar mensagem ou abrir
+      if (json.new_list) {
+        fetchListDetails(json.new_list.id);
+      }
     } catch (e) {
       console.error('Erro ao finalizar lista:', e);
     }
@@ -1172,7 +1202,7 @@ export default function ListaComprasPage() {
         )}
 
         {/* Complete List Button */}
-        {pendingItems.length === 0 && items.length > 0 && (
+        {purchasedItems.length > 0 && (
           <button
             onClick={openCompleteModal}
             style={{
@@ -1188,6 +1218,11 @@ export default function ListaComprasPage() {
             }}
           >
             Finalizar Lista
+            {pendingItems.length > 0 && (
+              <span style={{ fontSize: 13, fontWeight: 400, marginLeft: 8 }}>
+                ({pendingItems.length} pendente{pendingItems.length > 1 ? 's' : ''})
+              </span>
+            )}
           </button>
         )}
 
@@ -1213,122 +1248,220 @@ export default function ListaComprasPage() {
               width: '100%',
               maxWidth: 400
             }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Finalizar Lista</h2>
-              <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>
-                Onde voce fez as compras?
-              </p>
-
-              {!showNewStoreInput ? (
+              {completeStep === 1 ? (
                 <>
-                  <select
-                    value={selectedStoreId}
-                    onChange={e => setSelectedStoreId(e.target.value)}
-                    style={{
-                      width: '100%',
+                  <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Finalizar Lista</h2>
+
+                  {pendingItems.length > 0 && (
+                    <div style={{
                       padding: 12,
-                      fontSize: 16,
-                      border: '2px solid #e5e7eb',
+                      background: '#fef3c7',
                       borderRadius: 8,
-                      marginBottom: 12,
-                      boxSizing: 'border-box',
-                      background: 'white'
-                    }}
-                  >
-                    <option value="">Selecione uma loja (opcional)</option>
-                    {stores.map(store => (
-                      <option key={store.id} value={store.id}>{store.name}</option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => setShowNewStoreInput(true)}
-                    style={{
-                      width: '100%',
-                      padding: 10,
-                      background: '#f3f4f6',
-                      border: '1px dashed #d1d5db',
-                      borderRadius: 8,
-                      cursor: 'pointer',
+                      marginBottom: 16,
                       fontSize: 14,
-                      color: '#6b7280',
-                      marginBottom: 16
-                    }}
-                  >
-                    + Adicionar nova loja
-                  </button>
+                      color: '#92400e'
+                    }}>
+                      {pendingItems.length} item(ns) ainda nao comprado(s). Serao transferidos para uma nova lista.
+                    </div>
+                  )}
+
+                  <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>
+                    Onde voce fez as compras?
+                  </p>
+
+                  {!showNewStoreInput ? (
+                    <>
+                      <select
+                        value={selectedStoreId}
+                        onChange={e => setSelectedStoreId(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: 12,
+                          fontSize: 16,
+                          border: '2px solid #e5e7eb',
+                          borderRadius: 8,
+                          marginBottom: 12,
+                          boxSizing: 'border-box',
+                          background: 'white'
+                        }}
+                      >
+                        <option value="">Selecione uma loja (opcional)</option>
+                        {stores.map(store => (
+                          <option key={store.id} value={store.id}>{store.name}</option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => setShowNewStoreInput(true)}
+                        style={{
+                          width: '100%',
+                          padding: 10,
+                          background: '#f3f4f6',
+                          border: '1px dashed #d1d5db',
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          fontSize: 14,
+                          color: '#6b7280',
+                          marginBottom: 16
+                        }}
+                      >
+                        + Adicionar nova loja
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <input
+                        type="text"
+                        value={newStoreName}
+                        onChange={e => setNewStoreName(e.target.value)}
+                        placeholder="Nome da loja (ex: Carrefour Centro)"
+                        style={{
+                          width: '100%',
+                          padding: 12,
+                          fontSize: 16,
+                          border: '2px solid #e5e7eb',
+                          borderRadius: 8,
+                          marginBottom: 12,
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { setShowNewStoreInput(false); setNewStoreName(''); }}
+                        style={{
+                          width: '100%',
+                          padding: 10,
+                          background: '#f3f4f6',
+                          border: 'none',
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          fontSize: 14,
+                          color: '#6b7280',
+                          marginBottom: 16
+                        }}
+                      >
+                        Voltar para lista de lojas
+                      </button>
+                    </>
+                  )}
+
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowCompleteModal(false)}
+                      style={{
+                        flex: 1,
+                        padding: 12,
+                        background: '#f3f4f6',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontSize: 16,
+                        fontWeight: 600
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCompleteList}
+                      style={{
+                        flex: 1,
+                        padding: 12,
+                        background: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontSize: 16,
+                        fontWeight: 600
+                      }}
+                    >
+                      {pendingItems.length > 0 ? 'Proximo' : 'Finalizar'}
+                    </button>
+                  </div>
                 </>
               ) : (
                 <>
+                  <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Itens Pendentes</h2>
+
+                  <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 8 }}>
+                    Os seguintes itens nao foram comprados:
+                  </p>
+
+                  <div style={{
+                    maxHeight: 150,
+                    overflowY: 'auto',
+                    padding: 12,
+                    background: '#f9fafb',
+                    borderRadius: 8,
+                    marginBottom: 16
+                  }}>
+                    {pendingItems.map(item => (
+                      <div key={item.id} style={{ fontSize: 14, color: '#374151', marginBottom: 4 }}>
+                        • {item.name} ({item.quantity} {item.unit || 'un'})
+                      </div>
+                    ))}
+                  </div>
+
+                  <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 8 }}>
+                    Qual nome dar para a nova lista com esses itens?
+                  </p>
+
                   <input
                     type="text"
-                    value={newStoreName}
-                    onChange={e => setNewStoreName(e.target.value)}
-                    placeholder="Nome da loja (ex: Carrefour Centro)"
+                    value={newListNameForTransfer}
+                    onChange={e => setNewListNameForTransfer(e.target.value)}
+                    placeholder="Nome da nova lista"
                     style={{
                       width: '100%',
                       padding: 12,
                       fontSize: 16,
                       border: '2px solid #e5e7eb',
                       borderRadius: 8,
-                      marginBottom: 12,
+                      marginBottom: 16,
                       boxSizing: 'border-box'
                     }}
                   />
-                  <button
-                    type="button"
-                    onClick={() => { setShowNewStoreInput(false); setNewStoreName(''); }}
-                    style={{
-                      width: '100%',
-                      padding: 10,
-                      background: '#f3f4f6',
-                      border: 'none',
-                      borderRadius: 8,
-                      cursor: 'pointer',
-                      fontSize: 14,
-                      color: '#6b7280',
-                      marginBottom: 16
-                    }}
-                  >
-                    Voltar para lista de lojas
-                  </button>
+
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <button
+                      type="button"
+                      onClick={() => setCompleteStep(1)}
+                      style={{
+                        flex: 1,
+                        padding: 12,
+                        background: '#f3f4f6',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontSize: 16,
+                        fontWeight: 600
+                      }}
+                    >
+                      Voltar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCompleteList}
+                      disabled={!newListNameForTransfer.trim()}
+                      style={{
+                        flex: 1,
+                        padding: 12,
+                        background: newListNameForTransfer.trim() ? '#10b981' : '#9ca3af',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: newListNameForTransfer.trim() ? 'pointer' : 'not-allowed',
+                        fontSize: 16,
+                        fontWeight: 600
+                      }}
+                    >
+                      Finalizar
+                    </button>
+                  </div>
                 </>
               )}
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button
-                  type="button"
-                  onClick={() => setShowCompleteModal(false)}
-                  style={{
-                    flex: 1,
-                    padding: 12,
-                    background: '#f3f4f6',
-                    border: 'none',
-                    borderRadius: 8,
-                    cursor: 'pointer',
-                    fontSize: 16,
-                    fontWeight: 600
-                  }}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCompleteList}
-                  style={{
-                    flex: 1,
-                    padding: 12,
-                    background: '#10b981',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 8,
-                    cursor: 'pointer',
-                    fontSize: 16,
-                    fontWeight: 600
-                  }}
-                >
-                  Finalizar
-                </button>
-              </div>
             </div>
           </div>
         )}

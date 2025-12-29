@@ -539,6 +539,47 @@ export async function duplicateShoppingList(args: {
   }
 }
 
+export async function createListFromUnpurchasedItems(args: {
+  tenantId: string;
+  userId: string;
+  sourceListId: string;
+  newName: string;
+}): Promise<ShoppingList> {
+  const pool = getPool();
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+    await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
+
+    // Criar nova lista
+    const listResult = await client.query<ShoppingList>(
+      `INSERT INTO shopping_lists (tenant_id, user_id, name)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [args.tenantId, args.userId, args.newName]
+    );
+    const newList = listResult.rows[0];
+
+    // Copiar apenas itens NÃO comprados da lista original (resetando para is_purchased = false)
+    await client.query(
+      `INSERT INTO shopping_items (tenant_id, list_id, name, quantity, unit, category, source, source_id, notes, unit_price)
+       SELECT $1, $2, name, quantity, unit, category, source, source_id, notes, unit_price
+       FROM shopping_items
+       WHERE list_id = $3 AND tenant_id = $1 AND is_purchased = false`,
+      [args.tenantId, newList.id, args.sourceListId]
+    );
+
+    await client.query('COMMIT');
+    return newList;
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
 export async function getSuggestionsFromPreviousLists(args: {
   tenantId: string;
   userId: string;
