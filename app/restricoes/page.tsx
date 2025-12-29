@@ -263,10 +263,13 @@ export default function RestricoesPage() {
             const selected = isSelected(option.value);
             const restriction = getRestriction(option.value);
             const severityLevel = restriction ? SEVERITY_LEVELS.find(s => s.value === restriction.severity) : null;
+            const isAllergy = activeTab === 'allergy';
 
-            return (
-              <div key={option.value} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            // Chip nao selecionado ou nao-alergia selecionado
+            if (!selected || !isAllergy) {
+              return (
                 <button
+                  key={option.value}
                   onClick={() => toggleRestriction(option.value)}
                   disabled={saving}
                   style={{
@@ -285,34 +288,76 @@ export default function RestricoesPage() {
                   }}
                 >
                   {option.label}
-                  {selected && (
-                    <span style={{ fontSize: 12 }}>x</span>
-                  )}
+                  {selected && <span style={{ fontSize: 12 }}>x</span>}
+                </button>
+              );
+            }
+
+            // Chip de alergia selecionado - formato expandido
+            return (
+              <div
+                key={option.value}
+                style={{
+                  display: 'flex',
+                  alignItems: 'stretch',
+                  background: tabConfig.color,
+                  borderRadius: 12,
+                  overflow: 'hidden'
+                }}
+              >
+                {/* Area principal - clica para editar severidade */}
+                <button
+                  onClick={() => restriction && openSeverityModal(restriction)}
+                  disabled={saving}
+                  style={{
+                    padding: '8px 12px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: saving ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    gap: 2
+                  }}
+                >
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>
+                    {option.label}
+                  </span>
+                  <span style={{
+                    fontSize: 11,
+                    color: 'rgba(255,255,255,0.9)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4
+                  }}>
+                    <span style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: '50%',
+                      background: severityLevel?.color || '#fed7aa'
+                    }} />
+                    {severityLevel?.label || 'Moderada'}
+                  </span>
                 </button>
 
-                {/* Severity button for allergies - separate clickable button */}
-                {selected && activeTab === 'allergy' && restriction && (
-                  <button
-                    onClick={() => openSeverityModal(restriction)}
-                    disabled={saving}
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: 16,
-                      border: 'none',
-                      background: severityLevel?.color || '#fed7aa',
-                      cursor: saving ? 'not-allowed' : 'pointer',
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: '#92400e',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4
-                    }}
-                  >
-                    {severityLevel?.label || 'Moderada'}
-                    <span style={{ fontSize: 10 }}>▼</span>
-                  </button>
-                )}
+                {/* Botao X para remover */}
+                <button
+                  onClick={() => toggleRestriction(option.value)}
+                  disabled={saving}
+                  style={{
+                    padding: '0 12px',
+                    background: 'rgba(0,0,0,0.1)',
+                    border: 'none',
+                    borderLeft: '1px solid rgba(255,255,255,0.2)',
+                    cursor: saving ? 'not-allowed' : 'pointer',
+                    color: 'white',
+                    fontSize: 16,
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  x
+                </button>
               </div>
             );
           })}
