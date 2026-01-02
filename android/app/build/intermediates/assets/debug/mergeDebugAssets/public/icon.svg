@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#2196F3" rx="128"/>
+  <g fill="#ffffff">
+    <!-- Fork -->
+    <path d="M180 140 c-5 0 -10 2 -10 7 l0 40 c0 5 5 7 10 7 c5 0 10 -2 10 -7 l0 -120 c0 -15 -10 -25 -25 -25 c-15 0 -25 10 -25 25 l0 120 c0 5 5 7 10 7 c5 0 10 -2 10 -7 l0 -40 c0 -5 -5 -7 -10 -7"/>
+
+    <!--  Spoon -->
+    <path d="M320 140 c-20 0 -35 15 -35 35 c0 15 10 28 24 32 l0 168 c0 15 10 25 25 25 c15 0 25 -10 25 -25 l0 -168 c14 -4 24 -17 24 -32 c0 -20 -15 -35 -35 -35"/>
+
+    <!-- Plate -->
+    <ellipse cx="256" cy="360" rx="140" ry="40" fill="none" stroke="#ffffff" stroke-width="20"/>
+    <path d="M116 360 Q 116 320, 256 320 Q 396 320, 396 360" fill="none" stroke="#ffffff" stroke-width="15"/>
+  </g>
+</svg>

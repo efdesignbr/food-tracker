@@ -1,0 +1,8 @@
+{
+	"appId": "br.com.foodtracker.app",
+	"appName": "Food Tracker",
+	"webDir": "out",
+	"ios": {
+		"contentInset": "never"
+	}
+}

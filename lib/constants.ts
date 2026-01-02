@@ -50,36 +50,51 @@ export const PERIOD = {
 // 💎 Subscription Plans & Quotas
 export const PLAN_LIMITS = {
   free: {
-    /** Análises de foto de refeições por mês */
-    photo_analyses_per_month: 15,
+    /** Análises de foto - ilimitado (controle via rewarded ads no frontend) */
+    photo_analyses_per_month: 999999,
 
-    /** Análises de tabela nutricional (OCR) por mês */
-    ocr_analyses_per_month: 15,
+    /** Análises de tabela nutricional (OCR) - ilimitado (controle via ads) */
+    ocr_analyses_per_month: 999999,
 
-    /** Análises de texto por mês */
-    text_analyses_per_month: 15,
+    /** Análises de texto - ilimitado (controle via ads) */
+    text_analyses_per_month: 999999,
+
+    /** Coach IA - ilimitado (controle via ads) */
+    coach_analyses_per_month: 999999,
+
+    /** Relatórios IA - ilimitado (controle via ads) */
+    report_analyses_per_month: 999999,
 
     /** Dias de histórico disponível (FREE limitado a 30 dias) */
     history_days: 30,
 
     /** Coach IA disponível? */
-    coach_ai: false,
+    coach_ai: true,
 
     /** Relatórios avançados disponíveis? */
-    advanced_reports: false,
+    advanced_reports: true,
 
     /** Exportação de dados disponível? */
     data_export: false,
+
+    /** Exibe rewarded ads antes de cada uso */
+    show_ads: true,
   },
   premium: {
-    /** Análises de foto de refeições por mês */
-    photo_analyses_per_month: 15,
+    /** Análises de foto de refeições por mês (5/dia × 30 dias) */
+    photo_analyses_per_month: 150,
 
     /** Análises de tabela nutricional (OCR) por mês */
-    ocr_analyses_per_month: 15,
+    ocr_analyses_per_month: 150,
 
-    /** Análises de texto por mês */
-    text_analyses_per_month: 15,
+    /** Análises de texto por mês (5/dia × 30 dias) */
+    text_analyses_per_month: 150,
+
+    /** Coach IA por mês */
+    coach_analyses_per_month: 3,
+
+    /** Relatórios IA por mês */
+    report_analyses_per_month: 3,
 
     /** Dias de histórico disponível (null = ilimitado) */
     history_days: null,
@@ -92,6 +107,9 @@ export const PLAN_LIMITS = {
 
     /** Exportação de dados disponível? */
     data_export: true,
+
+    /** Sem anúncios */
+    show_ads: false,
   },
   unlimited: {
     /** Análises ilimitadas (para admins/owners) */
@@ -103,6 +121,12 @@ export const PLAN_LIMITS = {
     /** Análises ilimitadas (para admins/owners) */
     text_analyses_per_month: 999999,
 
+    /** Coach ilimitado */
+    coach_analyses_per_month: 999999,
+
+    /** Relatórios ilimitados */
+    report_analyses_per_month: 999999,
+
     /** Histórico ilimitado */
     history_days: null,
 
@@ -110,6 +134,9 @@ export const PLAN_LIMITS = {
     coach_ai: true,
     advanced_reports: true,
     data_export: true,
+
+    /** Sem anúncios */
+    show_ads: false,
   },
 } as const;
 

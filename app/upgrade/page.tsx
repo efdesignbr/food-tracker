@@ -24,24 +24,24 @@ interface PricingPlan {
 
 const FAQ_ITEMS = [
   {
-    question: 'Como funciona o período de teste?',
-    answer: 'Atualmente não oferecemos período de teste, mas você pode começar gratuitamente com o plano FREE e fazer upgrade quando precisar dos recursos premium.'
+    question: 'Qual a diferença entre FREE e PREMIUM?',
+    answer: 'No FREE você tem uso ilimitado, mas precisa assistir um anúncio antes de cada análise. No PREMIUM você não vê anúncios e tem limites generosos (150 fotos/mês, 150 textos/mês).'
   },
   {
     question: 'Posso cancelar a qualquer momento?',
     answer: 'Sim! Você pode cancelar sua assinatura a qualquer momento. Continuará tendo acesso aos recursos premium até o final do período pago.'
   },
   {
-    question: 'O que acontece se eu atingir o limite mensal?',
-    answer: 'Se você atingir o limite de 90 fotos ou 30 análises de tabelas, precisará aguardar até o próximo mês (dia 1º) para a renovação automática da quota.'
+    question: 'O que acontece se eu atingir o limite no PREMIUM?',
+    answer: 'Se atingir o limite mensal, você pode usar o modo FREE (com anúncios) ou aguardar até o próximo mês (dia 1º) para a renovação automática.'
   },
   {
     question: 'Meus dados ficam salvos se eu cancelar?',
-    answer: 'Sim! Seu histórico completo fica salvo. Se você voltar para o plano FREE, terá acesso aos últimos 30 dias. Ao reativar o PREMIUM, todo o histórico volta a ficar disponível.'
+    answer: 'Sim! Seu histórico completo fica salvo. Se você voltar para o plano FREE, terá acesso aos últimos 30 dias. Ao reativar o PREMIUM, todo o histórico volta.'
   },
   {
-    question: 'Como funciona o pagamento?',
-    answer: 'O pagamento é processado de forma segura via Stripe. Aceitamos cartões de crédito e débito. A cobrança é mensal e automática.'
+    question: 'Qual a diferença entre mensal e anual?',
+    answer: 'No plano anual você paga R$ 4,99/mês (economia de 66%!). No mensal, o valor é R$ 14,90/mês. Ambos têm os mesmos recursos.'
   }
 ];
 
@@ -54,31 +54,31 @@ export default function UpgradePage() {
     {
       name: 'FREE',
       price: 'Grátis',
-      description: 'Perfeito para começar',
+      description: 'Uso ilimitado com anúncios',
       features: [
-        { text: 'Registro manual ilimitado de refeições', included: true },
-        { text: 'Análise de fotos com IA', included: false },
-        { text: 'Análise de tabelas nutricionais (OCR)', included: false },
-        { text: 'Histórico de 30 dias', included: true },
-        { text: 'Coach IA personalizado', included: false },
-        { text: 'Relatórios avançados', included: false }
+        { text: 'Análise de fotos ilimitada', included: true },
+        { text: 'Análise de texto ilimitada', included: true },
+        { text: 'Coach IA ilimitado', included: true },
+        { text: 'Relatórios IA ilimitados', included: true },
+        { text: 'Rewarded ads antes de cada uso', included: true },
+        { text: 'Histórico de 30 dias', included: true }
       ],
       buttonText: plan === 'free' ? 'Plano Atual' : 'Voltar para FREE',
       buttonVariant: 'secondary'
     },
     {
       name: 'PREMIUM',
-      price: 'R$ 14,90',
-      period: '/mês',
-      description: 'Recursos completos para resultados reais',
-      badge: 'Mais Popular',
+      price: 'R$ 4,99',
+      period: '/mês (anual)',
+      description: 'Sem anúncios, experiência completa',
+      badge: 'Melhor Custo-Benefício',
       features: [
-        { text: 'Tudo do FREE, mais:', included: true, highlight: true },
-        { text: '90 análises de foto por mês', included: true, highlight: true },
-        { text: '30 análises de tabelas por mês', included: true, highlight: true },
-        { text: 'Histórico ilimitado', included: true },
-        { text: 'Coach IA personalizado', included: true },
-        { text: 'Relatórios avançados', included: true }
+        { text: 'Sem anúncios', included: true, highlight: true },
+        { text: '150 análises de foto/mês', included: true, highlight: true },
+        { text: '150 análises de texto/mês', included: true },
+        { text: '3 Coach IA/mês', included: true },
+        { text: '3 Relatórios IA/mês', included: true },
+        { text: 'Histórico ilimitado', included: true }
       ],
       buttonText: plan === 'premium' ? 'Plano Atual' : 'Assinar PREMIUM',
       buttonVariant: 'primary'
