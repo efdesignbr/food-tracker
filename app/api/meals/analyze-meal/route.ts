@@ -150,9 +150,7 @@ export async function POST(req: NextRequest) {
       const foodsForAI: any[] = [];
 
       for (const f of foodsToEstimate) {
-        console.log('[DEBUG TACO] Buscando alimento:', JSON.stringify(f));
         const tacoMatch = await searchTacoByName(f.name);
-        console.log('[DEBUG TACO] Resultado TACO:', JSON.stringify(tacoMatch));
         if (tacoMatch && tacoMatch.calories) {
           // Encontrou na TACO - calcular valores proporcionais à quantidade
           // TACO tem valores por 100g, precisamos extrair a quantidade em gramas
@@ -202,9 +200,8 @@ export async function POST(req: NextRequest) {
           }
 
           const multiplier = qtyInGrams / 100;
-          console.log('[DEBUG TACO] qtyInGrams:', qtyInGrams, 'multiplier:', multiplier);
 
-          const tacoFood = {
+          foodsFromTaco.push({
             ...f,
             calories: Math.round((tacoMatch.calories || 0) * multiplier),
             protein_g: Math.round(((tacoMatch.protein || 0) * multiplier) * 10) / 10,
@@ -213,9 +210,7 @@ export async function POST(req: NextRequest) {
             fiber_g: tacoMatch.fiber ? Math.round((tacoMatch.fiber * multiplier) * 10) / 10 : null,
             sodium_mg: tacoMatch.sodium ? Math.round(tacoMatch.sodium * multiplier) : null,
             source: 'taco'
-          };
-          console.log('[DEBUG TACO] Resultado final:', JSON.stringify(tacoFood));
-          foodsFromTaco.push(tacoFood);
+          });
         } else {
           // Não encontrou na TACO - vai para IA
           foodsForAI.push(f);
