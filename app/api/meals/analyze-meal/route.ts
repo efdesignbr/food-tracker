@@ -8,6 +8,38 @@ import { checkQuota, incrementQuota } from '@/lib/quota';
 import { searchTacoByName } from '@/lib/repos/taco.repo';
 import type { Plan } from '@/lib/types/subscription';
 
+// Pesos padrão em gramas para 1 unidade de alimentos comuns
+const PESO_PADRAO: Record<string, number> = {
+  'ovo': 50,
+  'banana': 100,
+  'maca': 130,
+  'maça': 130,
+  'laranja': 150,
+  'pao': 50,
+  'pao frances': 50,
+  'pao de forma': 25,
+  'fatia de pao': 25,
+  'torrada': 15,
+  'biscoito': 8,
+  'bolacha': 8,
+  'arroz': 100,
+  'feijao': 80,
+  'frango': 100,
+  'carne': 100,
+  'peixe': 100,
+  'leite': 200,
+  'iogurte': 170,
+  'queijo': 30,
+  'presunto': 20,
+  'tomate': 100,
+  'alface': 20,
+  'cenoura': 80,
+  'batata': 150,
+  'mandioca': 100,
+  'cafe': 50,
+  'suco': 200,
+};
+
 export async function POST(req: NextRequest) {
   try {
     // Autenticação
@@ -118,14 +150,16 @@ export async function POST(req: NextRequest) {
       const foodsForAI: any[] = [];
 
       for (const f of foodsToEstimate) {
+        console.log('[DEBUG TACO] Buscando alimento:', JSON.stringify(f));
         const tacoMatch = await searchTacoByName(f.name);
+        console.log('[DEBUG TACO] Resultado TACO:', JSON.stringify(tacoMatch));
         if (tacoMatch && tacoMatch.calories) {
           // Encontrou na TACO - calcular valores proporcionais à quantidade
           // TACO tem valores por 100g, precisamos extrair a quantidade em gramas
 
           // Tenta extrair quantidade do nome (ex: "150g arroz" -> 150)
           const qtyMatch = f.name.match(/^(\d+)\s*(g|ml|kg|l)\s+/i);
-          let qtyInGrams = f.quantity || 100;
+          let qtyInGrams = 100; // Padrão: assume 100g (base TACO)
 
           if (qtyMatch) {
             const num = parseFloat(qtyMatch[1]);
@@ -133,14 +167,44 @@ export async function POST(req: NextRequest) {
             if (unit === 'kg') qtyInGrams = num * 1000;
             else if (unit === 'l') qtyInGrams = num * 1000;
             else qtyInGrams = num; // g ou ml
-          } else if (f.unit && f.unit.toLowerCase().includes('g')) {
-            // Se a unidade é gramas, usa a quantidade diretamente
-            qtyInGrams = f.quantity || 100;
+          } else if (f.unit) {
+            const unitLower = f.unit.toLowerCase();
+            // Se a unidade indica peso/volume, usa a quantidade informada
+            if (unitLower === 'g' || unitLower === 'ml' || unitLower.includes('grama') || unitLower.includes('ml')) {
+              qtyInGrams = f.quantity || 100;
+            } else if (unitLower === 'kg' || unitLower.includes('quilo')) {
+              qtyInGrams = (f.quantity || 1) * 1000;
+            } else if (unitLower === 'l' || unitLower.includes('litro')) {
+              qtyInGrams = (f.quantity || 1) * 1000;
+            } else {
+              // Unidade não indica peso (porção, unidade, etc.)
+              // Tenta usar peso padrão do alimento
+              const nameNormalized = f.name.toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+              // Busca peso padrão pelo nome ou parte dele
+              let pesoPadrao = PESO_PADRAO[nameNormalized];
+              if (!pesoPadrao) {
+                // Tenta encontrar pelo início do nome
+                for (const [key, peso] of Object.entries(PESO_PADRAO)) {
+                  if (nameNormalized.startsWith(key) || nameNormalized.includes(key)) {
+                    pesoPadrao = peso;
+                    break;
+                  }
+                }
+              }
+
+              if (pesoPadrao) {
+                qtyInGrams = pesoPadrao * (f.quantity || 1);
+              }
+              // Se não encontrou peso padrão, mantém 100g
+            }
           }
 
           const multiplier = qtyInGrams / 100;
+          console.log('[DEBUG TACO] qtyInGrams:', qtyInGrams, 'multiplier:', multiplier);
 
-          foodsFromTaco.push({
+          const tacoFood = {
             ...f,
             calories: Math.round((tacoMatch.calories || 0) * multiplier),
             protein_g: Math.round(((tacoMatch.protein || 0) * multiplier) * 10) / 10,
@@ -149,7 +213,9 @@ export async function POST(req: NextRequest) {
             fiber_g: tacoMatch.fiber ? Math.round((tacoMatch.fiber * multiplier) * 10) / 10 : null,
             sodium_mg: tacoMatch.sodium ? Math.round(tacoMatch.sodium * multiplier) : null,
             source: 'taco'
-          });
+          };
+          console.log('[DEBUG TACO] Resultado final:', JSON.stringify(tacoFood));
+          foodsFromTaco.push(tacoFood);
         } else {
           // Não encontrou na TACO - vai para IA
           foodsForAI.push(f);

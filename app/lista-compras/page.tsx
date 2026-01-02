@@ -98,6 +98,15 @@ export default function ListaComprasPage() {
   const [showScanNewStore, setShowScanNewStore] = useState(false);
   const [scanNewStoreName, setScanNewStoreName] = useState('');
 
+  // Edit item modal states
+  const [showEditItemModal, setShowEditItemModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<ShoppingItem | null>(null);
+  const [editItemName, setEditItemName] = useState('');
+  const [editItemQuantity, setEditItemQuantity] = useState('');
+  const [editItemUnit, setEditItemUnit] = useState('');
+  const [editItemUnitPrice, setEditItemUnitPrice] = useState('');
+  const [editItemPrice, setEditItemPrice] = useState('');
+
   useEffect(() => {
     fetchLists();
     fetchStores();
@@ -233,6 +242,25 @@ export default function ListaComprasPage() {
     }
   }
 
+  // Converte quantidade para unidade de referência do preço (ex: 500g -> 0.5kg)
+  function convertQuantityForPrice(quantity: number, unit: string | null): number {
+    const u = (unit || 'un').toLowerCase();
+    // Se a unidade é gramas, assume preço por kg
+    if (u === 'g') return quantity / 1000;
+    // Se a unidade é ml, assume preço por litro
+    if (u === 'ml') return quantity / 1000;
+    // Outras unidades: quantidade direta
+    return quantity;
+  }
+
+  // Converte de volta para a unidade original (ex: 0.5kg -> 500g)
+  function convertQuantityFromPrice(quantity: number, unit: string | null): number {
+    const u = (unit || 'un').toLowerCase();
+    if (u === 'g') return quantity * 1000;
+    if (u === 'ml') return quantity * 1000;
+    return quantity;
+  }
+
   async function handleSmartPriceUpdate(
     item: ShoppingItem,
     field: 'quantity' | 'unit_price' | 'price',
@@ -240,28 +268,34 @@ export default function ListaComprasPage() {
   ) {
     let updates: { quantity?: number; unit_price?: number; price?: number } = {};
 
+    // Quantidade convertida para unidade de referência (ex: 500g -> 0.5kg)
+    const getConvertedQty = (qty: number) => convertQuantityForPrice(qty, item.unit);
+
     // Lógica da Calculadora Inteligente
     if (field === 'quantity') {
       updates.quantity = value;
+      const convertedQty = getConvertedQty(value);
       // Se mudar quantidade e tiver preço unitário, recalcula total
       if (item.unit_price) {
-        updates.price = Number((value * item.unit_price).toFixed(2));
+        updates.price = Number((convertedQty * item.unit_price).toFixed(2));
       }
       // Se tiver total mas não unitário, recalcula unitário (caso de pesáveis)
-      else if (item.price && value > 0) {
-        updates.unit_price = Number((item.price / value).toFixed(2));
+      else if (item.price && convertedQty > 0) {
+        updates.unit_price = Number((item.price / convertedQty).toFixed(2));
       }
     } else if (field === 'unit_price') {
       updates.unit_price = value;
-      // Se mudar unitário, recalcula total baseado na quantidade atual
-      if (item.quantity) {
-        updates.price = Number((item.quantity * value).toFixed(2));
+      const convertedQty = getConvertedQty(item.quantity);
+      // Se mudar unitário, recalcula total baseado na quantidade convertida
+      if (convertedQty > 0) {
+        updates.price = Number((convertedQty * value).toFixed(2));
       }
     } else if (field === 'price') {
       updates.price = value;
-      // Se mudar total, recalcula unitário baseado na quantidade atual
-      if (item.quantity && item.quantity > 0) {
-        updates.unit_price = Number((value / item.quantity).toFixed(2));
+      const convertedQty = getConvertedQty(item.quantity);
+      // Se mudar total, recalcula unitário baseado na quantidade convertida
+      if (convertedQty > 0) {
+        updates.unit_price = Number((value / convertedQty).toFixed(2));
       }
     }
 
@@ -296,6 +330,47 @@ export default function ListaComprasPage() {
       }
     } catch (e) {
       console.error('Erro ao remover item:', e);
+    }
+  }
+
+  function openEditItemModal(item: ShoppingItem) {
+    setEditingItem(item);
+    setEditItemName(item.name);
+    setEditItemQuantity(String(item.quantity));
+    setEditItemUnit(item.unit || '');
+    setEditItemUnitPrice(item.unit_price ? String(item.unit_price) : '');
+    setEditItemPrice(item.price ? String(item.price) : '');
+    setShowEditItemModal(true);
+  }
+
+  async function handleSaveEditItem() {
+    if (!editingItem || !editItemName.trim()) return;
+
+    try {
+      const updates: any = {
+        name: editItemName.trim(),
+        quantity: parseFloat(editItemQuantity) || 1,
+        unit: editItemUnit || null,
+      };
+
+      // Só inclui preços se tiver valores
+      if (editItemUnitPrice) {
+        updates.unitPrice = parseFloat(editItemUnitPrice);
+      }
+      if (editItemPrice) {
+        updates.price = parseFloat(editItemPrice);
+      }
+
+      await api.patch(`/api/shopping-lists/items?id=${editingItem.id}`, updates);
+
+      setShowEditItemModal(false);
+      setEditingItem(null);
+
+      if (selectedList) {
+        await fetchListDetails(selectedList.id);
+      }
+    } catch (e) {
+      console.error('Erro ao salvar item:', e);
     }
   }
 
@@ -860,6 +935,27 @@ export default function ListaComprasPage() {
                     </div>
                   </div>
                 </div>
+                <button
+                  onClick={() => openEditItemModal(item)}
+                  style={{
+                    padding: '6px 10px',
+                    background: '#dbeafe',
+                    border: '1px solid #93c5fd',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    color: '#1e40af',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}
+                  title="Editar item"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
               </div>
             ))}
           </div>
@@ -964,6 +1060,169 @@ export default function ListaComprasPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Item Modal (lista concluída) */}
+        {showEditItemModal && editingItem && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24,
+            zIndex: 1000
+          }}>
+            <div style={{
+              background: 'white',
+              borderRadius: 16,
+              padding: 24,
+              width: '100%',
+              maxWidth: 400
+            }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Editar Item</h2>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                  Nome do item *
+                </label>
+                <input
+                  type="text"
+                  value={editItemName}
+                  onChange={e => setEditItemName(e.target.value)}
+                  placeholder="Ex: Arroz integral"
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    fontSize: 16,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                    Quantidade
+                  </label>
+                  <input
+                    type="number"
+                    step="0.001"
+                    value={editItemQuantity}
+                    onChange={e => setEditItemQuantity(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      fontSize: 16,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                    Unidade
+                  </label>
+                  <input
+                    type="text"
+                    value={editItemUnit}
+                    onChange={e => setEditItemUnit(e.target.value)}
+                    placeholder="kg, g, un, L..."
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      fontSize: 16,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                    R$ Unitário
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editItemUnitPrice}
+                    onChange={e => setEditItemUnitPrice(e.target.value)}
+                    placeholder="0,00"
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      fontSize: 16,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                    R$ Total
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editItemPrice}
+                    onChange={e => setEditItemPrice(e.target.value)}
+                    placeholder="0,00"
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      fontSize: 16,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => { setShowEditItemModal(false); setEditingItem(null); }}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: '#f3f4f6',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveEditItem}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                >
+                  Salvar
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -1086,6 +1345,26 @@ export default function ListaComprasPage() {
                       {item.quantity} {item.unit || 'un'}
                     </div>
                   </div>
+                  <button
+                    onClick={() => openEditItemModal(item)}
+                    style={{
+                      padding: '6px 10px',
+                      background: '#dbeafe',
+                      border: '1px solid #93c5fd',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      color: '#1e40af',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                    title="Editar item"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
                   <button
                     onClick={() => handleDeleteItem(item.id)}
                     style={{
@@ -1741,6 +2020,171 @@ export default function ListaComprasPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Item Modal */}
+        {showEditItemModal && editingItem && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24,
+            zIndex: 1000
+          }}>
+            <div style={{
+              background: 'white',
+              borderRadius: 16,
+              padding: 24,
+              width: '100%',
+              maxWidth: 400
+            }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Editar Item</h2>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                  Nome do item *
+                </label>
+                <input
+                  type="text"
+                  value={editItemName}
+                  onChange={e => setEditItemName(e.target.value)}
+                  placeholder="Ex: Arroz integral"
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    fontSize: 16,
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                    Quantidade
+                  </label>
+                  <input
+                    type="number"
+                    step="0.001"
+                    value={editItemQuantity}
+                    onChange={e => setEditItemQuantity(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      fontSize: 16,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                    Unidade
+                  </label>
+                  <input
+                    type="text"
+                    value={editItemUnit}
+                    onChange={e => setEditItemUnit(e.target.value)}
+                    placeholder="kg, g, un, L..."
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      fontSize: 16,
+                      border: '2px solid #e5e7eb',
+                      borderRadius: 8,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+              </div>
+              {editingItem.is_purchased && (
+                <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                      R$ Unitário
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editItemUnitPrice}
+                      onChange={e => setEditItemUnitPrice(e.target.value)}
+                      placeholder="0,00"
+                      style={{
+                        width: '100%',
+                        padding: 12,
+                        fontSize: 16,
+                        border: '2px solid #e5e7eb',
+                        borderRadius: 8,
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                      R$ Total
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editItemPrice}
+                      onChange={e => setEditItemPrice(e.target.value)}
+                      placeholder="0,00"
+                      style={{
+                        width: '100%',
+                        padding: 12,
+                        fontSize: 16,
+                        border: '2px solid #e5e7eb',
+                        borderRadius: 8,
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => { setShowEditItemModal(false); setEditingItem(null); }}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: '#f3f4f6',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveEditItem}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                >
+                  Salvar
+                </button>
+              </div>
             </div>
           </div>
         )}

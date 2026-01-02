@@ -318,7 +318,7 @@ export default function HomePage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, flex: 1 }}>
             {/* Proteína */}
             <div style={{
-              background: `linear-gradient(to top, #4d7c0f ${Math.min((todayStats.protein / goals.protein) * 100, 100)}%, #ef4444 ${Math.min((todayStats.protein / goals.protein) * 100, 100)}%)`,
+              background: `linear-gradient(to top, #16a34a ${Math.min((todayStats.protein / goals.protein) * 100, 100)}%, #6b7280 ${Math.min((todayStats.protein / goals.protein) * 100, 100)}%)`,
               borderRadius: 10,
               padding: 12,
               textAlign: 'center'
@@ -334,7 +334,7 @@ export default function HomePage() {
 
             {/* Carboidratos */}
             <div style={{
-              background: `linear-gradient(to top, #4d7c0f ${Math.min((todayStats.carbs / goals.carbs) * 100, 100)}%, #ef4444 ${Math.min((todayStats.carbs / goals.carbs) * 100, 100)}%)`,
+              background: `linear-gradient(to top, #16a34a ${Math.min((todayStats.carbs / goals.carbs) * 100, 100)}%, #6b7280 ${Math.min((todayStats.carbs / goals.carbs) * 100, 100)}%)`,
               borderRadius: 10,
               padding: 12,
               textAlign: 'center'
@@ -350,7 +350,7 @@ export default function HomePage() {
 
             {/* Gorduras */}
             <div style={{
-              background: `linear-gradient(to top, #4d7c0f ${Math.min((todayStats.fat / goals.fat) * 100, 100)}%, #ef4444 ${Math.min((todayStats.fat / goals.fat) * 100, 100)}%)`,
+              background: `linear-gradient(to top, #16a34a ${Math.min((todayStats.fat / goals.fat) * 100, 100)}%, #6b7280 ${Math.min((todayStats.fat / goals.fat) * 100, 100)}%)`,
               borderRadius: 10,
               padding: 12,
               textAlign: 'center'
@@ -366,7 +366,7 @@ export default function HomePage() {
 
             {/* Fibras */}
             <div style={{
-              background: `linear-gradient(to top, #4d7c0f ${Math.min((todayStats.fiber / 25) * 100, 100)}%, #ef4444 ${Math.min((todayStats.fiber / 25) * 100, 100)}%)`,
+              background: `linear-gradient(to top, #16a34a ${Math.min((todayStats.fiber / 25) * 100, 100)}%, #6b7280 ${Math.min((todayStats.fiber / 25) * 100, 100)}%)`,
               borderRadius: 10,
               padding: 12,
               textAlign: 'center'
@@ -382,7 +382,7 @@ export default function HomePage() {
 
             {/* Açúcar - vermelho sobe de baixo conforme consome (menos = melhor) */}
             <div style={{
-              background: `linear-gradient(to top, #ef4444 ${Math.min((todayStats.sugar / 50) * 100, 100)}%, #4d7c0f ${Math.min((todayStats.sugar / 50) * 100, 100)}%)`,
+              background: `linear-gradient(to top, #dc2626 ${Math.min((todayStats.sugar / 50) * 100, 100)}%, #6b7280 ${Math.min((todayStats.sugar / 50) * 100, 100)}%)`,
               borderRadius: 10,
               padding: 12,
               textAlign: 'center'
@@ -398,7 +398,7 @@ export default function HomePage() {
 
             {/* Sódio - vermelho sobe de baixo conforme consome (menos = melhor) */}
             <div style={{
-              background: `linear-gradient(to top, #ef4444 ${Math.min((todayStats.sodium / 2300) * 100, 100)}%, #4d7c0f ${Math.min((todayStats.sodium / 2300) * 100, 100)}%)`,
+              background: `linear-gradient(to top, #dc2626 ${Math.min((todayStats.sodium / 2300) * 100, 100)}%, #6b7280 ${Math.min((todayStats.sodium / 2300) * 100, 100)}%)`,
               borderRadius: 10,
               padding: 12,
               textAlign: 'center'

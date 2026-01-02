@@ -871,8 +871,8 @@ export default function ReportsPage() {
             </div>
           </div>
 
-          {/* Nutrientes + Calorias por Tipo lado a lado */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24, alignItems: 'stretch' }}>
+          {/* Nutrientes + Calorias por Tipo lado a lado (responsivo) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, marginBottom: 24, alignItems: 'stretch' }}>
             {/* Nutrientes */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
@@ -883,7 +883,7 @@ export default function ReportsPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12, flex: 1 }}>
                 {/* Proteína */}
                 <div style={{
-                  background: `linear-gradient(to top, #4d7c0f ${Math.min((stats.totalProtein / (goals.protein * stats.last7Days.length)) * 100, 100)}%, #ef4444 ${Math.min((stats.totalProtein / (goals.protein * stats.last7Days.length)) * 100, 100)}%)`,
+                  background: `linear-gradient(to top, #16a34a ${Math.min((stats.totalProtein / (goals.protein * stats.last7Days.length)) * 100, 100)}%, #6b7280 ${Math.min((stats.totalProtein / (goals.protein * stats.last7Days.length)) * 100, 100)}%)`,
                   borderRadius: 10,
                   padding: 12,
                   textAlign: 'center'
@@ -899,7 +899,7 @@ export default function ReportsPage() {
 
                 {/* Carboidratos */}
                 <div style={{
-                  background: `linear-gradient(to top, #4d7c0f ${Math.min((stats.totalCarbs / (goals.carbs * stats.last7Days.length)) * 100, 100)}%, #ef4444 ${Math.min((stats.totalCarbs / (goals.carbs * stats.last7Days.length)) * 100, 100)}%)`,
+                  background: `linear-gradient(to top, #16a34a ${Math.min((stats.totalCarbs / (goals.carbs * stats.last7Days.length)) * 100, 100)}%, #6b7280 ${Math.min((stats.totalCarbs / (goals.carbs * stats.last7Days.length)) * 100, 100)}%)`,
                   borderRadius: 10,
                   padding: 12,
                   textAlign: 'center'
@@ -915,7 +915,7 @@ export default function ReportsPage() {
 
                 {/* Gorduras */}
                 <div style={{
-                  background: `linear-gradient(to top, #4d7c0f ${Math.min((stats.totalFat / (goals.fat * stats.last7Days.length)) * 100, 100)}%, #ef4444 ${Math.min((stats.totalFat / (goals.fat * stats.last7Days.length)) * 100, 100)}%)`,
+                  background: `linear-gradient(to top, #16a34a ${Math.min((stats.totalFat / (goals.fat * stats.last7Days.length)) * 100, 100)}%, #6b7280 ${Math.min((stats.totalFat / (goals.fat * stats.last7Days.length)) * 100, 100)}%)`,
                   borderRadius: 10,
                   padding: 12,
                   textAlign: 'center'
@@ -931,7 +931,7 @@ export default function ReportsPage() {
 
                 {/* Fibra */}
                 <div style={{
-                  background: `linear-gradient(to top, #4d7c0f ${Math.min((stats.totalFiber / (25 * stats.last7Days.length)) * 100, 100)}%, #ef4444 ${Math.min((stats.totalFiber / (25 * stats.last7Days.length)) * 100, 100)}%)`,
+                  background: `linear-gradient(to top, #16a34a ${Math.min((stats.totalFiber / (25 * stats.last7Days.length)) * 100, 100)}%, #6b7280 ${Math.min((stats.totalFiber / (25 * stats.last7Days.length)) * 100, 100)}%)`,
                   borderRadius: 10,
                   padding: 12,
                   textAlign: 'center'
@@ -947,7 +947,7 @@ export default function ReportsPage() {
 
                 {/* Açúcar */}
                 <div style={{
-                  background: `linear-gradient(to top, #ef4444 ${Math.min((stats.totalSugar / (50 * stats.last7Days.length)) * 100, 100)}%, #4d7c0f ${Math.min((stats.totalSugar / (50 * stats.last7Days.length)) * 100, 100)}%)`,
+                  background: `linear-gradient(to top, #dc2626 ${Math.min((stats.totalSugar / (50 * stats.last7Days.length)) * 100, 100)}%, #6b7280 ${Math.min((stats.totalSugar / (50 * stats.last7Days.length)) * 100, 100)}%)`,
                   borderRadius: 10,
                   padding: 12,
                   textAlign: 'center'
@@ -963,7 +963,7 @@ export default function ReportsPage() {
 
                 {/* Sódio */}
                 <div style={{
-                  background: `linear-gradient(to top, #ef4444 ${Math.min((stats.totalSodium / (2300 * stats.last7Days.length)) * 100, 100)}%, #4d7c0f ${Math.min((stats.totalSodium / (2300 * stats.last7Days.length)) * 100, 100)}%)`,
+                  background: `linear-gradient(to top, #dc2626 ${Math.min((stats.totalSodium / (2300 * stats.last7Days.length)) * 100, 100)}%, #6b7280 ${Math.min((stats.totalSodium / (2300 * stats.last7Days.length)) * 100, 100)}%)`,
                   borderRadius: 10,
                   padding: 12,
                   textAlign: 'center'
