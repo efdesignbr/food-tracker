@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { api } from '@/lib/api-client';
 
 // Tipos
 interface Package {
@@ -111,13 +112,10 @@ export function usePurchase() {
       if (isPremium) {
         // Sincroniza com o backend
         try {
-          await fetch('/api/subscription/sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              customerInfo: result.customerInfo,
-            }),
+          await api.post('/api/subscription/sync', {
+            customerInfo: result.customerInfo,
           });
+          console.log('[Purchase] Sync success');
         } catch (syncErr) {
           console.error('[Purchase] Sync error:', syncErr);
         }
@@ -160,11 +158,8 @@ export function usePurchase() {
       if (isPremium) {
         // Sincroniza com o backend
         try {
-          await fetch('/api/subscription/sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ customerInfo }),
-          });
+          await api.post('/api/subscription/sync', { customerInfo });
+          console.log('[Purchase] Restore sync success');
         } catch (syncErr) {
           console.error('[Purchase] Sync error:', syncErr);
         }

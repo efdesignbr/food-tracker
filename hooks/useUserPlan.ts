@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 import type { Plan, SubscriptionStatus } from '@/lib/types/subscription';
 import { getUserPlan, getQuotaUsage, processQuotaData, type QuotaData } from '@/lib/api/subscription';
+import { api } from '@/lib/api-client';
 
 interface UserPlan {
   plan: Plan;
@@ -23,11 +24,8 @@ async function syncRevenueCatSubscription(): Promise<void> {
     const { Purchases } = await import('@revenuecat/purchases-capacitor');
     const { customerInfo } = await Purchases.getCustomerInfo();
 
-    await fetch('/api/subscription/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customerInfo }),
-    });
+    await api.post('/api/subscription/sync', { customerInfo });
+    console.log('[useUserPlan] Sync success');
   } catch (err) {
     // Silently fail - sync is best effort
     console.warn('[useUserPlan] Sync error:', err);
