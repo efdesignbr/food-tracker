@@ -145,3 +145,34 @@ export const QUOTA_TYPES = {
   OCR: 'ocr_analyses' as const,
   TEXT: 'text_analyses' as const,
 } as const;
+
+// 💳 RevenueCat Configuration
+export const REVENUECAT = {
+  /** ID do entitlement que da acesso premium */
+  ENTITLEMENT_ID: 'premium',
+
+  /** IDs dos produtos configurados no RevenueCat */
+  PRODUCTS: {
+    MONTHLY: 'premium_monthly',
+    ANNUAL: 'premium_annual',
+  },
+
+  /** Mapeamento de store do RevenueCat para banco de dados */
+  STORE_MAP: {
+    APP_STORE: 'app_store',
+    PLAY_STORE: 'play_store',
+  } as const,
+
+  /** Eventos que ativam a assinatura */
+  ACTIVATE_EVENTS: [
+    'INITIAL_PURCHASE',
+    'RENEWAL',
+    'UNCANCELLATION',
+  ] as const,
+
+  /** Eventos que desativam/expiram a assinatura */
+  DEACTIVATE_EVENTS: [
+    'EXPIRATION',
+    'CANCELLATION',
+  ] as const,
+} as const;
