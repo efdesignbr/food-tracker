@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
 import type { Plan, SubscriptionStatus } from '@/lib/types/subscription';
 import { getUserPlan, getQuotaUsage, processQuotaData, type QuotaData } from '@/lib/api/subscription';
 
@@ -11,6 +12,26 @@ interface UserPlan {
   isLoading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
+}
+
+/**
+ * Sincroniza o status da assinatura do RevenueCat com o backend
+ * Chamado apenas no mobile quando o app inicializa
+ */
+async function syncRevenueCatSubscription(): Promise<void> {
+  try {
+    const { Purchases } = await import('@revenuecat/purchases-capacitor');
+    const { customerInfo } = await Purchases.getCustomerInfo();
+
+    await fetch('/api/subscription/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerInfo }),
+    });
+  } catch (err) {
+    // Silently fail - sync is best effort
+    console.warn('[useUserPlan] Sync error:', err);
+  }
 }
 
 /**
@@ -39,10 +60,21 @@ export function useUserPlan(): UserPlan {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  // Ref para evitar multiplas sincronizacoes
+  const hasSynced = useRef(false);
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
       setError(null);
+
+      // No mobile, sincroniza com RevenueCat antes de buscar o plano
+      // Isso garante que o banco esta atualizado com o estado real da assinatura
+      const isMobile = Capacitor.isNativePlatform();
+      if (isMobile && !hasSynced.current) {
+        hasSynced.current = true;
+        await syncRevenueCatSubscription();
+      }
 
       // Busca o plano do usuário
       const userPlan = await getUserPlan();
