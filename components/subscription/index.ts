@@ -7,3 +7,4 @@ export { default as PlanBadge } from './PlanBadge';
 export { default as UpgradeButton } from './UpgradeButton';
 export { default as PaywallModal } from './PaywallModal';
 export { default as QuotaCard } from './QuotaCard';
+export { PaywallScreen } from './PaywallScreen';

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Capacitor } from '@capacitor/core';
 import { useUserPlan } from '@/hooks/useUserPlan';
-import { PlanBadge } from '@/components/subscription';
+import { PlanBadge, PaywallScreen } from '@/components/subscription';
 
 interface PricingFeature {
   text: string;
@@ -46,9 +47,15 @@ const FAQ_ITEMS = [
 ];
 
 export default function UpgradePage() {
-  const { plan, isLoading } = useUserPlan();
+  const { plan, isLoading, refetch } = useUserPlan();
   const router = useRouter();
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(Capacitor.isNativePlatform());
+  }, []);
 
   const plans: PricingPlan[] = [
     {
@@ -103,9 +110,18 @@ export default function UpgradePage() {
         return;
       }
 
-      // Mock: futuramente será redirect para Stripe Checkout
-      alert(' Checkout em desenvolvimento!\n\nEm breve você poderá assinar o PREMIUM diretamente por aqui. Por enquanto, entre em contato com o suporte.');
+      if (isMobile) {
+        setShowPaywall(true);
+      } else {
+        alert('Assinaturas disponíveis apenas no aplicativo.\n\nBaixe o app na App Store ou Google Play.');
+      }
     }
+  };
+
+  const handlePurchaseComplete = () => {
+    setShowPaywall(false);
+    refetch();
+    router.push('/account');
   };
 
   return (
@@ -446,6 +462,45 @@ export default function UpgradePage() {
           </button>
         </div>
       </div>
+
+      {/* Paywall Modal */}
+      {showPaywall && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: 16,
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 20,
+            maxWidth: 400,
+            width: '100%',
+            maxHeight: '80vh',
+            overflow: 'auto',
+          }}>
+            <div style={{
+              padding: '20px 20px 0',
+              textAlign: 'center',
+            }}>
+              <h2 style={{ fontSize: 24, fontWeight: 700, margin: 0, color: '#1a1a1a' }}>
+                Assinar Premium
+              </h2>
+            </div>
+            <PaywallScreen
+              onPurchaseComplete={handlePurchaseComplete}
+              onClose={() => setShowPaywall(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
