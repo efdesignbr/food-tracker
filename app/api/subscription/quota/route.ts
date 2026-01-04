@@ -8,6 +8,7 @@ import { getPool } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { getCurrentUser } from '@/lib/auth-helper';
 import { getCurrentMonthUsage } from '@/lib/quota';
+import { PLAN_LIMITS } from '@/lib/constants';
 
 /**
  * GET /api/subscription/quota
@@ -58,8 +59,8 @@ export async function GET(req: Request) {
 
       if (plan === 'premium') {
         limits = {
-          photo_analyses_per_month: 90,
-          ocr_analyses_per_month: 30
+          photo_analyses_per_month: PLAN_LIMITS.premium.photo_analyses_per_month,
+          ocr_analyses_per_month: PLAN_LIMITS.premium.ocr_analyses_per_month
         };
       } else if (plan === 'unlimited') {
         limits = {
@@ -73,7 +74,11 @@ export async function GET(req: Request) {
         month: usage.month,
         photo_analyses: usage.photo_analyses,
         ocr_analyses: usage.ocr_analyses,
-        limits
+        text_analyses: usage.text_analyses,
+        limits: {
+          ...limits,
+          text_analyses_per_month: plan === 'premium' ? PLAN_LIMITS.premium.text_analyses_per_month : (plan === 'unlimited' ? 999999 : 0)
+        }
       });
     } finally {
       client.release();

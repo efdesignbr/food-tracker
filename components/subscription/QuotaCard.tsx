@@ -1,7 +1,7 @@
 'use client';
 
 interface QuotaCardProps {
-  quotaType: 'photo' | 'ocr';
+  quotaType: 'photo' | 'ocr' | 'text';
   used: number;
   limit: number;
   percentage: number;
@@ -17,6 +17,11 @@ const QUOTA_CONFIG = {
   },
   ocr: {
     title: 'Análise de Tabelas',
+    icon: '',
+    unit: 'análises'
+  },
+  text: {
+    title: 'Análise de Texto',
     icon: '',
     unit: 'análises'
   }

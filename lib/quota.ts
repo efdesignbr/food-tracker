@@ -175,13 +175,15 @@ export async function getCurrentMonthUsage(
   month: string;
   photo_analyses: number;
   ocr_analyses: number;
+  text_analyses: number;
 }> {
   const quota = await getOrCreateQuota(userId, tenantId);
 
   return {
     month: quota.month,
     photo_analyses: quota.photo_analyses,
-    ocr_analyses: quota.ocr_analyses
+    ocr_analyses: quota.ocr_analyses,
+    text_analyses: (quota as any).text_analyses ?? 0
   };
 }
 

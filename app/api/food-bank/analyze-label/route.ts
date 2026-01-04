@@ -63,24 +63,21 @@ export async function POST(req: Request) {
     );
     const userPlan = (userData[0]?.plan || 'free') as Plan;
 
-    // FREE e PREMIUM: verificar quota
-    const quota = await checkQuota(session.userId, tenant.id, userPlan, 'ocr');
-    if (!quota.allowed) {
-      // Calcular próximo reset (dia 1º do próximo mês)
-      const now = new Date();
-      const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0));
-
-      return NextResponse.json(
-        {
-          error: 'quota_exceeded',
-          message: `Você atingiu o limite de ${quota.limit} análises de tabelas este mês`,
-          used: quota.used,
-          limit: quota.limit,
-          remaining: 0,
-          resetDate: nextMonth.toISOString(),
-        },
-        { status: 429 }
-      );
+    // Gate por anúncio: FREE sempre exige anúncio; PREMIUM exige ao estourar cota; UNLIMITED segue livre
+    const adCompleted = (req.headers.get('x-ad-completed') || '').trim() === '1';
+    if (userPlan !== 'unlimited') {
+      const quota = await checkQuota(session.userId, tenant.id, userPlan, 'ocr');
+      const needsAd = (userPlan === 'free') || (userPlan === 'premium' && !quota.allowed);
+      if (needsAd && !adCompleted) {
+        return NextResponse.json(
+          {
+            error: 'watch_ad_required',
+            feature: 'ocr_analysis',
+            currentPlan: userPlan,
+          },
+          { status: 403 }
+        );
+      }
     }
 
     // Processa e comprime a imagem

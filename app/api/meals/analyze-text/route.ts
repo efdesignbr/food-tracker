@@ -7,6 +7,9 @@ import { requireTenant } from '@/lib/tenant';
 import { analyzeMealFromText } from '@/lib/ai';
 import { init } from '@/lib/init';
 import { getCurrentUser } from '@/lib/auth-helper';
+import { getPool } from '@/lib/db';
+import { checkQuota, incrementQuota } from '@/lib/quota';
+import type { Plan } from '@/lib/types/subscription';
 
 export async function POST(req: Request) {
   try {
@@ -22,13 +25,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'forbidden' }, { status: 403 });
     }
 
-    // TODO: Implementar Reward Ads para usuários FREE
-    // Após aprovação na Apple Store, adicionar:
-    // 1. Verificação de créditos de análise (ganhos via Reward Ad)
-    // 2. Se FREE sem créditos, retornar 403 com error: 'watch_ad_required'
-    // 3. Decrementar crédito após análise bem-sucedida
-    // Custo estimado: ~$0.00024 por análise (Gemini 2.0 Flash)
-    // Reward Ad paga ~$0.01-0.03, cobre ~40-120 análises
+    // Gate por anúncio (FREE sempre; PREMIUM quando excede)
+    const pool = getPool();
+    const { rows: userData } = await pool.query<{ plan: Plan }>(
+      'SELECT plan FROM users WHERE id = $1',
+      [session.userId]
+    );
+    const userPlan = (userData[0]?.plan || 'free') as Plan;
+
+    const adCompleted = (req.headers.get('x-ad-completed') || '').trim() === '1';
+    if (userPlan !== 'unlimited') {
+      const quota = await checkQuota(session.userId, tenant.id, userPlan, 'text');
+      const needsAd = (userPlan === 'free') || (userPlan === 'premium' && !quota.allowed);
+      if (needsAd && !adCompleted) {
+        return NextResponse.json(
+          {
+            error: 'watch_ad_required',
+            feature: 'text_analysis',
+            currentPlan: userPlan,
+          },
+          { status: 403 }
+        );
+      }
+    }
 
     const body = await req.json();
     const input = AnalyzeTextSchema.parse(body);
@@ -37,6 +56,11 @@ export async function POST(req: Request) {
       location_type: input.location_type,
       restaurant_name: input.restaurant_name
     });
+    // ✅ Incrementar quota APÓS sucesso (exceto UNLIMITED)
+    if (userPlan !== 'unlimited') {
+      await incrementQuota(session.userId, tenant.id, 'text');
+    }
+
     return NextResponse.json({ ok: true, tenant, result });
   } catch (err: any) {
     const status = err instanceof Response ? err.status : 400;

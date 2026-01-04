@@ -419,6 +419,14 @@ export default function AccountPage() {
                           remaining={getQuotaInfo('ocr').remaining}
                           resetDate={quota.resetDate}
                         />
+                        <QuotaCard
+                          quotaType="text"
+                          used={getQuotaInfo('text').used}
+                          limit={getQuotaInfo('text').limit}
+                          percentage={getQuotaInfo('text').percentage}
+                          remaining={getQuotaInfo('text').remaining}
+                          resetDate={quota.resetDate}
+                        />
                       </div>
 
                       {/* Gerenciar assinatura (cancelar / voltar ao FREE) */}

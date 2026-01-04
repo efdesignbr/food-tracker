@@ -15,9 +15,11 @@ export interface QuotaUsageResponse {
   month: string;
   photo_analyses: number;
   ocr_analyses: number;
+  text_analyses: number;
   limits: {
     photo_analyses_per_month: number;
     ocr_analyses_per_month: number;
+    text_analyses_per_month: number;
   };
 }
 
@@ -29,6 +31,12 @@ export interface QuotaData {
     remaining: number;
   };
   ocr_analyses: {
+    used: number;
+    limit: number;
+    percentage: number;
+    remaining: number;
+  };
+  text_analyses: {
     used: number;
     limit: number;
     percentage: number;
@@ -77,6 +85,7 @@ export async function getQuotaUsage(): Promise<QuotaUsageResponse> {
 export function processQuotaData(quota: QuotaUsageResponse): QuotaData {
   const photoPercentage = (quota.photo_analyses / quota.limits.photo_analyses_per_month) * 100;
   const ocrPercentage = (quota.ocr_analyses / quota.limits.ocr_analyses_per_month) * 100;
+  const textPercentage = (quota.text_analyses / quota.limits.text_analyses_per_month) * 100;
 
   // Calcula a data de reset (primeiro dia do próximo mês)
   const now = new Date();
@@ -94,6 +103,12 @@ export function processQuotaData(quota: QuotaUsageResponse): QuotaData {
       limit: quota.limits.ocr_analyses_per_month,
       percentage: Math.round(ocrPercentage),
       remaining: quota.limits.ocr_analyses_per_month - quota.ocr_analyses
+    },
+    text_analyses: {
+      used: quota.text_analyses,
+      limit: quota.limits.text_analyses_per_month,
+      percentage: Math.round(textPercentage),
+      remaining: quota.limits.text_analyses_per_month - quota.text_analyses
     },
     resetDate
   };

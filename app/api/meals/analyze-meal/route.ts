@@ -96,35 +96,27 @@ export async function POST(req: NextRequest) {
     }
 
     // Buscar plano do usuário (necessário para verificação de quota)
-    let userPlan: Plan = 'free';
-    if (imageBase64) {
-      const pool = getPool();
-      const { rows: userData } = await pool.query<{ plan: Plan }>(
-        'SELECT plan FROM users WHERE id = $1',
-        [session.userId]
-      );
-      userPlan = (userData[0]?.plan || 'free') as Plan;
-    }
+    const pool = getPool();
+    const { rows: userData } = await pool.query<{ plan: Plan }>(
+      'SELECT plan FROM users WHERE id = $1',
+      [session.userId]
+    );
+    const userPlan = (userData[0]?.plan || 'free') as Plan;
 
-    // Verificar quota se tem foto (todos os planos têm limite, exceto UNLIMITED)
-    if (imageBase64) {
-      const quota = await checkQuota(session.userId, tenant.id, userPlan, 'photo');
-
-      if (!quota.allowed) {
-        // Calcular próximo reset (dia 1º do próximo mês)
-        const now = new Date();
-        const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0));
-
+    // Gate por anúncio (FREE sempre; PREMIUM quando excede)
+    const adCompleted = (req.headers.get('x-ad-completed') || '').trim() === '1';
+    if (userPlan !== 'unlimited') {
+      const quotaType = imageBase64 ? 'photo' : 'text';
+      const quota = await checkQuota(session.userId, tenant.id, userPlan, quotaType as any);
+      const needsAd = (userPlan === 'free') || (userPlan === 'premium' && !quota.allowed);
+      if (needsAd && !adCompleted) {
         return NextResponse.json(
           {
-            error: 'quota_exceeded',
-            message: `Você atingiu o limite de ${quota.limit} análises de foto este mês`,
-            used: quota.used,
-            limit: quota.limit,
-            remaining: 0,
-            resetDate: nextMonth.toISOString(),
+            error: 'watch_ad_required',
+            feature: imageBase64 ? 'photo_analysis' : 'text_analysis',
+            currentPlan: userPlan,
           },
-          { status: 429 }
+          { status: 403 }
         );
       }
     }

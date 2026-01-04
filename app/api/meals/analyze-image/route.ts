@@ -59,24 +59,21 @@ export async function POST(req: Request) {
     );
     const userPlan = (userData[0]?.plan || 'free') as Plan;
 
-    // Verificar quota (todos os planos têm limite, exceto UNLIMITED)
-    const quota = await checkQuota(session.userId, tenant.id, userPlan, 'photo');
-    if (!quota.allowed) {
-      // Calcular próximo reset (dia 1º do próximo mês)
-      const now = new Date();
-      const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0));
-
-      return NextResponse.json(
-        {
-          error: 'quota_exceeded',
-          message: `Você atingiu o limite de ${quota.limit} análises de foto este mês`,
-          used: quota.used,
-          limit: quota.limit,
-          remaining: 0,
-          resetDate: nextMonth.toISOString(),
-        },
-        { status: 429 }
-      );
+    // Gate por anúncio: FREE sempre exige anúncio; PREMIUM exige ao estourar cota; UNLIMITED segue livre
+    const adCompleted = (req.headers.get('x-ad-completed') || '').trim() === '1';
+    if (userPlan !== 'unlimited') {
+      const quota = await checkQuota(session.userId, tenant.id, userPlan, 'photo');
+      const needsAd = (userPlan === 'free') || (userPlan === 'premium' && !quota.allowed);
+      if (needsAd && !adCompleted) {
+        return NextResponse.json(
+          {
+            error: 'watch_ad_required',
+            feature: 'photo_analysis',
+            currentPlan: userPlan,
+          },
+          { status: 403 }
+        );
+      }
     }
 
     // Converte e comprime a imagem para JPEG (max 100kb)

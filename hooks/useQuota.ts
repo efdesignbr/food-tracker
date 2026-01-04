@@ -31,8 +31,8 @@ export interface QuotaInfo {
 }
 
 export interface UseQuotaResult {
-  canUseFeature: (feature: 'photo' | 'ocr') => boolean;
-  getQuotaInfo: (feature: 'photo' | 'ocr') => QuotaInfo;
+  canUseFeature: (feature: 'photo' | 'ocr' | 'text') => boolean;
+  getQuotaInfo: (feature: 'photo' | 'ocr' | 'text') => QuotaInfo;
   hasQuota: boolean;
 }
 
@@ -43,7 +43,7 @@ export function useQuota(
   /**
    * Verifica se o usuário pode usar um recurso
    */
-  const canUseFeature = (feature: 'photo' | 'ocr'): boolean => {
+  const canUseFeature = (feature: 'photo' | 'ocr' | 'text'): boolean => {
     // FREE nunca pode
     if (plan === 'free') return false;
 
@@ -55,7 +55,9 @@ export function useQuota(
 
     const featureData = feature === 'photo'
       ? quota.photo_analyses
-      : quota.ocr_analyses;
+      : feature === 'ocr'
+        ? quota.ocr_analyses
+        : quota.text_analyses;
 
     return featureData.remaining > 0;
   };
@@ -63,7 +65,7 @@ export function useQuota(
   /**
    * Retorna informações detalhadas sobre a quota de um recurso
    */
-  const getQuotaInfo = (feature: 'photo' | 'ocr'): QuotaInfo => {
+  const getQuotaInfo = (feature: 'photo' | 'ocr' | 'text'): QuotaInfo => {
     // FREE: sem acesso
     if (plan === 'free') {
       return {
@@ -78,7 +80,11 @@ export function useQuota(
     // UNLIMITED: "infinito"
     if (plan === 'unlimited') {
       const used = quota
-        ? (feature === 'photo' ? quota.photo_analyses.used : quota.ocr_analyses.used)
+        ? (feature === 'photo'
+            ? quota.photo_analyses.used
+            : feature === 'ocr'
+              ? quota.ocr_analyses.used
+              : quota.text_analyses.used)
         : 0;
 
       return {
@@ -103,7 +109,9 @@ export function useQuota(
 
     const featureData = feature === 'photo'
       ? quota.photo_analyses
-      : quota.ocr_analyses;
+      : feature === 'ocr'
+        ? quota.ocr_analyses
+        : quota.text_analyses;
 
     return {
       used: featureData.used,
