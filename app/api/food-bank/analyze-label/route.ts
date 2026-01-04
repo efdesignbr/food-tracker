@@ -124,6 +124,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, result });
 
   } catch (err: any) {
+    if (err instanceof Response) return err;
     console.error('❌ [API] Erro durante análise:', {
       name: err.name,
       message: err.message,

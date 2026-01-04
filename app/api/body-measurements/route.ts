@@ -70,6 +70,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, measurement });
   } catch (err: any) {
+    if (err instanceof Response) {
+      return err;
+    }
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: 'validation_error', details: err.errors }, { status: 400 });
     }
@@ -131,6 +134,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ ok: true, measurements });
   } catch (err: any) {
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }
@@ -164,6 +168,7 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (err: any) {
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }

@@ -6,8 +6,7 @@ import { requireTenant } from '@/lib/tenant';
 import { init } from '@/lib/init';
 import { getPool } from '@/lib/db';
 import { logger } from '@/lib/logger';
-import { auth } from '@/auth';
-import { getSessionData } from '@/lib/types/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 import { getCurrentMonthUsage } from '@/lib/quota';
 
 /**
@@ -19,8 +18,7 @@ export async function GET(req: Request) {
     await init();
     const tenant = await requireTenant(req);
 
-    const session = await auth();
-    const sessionData = getSessionData(session);
+    const sessionData = await getCurrentUser();
     if (!sessionData) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -82,8 +80,7 @@ export async function GET(req: Request) {
     }
   } catch (err: any) {
     logger.error('[API] Error fetching quota usage', err);
-    const status = err instanceof Response ? err.status : 500;
-    const payload = err instanceof Response ? await err.text() : JSON.stringify({ error: err.message });
-    return new NextResponse(payload, { status, headers: { 'Content-Type': 'application/json' } });
+    if (err instanceof Response) return err;
+    return NextResponse.json({ error: err?.message || 'unknown_error' }, { status: 400 });
   }
 }

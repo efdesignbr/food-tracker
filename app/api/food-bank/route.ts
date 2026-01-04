@@ -148,6 +148,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, foodItem });
   } catch (err: any) {
+    if (err instanceof Response) return err;
     if (err instanceof z.ZodError) {
       return NextResponse.json({
         error: 'Erro de validação',
@@ -219,6 +220,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, items });
   } catch (err: any) {
     console.error('Error fetching food bank items:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({
       error: err.message || 'Erro ao buscar alimentos'
     }, { status: 400 });
@@ -279,6 +281,7 @@ export async function PATCH(req: Request) {
 
     return NextResponse.json({ ok: true, foodItem });
   } catch (err: any) {
+    if (err instanceof Response) return err;
     if (err instanceof z.ZodError) {
       return NextResponse.json({
         error: 'Erro de validação',
@@ -322,6 +325,7 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     console.error('Error deleting food bank item:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({
       error: err.message || 'Erro ao excluir alimento'
     }, { status: 400 });

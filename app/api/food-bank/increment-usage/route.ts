@@ -37,6 +37,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     console.error('Error incrementing usage count:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({
       error: err.message || 'Erro ao incrementar contador de uso'
     }, { status: 400 });
