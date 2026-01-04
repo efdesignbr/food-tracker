@@ -308,6 +308,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ result });
   } catch (error: any) {
     console.error('Erro ao analisar refeição:', error);
+    if (error instanceof Response) return error;
     return NextResponse.json(
       { error: error.message || 'Erro ao analisar refeição' },
       { status: 500 }

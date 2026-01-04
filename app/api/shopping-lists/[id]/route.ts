@@ -53,6 +53,7 @@ export async function GET(
 
     return NextResponse.json({ ok: true, list, items });
   } catch (err: any) {
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }
@@ -95,6 +96,7 @@ export async function PATCH(
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: 'validation_error', details: err.errors }, { status: 400 });
     }
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }
@@ -124,6 +126,7 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true });
   } catch (err: any) {
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }

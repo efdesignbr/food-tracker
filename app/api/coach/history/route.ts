@@ -34,6 +34,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ ok: true, analyses: rows });
   } catch (err: any) {
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }

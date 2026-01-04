@@ -48,6 +48,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, restrictions });
   } catch (err: any) {
     console.error('[dietary-restrictions GET] error:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'Erro desconhecido' }, { status: 400 });
   }
 }
@@ -80,6 +81,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, restriction });
   } catch (err: any) {
+    if (err instanceof Response) return err;
     if (err instanceof z.ZodError) {
       return NextResponse.json({
         error: 'Erro de validacao',
@@ -121,6 +123,7 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     console.error('[dietary-restrictions DELETE] error:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'Erro desconhecido' }, { status: 400 });
   }
 }
@@ -152,6 +155,7 @@ export async function PATCH(req: Request) {
 
     return NextResponse.json({ ok: true, restriction });
   } catch (err: any) {
+    if (err instanceof Response) return err;
     if (err instanceof z.ZodError) {
       return NextResponse.json({
         error: 'Erro de validacao',

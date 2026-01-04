@@ -107,6 +107,7 @@ export async function POST(req: Request) {
     });
 
   } catch (err: any) {
+    if (err instanceof Response) return err;
     console.error('[API] Erro durante scan:', {
       name: err.name,
       message: err.message,

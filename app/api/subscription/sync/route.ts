@@ -89,8 +89,17 @@ export async function POST(req: Request) {
     const pool = getPool();
 
     // Verifica se o usuario tem o entitlement premium ativo
-    const premiumEntitlement = customerInfo.entitlements?.active?.[REVENUECAT.ENTITLEMENT_ID];
-    const isPremium = !!premiumEntitlement?.isActive;
+    const activeEntitlements = customerInfo.entitlements?.active || {};
+    const premiumEntitlement = activeEntitlements[REVENUECAT.ENTITLEMENT_ID as keyof typeof activeEntitlements] as any;
+    // Fallback: qualquer entitlement ativo
+    const anyActiveEntitlement = premiumEntitlement?.isActive
+      ? premiumEntitlement
+      : Object.values(activeEntitlements).find((e: any) => e?.isActive);
+    // Fallback 2: produtos ativos conhecidos
+    const activeProductId = (customerInfo.activeSubscriptions || []).find((pid) =>
+      pid === REVENUECAT.PRODUCTS.MONTHLY || pid === REVENUECAT.PRODUCTS.ANNUAL
+    ) || null;
+    const isPremium = !!anyActiveEntitlement || !!activeProductId;
 
     // Busca estado atual do usuario
     const { rows: userRows } = await pool.query<{
@@ -118,14 +127,19 @@ export async function POST(req: Request) {
     let productId: string | null = null;
     let store: 'app_store' | 'play_store' | null = null;
 
-    if (isPremium && premiumEntitlement) {
+    if (isPremium) {
       newPlan = 'premium';
-      newStatus = premiumEntitlement.willRenew ? 'active' : 'canceled';
-      productId = premiumEntitlement.productIdentifier;
-      store = mapStoreToDb(premiumEntitlement.store);
+      const ent = anyActiveEntitlement as any;
+      // willRenew pode não existir em alguns SDKs → assume true quando houver activeSubscriptions
+      const willRenew = ent?.willRenew ?? (activeProductId ? true : false);
+      newStatus = willRenew ? 'active' : 'canceled';
+      productId = ent?.productIdentifier || activeProductId;
+      // store pode não estar no entitlement; mantém null se indisponível
+      store = ent?.store ? mapStoreToDb(ent.store) : null;
 
-      if (premiumEntitlement.expirationDate) {
-        expiresAt = new Date(premiumEntitlement.expirationDate);
+      const exp = ent?.expirationDate;
+      if (exp) {
+        expiresAt = new Date(exp);
       }
     } else {
       // Se nao tem premium ativo, verifica se tinha antes

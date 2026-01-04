@@ -29,6 +29,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, stores });
   } catch (err: any) {
     console.error('[stores GET] error:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }
@@ -64,6 +65,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, store });
   } catch (err: any) {
     console.error('[stores POST] error:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }
@@ -107,6 +109,7 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ ok: true, store });
   } catch (err: any) {
     console.error('[stores PATCH] error:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }
@@ -141,6 +144,7 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     console.error('[stores DELETE] error:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }

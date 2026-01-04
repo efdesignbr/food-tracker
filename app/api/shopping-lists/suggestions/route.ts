@@ -67,6 +67,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, suggestions: combined.slice(0, limit) });
   } catch (err: any) {
     console.error('[suggestions GET] error:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }

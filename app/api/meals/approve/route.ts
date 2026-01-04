@@ -88,6 +88,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, id: meal.id });
   } catch (err: any) {
+    if (err instanceof Response) return err;
     // Surface underlying DB error details and diagnostics (no changes committed)
     logger.error('Approve meal error', err, {
       message: err?.message,

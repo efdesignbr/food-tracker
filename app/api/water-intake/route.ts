@@ -91,6 +91,7 @@ export async function GET(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Error fetching water intake:', error);
+    if (error instanceof Response) return error;
     return NextResponse.json(
       { error: 'Erro ao buscar registros de água', details: error.message },
       { status: 500 }
@@ -151,6 +152,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Error adding water intake:', error);
+    if (error instanceof Response) return error;
     return NextResponse.json(
       { error: 'Erro ao adicionar registro de água', details: error.message },
       { status: 500 }
@@ -212,6 +214,7 @@ export async function DELETE(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Error deleting water intake:', error);
+    if (error instanceof Response) return error;
     return NextResponse.json(
       { error: 'Erro ao deletar registro de água', details: error.message },
       { status: 500 }

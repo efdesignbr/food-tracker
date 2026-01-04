@@ -37,6 +37,14 @@ async function initializeRevenueCat(userId: string): Promise<void> {
       appUserID: userId,
     });
 
+    // Garante que compras anteriores (anonimas) sejam vinculadas ao userId atual
+    try {
+      await Purchases.logIn({ appUserID: userId } as any);
+    } catch (e) {
+      // Ignora se ja estiver logado; apenas informativo
+      console.log('[RevenueCat] logIn skipped or failed:', e);
+    }
+
     console.log('[RevenueCat] Initialized with userId:', userId);
   } catch (err) {
     console.error('[RevenueCat] Init error:', err);

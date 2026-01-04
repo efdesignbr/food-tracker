@@ -57,6 +57,7 @@ export async function POST(req: Request) {
       }, { status: 400 });
     }
     console.error('[duplicate POST] error:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'Erro ao duplicar lista' }, { status: 400 });
   }
 }

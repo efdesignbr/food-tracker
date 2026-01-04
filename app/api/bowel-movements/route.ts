@@ -62,6 +62,7 @@ export async function GET(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Error fetching bowel movements:', error);
+    if (error instanceof Response) return error;
     return NextResponse.json(
       { error: 'Erro ao buscar registros de evacuações', details: error.message },
       { status: 500 }
@@ -121,6 +122,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Error adding bowel movement:', error);
+    if (error instanceof Response) return error;
     return NextResponse.json(
       { error: 'Erro ao adicionar registro de evacuação', details: error.message },
       { status: 500 }
@@ -181,6 +183,7 @@ export async function DELETE(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Error deleting bowel movement:', error);
+    if (error instanceof Response) return error;
     return NextResponse.json(
       { error: 'Erro ao deletar registro de evacuação', details: error.message },
       { status: 500 }

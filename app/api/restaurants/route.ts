@@ -18,6 +18,7 @@ export async function GET(req: Request) {
     const items = await listRestaurants({ tenantId: tenant.id, limit: limit ? Number(limit) : 20 });
     return NextResponse.json({ restaurants: items });
   } catch (e: any) {
+    if (e instanceof Response) return e;
     return NextResponse.json({ error: e?.message || 'unknown_error' }, { status: 400 });
   }
 }
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
     const item = await createRestaurant({ tenantId: tenant.id, name, address });
     return NextResponse.json({ restaurant: item }, { status: 201 });
   } catch (e: any) {
+    if (e instanceof Response) return e;
     return NextResponse.json({ error: e?.message || 'unknown_error' }, { status: 400 });
   }
 }
-

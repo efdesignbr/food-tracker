@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     const items = await searchRestaurants({ tenantId: tenant.id, q, limit: limit ? Number(limit) : 10 });
     return NextResponse.json({ restaurants: items });
   } catch (e: any) {
+    if (e instanceof Response) return e;
     return NextResponse.json({ error: e?.message || 'unknown_error' }, { status: 400 });
   }
 }
-

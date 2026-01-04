@@ -88,6 +88,7 @@ export async function POST(req: Request) {
       }, { status: 400 });
     }
     console.error('[complete POST] error:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'Erro ao finalizar lista' }, { status: 400 });
   }
 }

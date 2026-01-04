@@ -66,6 +66,7 @@ export async function POST(req: Request) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: 'validation_error', details: err.errors }, { status: 400 });
     }
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }
@@ -116,6 +117,7 @@ export async function PATCH(req: Request) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: 'validation_error', details: err.errors }, { status: 400 });
     }
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }
@@ -148,6 +150,7 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (err: any) {
+    if (err instanceof Response) return err;
     return NextResponse.json({ error: err.message || 'unknown_error' }, { status: 400 });
   }
 }

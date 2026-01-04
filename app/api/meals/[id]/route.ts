@@ -55,6 +55,7 @@ export async function DELETE(
     }
   } catch (error: any) {
     console.error('Erro ao deletar refeição:', error);
+    if (error instanceof Response) return error;
     return NextResponse.json(
       { error: error.message || 'Erro ao deletar refeição' },
       { status: 500 }

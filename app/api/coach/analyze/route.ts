@@ -81,6 +81,7 @@ export async function POST(req: Request) {
     });
   } catch (err: any) {
     console.error('Coach analyze error:', err);
+    if (err instanceof Response) return err;
     return NextResponse.json(
       { error: err.message || 'failed_to_analyze' },
       { status: 500 }
