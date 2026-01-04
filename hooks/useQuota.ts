@@ -31,8 +31,8 @@ export interface QuotaInfo {
 }
 
 export interface UseQuotaResult {
-  canUseFeature: (feature: 'photo' | 'ocr' | 'text') => boolean;
-  getQuotaInfo: (feature: 'photo' | 'ocr' | 'text') => QuotaInfo;
+  canUseFeature: (feature: 'photo' | 'ocr' | 'text' | 'report') => boolean;
+  getQuotaInfo: (feature: 'photo' | 'ocr' | 'text' | 'report') => QuotaInfo;
   hasQuota: boolean;
 }
 
@@ -43,7 +43,7 @@ export function useQuota(
   /**
    * Verifica se o usuário pode usar um recurso
    */
-  const canUseFeature = (feature: 'photo' | 'ocr' | 'text'): boolean => {
+  const canUseFeature = (feature: 'photo' | 'ocr' | 'text' | 'report'): boolean => {
     // FREE nunca pode
     if (plan === 'free') return false;
 
@@ -57,7 +57,9 @@ export function useQuota(
       ? quota.photo_analyses
       : feature === 'ocr'
         ? quota.ocr_analyses
-        : quota.text_analyses;
+        : feature === 'text'
+          ? quota.text_analyses
+          : (quota.report_analyses || { used: 0, limit: 0, percentage: 0, remaining: 0 });
 
     return featureData.remaining > 0;
   };
@@ -65,7 +67,7 @@ export function useQuota(
   /**
    * Retorna informações detalhadas sobre a quota de um recurso
    */
-  const getQuotaInfo = (feature: 'photo' | 'ocr' | 'text'): QuotaInfo => {
+  const getQuotaInfo = (feature: 'photo' | 'ocr' | 'text' | 'report'): QuotaInfo => {
     // FREE: sem acesso
     if (plan === 'free') {
       return {
@@ -84,7 +86,9 @@ export function useQuota(
             ? quota.photo_analyses.used
             : feature === 'ocr'
               ? quota.ocr_analyses.used
-              : quota.text_analyses.used)
+              : feature === 'text'
+                ? quota.text_analyses.used
+                : (quota.report_analyses?.used || 0))
         : 0;
 
       return {
@@ -111,7 +115,9 @@ export function useQuota(
       ? quota.photo_analyses
       : feature === 'ocr'
         ? quota.ocr_analyses
-        : quota.text_analyses;
+        : feature === 'text'
+          ? quota.text_analyses
+          : (quota.report_analyses || { used: 0, limit: 0, percentage: 0, remaining: 0 });
 
     return {
       used: featureData.used,

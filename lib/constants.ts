@@ -91,10 +91,10 @@ export const PLAN_LIMITS = {
     text_analyses_per_month: 150,
 
     /** Coach IA por mês */
-    coach_analyses_per_month: 3,
+    coach_analyses_per_month: 5,
 
     /** Relatórios IA por mês */
-    report_analyses_per_month: 3,
+    report_analyses_per_month: 5,
 
     /** Dias de histórico disponível (null = ilimitado) */
     history_days: null,

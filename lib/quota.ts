@@ -80,7 +80,7 @@ export async function checkQuota(
   userId: string,
   tenantId: string,
   plan: Plan,
-  quotaType: 'photo' | 'ocr' | 'text'
+  quotaType: 'photo' | 'ocr' | 'text' | 'report'
 ): Promise<QuotaCheck> {
   // UNLIMITED: sempre permite (admins/owners)
   if (plan === 'unlimited') {
@@ -103,13 +103,15 @@ export async function checkQuota(
   const limit =
     quotaType === 'photo' ? limits.photo_analyses_per_month :
     quotaType === 'ocr' ? limits.ocr_analyses_per_month :
-    limits.text_analyses_per_month;
+    quotaType === 'text' ? limits.text_analyses_per_month :
+    limits.report_analyses_per_month;
 
   const quota = await getOrCreateQuota(userId, tenantId);
   const used =
     quotaType === 'photo' ? quota.photo_analyses :
     quotaType === 'ocr' ? quota.ocr_analyses :
-    quota.text_analyses;
+    quotaType === 'text' ? quota.text_analyses :
+    (quota as any).report_analyses || 0;
 
   return {
     allowed: used < limit,
@@ -139,14 +141,15 @@ export async function checkQuota(
 export async function incrementQuota(
   userId: string,
   tenantId: string,
-  quotaType: 'photo' | 'ocr' | 'text'
+  quotaType: 'photo' | 'ocr' | 'text' | 'report'
 ): Promise<void> {
   const pool = getPool();
   const month = getCurrentMonth();
   const field =
     quotaType === 'photo' ? 'photo_analyses' :
     quotaType === 'ocr' ? 'ocr_analyses' :
-    'text_analyses';
+    quotaType === 'text' ? 'text_analyses' :
+    'report_analyses';
 
   // Garante que o registro existe
   await getOrCreateQuota(userId, tenantId, month);
@@ -176,6 +179,7 @@ export async function getCurrentMonthUsage(
   photo_analyses: number;
   ocr_analyses: number;
   text_analyses: number;
+  report_analyses: number;
 }> {
   const quota = await getOrCreateQuota(userId, tenantId);
 
@@ -183,7 +187,8 @@ export async function getCurrentMonthUsage(
     month: quota.month,
     photo_analyses: quota.photo_analyses,
     ocr_analyses: quota.ocr_analyses,
-    text_analyses: (quota as any).text_analyses ?? 0
+    text_analyses: (quota as any).text_analyses ?? 0,
+    report_analyses: (quota as any).report_analyses ?? 0
   };
 }
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api-client';
+import { useUserPlan } from '@/hooks/useUserPlan';
 
 interface ShoppingList {
   id: string;
@@ -48,6 +49,7 @@ interface Store {
 
 export default function ListaComprasPage() {
   const router = useRouter();
+  const { plan } = useUserPlan();
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
   const [items, setItems] = useState<ShoppingItem[]>([]);
@@ -615,6 +617,25 @@ export default function ListaComprasPage() {
       const json = await res.json();
 
       if (!res.ok) {
+        if (res.status === 403 && json?.error === 'watch_ad_required') {
+          const { showRewardedAd } = await import('@/lib/ads/admob');
+          const ok = await showRewardedAd('scan_receipt');
+          if (!ok) throw new Error('Anúncio indisponível. Tente novamente.');
+          // Repetir com header de bypass
+          const retry = await fetch('/api/shopping-lists/scan-receipt', {
+            method: 'POST',
+            body: formData,
+            headers: { 'x-ad-completed': '1' }
+          });
+          const retryJson = await retry.json();
+          if (!retry.ok) throw new Error(retryJson.error || 'Erro ao analisar nota');
+          setShowScanModal(false);
+          await fetchLists();
+          if (retryJson.list?.id) {
+            openCompletedList({ id: retryJson.list.id, name: retryJson.list.name } as ShoppingList);
+          }
+          return;
+        }
         throw new Error(json.error || 'Erro ao analisar nota');
       }
 
@@ -2199,7 +2220,15 @@ export default function ListaComprasPage() {
         <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16 }}>Lista de Compras</h1>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            onClick={() => router.push('/lista-compras/dashboard')}
+            onClick={async () => {
+              try {
+                if (plan === 'free') {
+                  const { showRewardedAd } = await import('@/lib/ads/admob');
+                  await showRewardedAd('shopping_dashboard');
+                }
+              } catch {}
+              router.push('/lista-compras/dashboard');
+            }}
             style={{
               flex: 1,
               height: 44,

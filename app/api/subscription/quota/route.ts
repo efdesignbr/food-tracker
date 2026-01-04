@@ -77,8 +77,10 @@ export async function GET(req: Request) {
         text_analyses: usage.text_analyses,
         limits: {
           ...limits,
-          text_analyses_per_month: plan === 'premium' ? PLAN_LIMITS.premium.text_analyses_per_month : (plan === 'unlimited' ? 999999 : 0)
-        }
+          text_analyses_per_month: plan === 'premium' ? PLAN_LIMITS.premium.text_analyses_per_month : (plan === 'unlimited' ? 999999 : 0),
+          report_analyses_per_month: plan === 'premium' ? PLAN_LIMITS.premium.report_analyses_per_month : (plan === 'unlimited' ? 999999 : 0)
+        },
+        report_analyses: usage.report_analyses
       });
     } finally {
       client.release();

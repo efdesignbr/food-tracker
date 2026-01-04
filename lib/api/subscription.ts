@@ -42,6 +42,12 @@ export interface QuotaData {
     percentage: number;
     remaining: number;
   };
+  report_analyses?: {
+    used: number;
+    limit: number;
+    percentage: number;
+    remaining: number;
+  };
   resetDate: Date;
 }
 
@@ -86,6 +92,9 @@ export function processQuotaData(quota: QuotaUsageResponse): QuotaData {
   const photoPercentage = (quota.photo_analyses / quota.limits.photo_analyses_per_month) * 100;
   const ocrPercentage = (quota.ocr_analyses / quota.limits.ocr_analyses_per_month) * 100;
   const textPercentage = (quota.text_analyses / quota.limits.text_analyses_per_month) * 100;
+  const reportLimit = (quota as any).limits?.report_analyses_per_month as number | undefined;
+  const reportUsed = (quota as any).report_analyses as number | undefined;
+  const reportPercentage = reportLimit ? ((reportUsed || 0) / reportLimit) * 100 : 0;
 
   // Calcula a data de reset (primeiro dia do próximo mês)
   const now = new Date();
@@ -110,6 +119,12 @@ export function processQuotaData(quota: QuotaUsageResponse): QuotaData {
       percentage: Math.round(textPercentage),
       remaining: quota.limits.text_analyses_per_month - quota.text_analyses
     },
+    report_analyses: reportLimit !== undefined ? {
+      used: reportUsed || 0,
+      limit: reportLimit,
+      percentage: Math.round(reportPercentage),
+      remaining: reportLimit - (reportUsed || 0)
+    } : undefined,
     resetDate
   };
 }

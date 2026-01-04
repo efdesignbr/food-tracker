@@ -45,18 +45,23 @@ export async function POST(req: Request) {
     );
     const userPlan = (userData[0]?.plan || 'free') as Plan;
 
-    // FREE não pode usar análise de relatórios com IA
-    if (userPlan === 'free') {
+    // Gate por anúncio para FREE; Premium exige anúncio quando exceder 5/mês
+    const adCompleted = (req.headers.get('x-ad-completed') || '').trim() === '1';
+    if (userPlan === 'free' && !adCompleted) {
       return NextResponse.json(
-        {
-          error: 'upgrade_required',
-          message: 'Análise de relatórios com IA é um recurso PREMIUM',
-          feature: 'ai_reports',
-          currentPlan: 'free',
-          upgradeTo: 'premium',
-        },
+        { error: 'watch_ad_required', feature: 'ai_reports', currentPlan: 'free' },
         { status: 403 }
       );
+    }
+    if (userPlan === 'premium') {
+      const { checkQuota } = await import('@/lib/quota');
+      const quota = await checkQuota(session.userId, tenant.id, userPlan, 'report' as any);
+      if (!quota.allowed && !adCompleted) {
+        return NextResponse.json(
+          { error: 'watch_ad_required', feature: 'ai_reports', currentPlan: 'premium' },
+          { status: 403 }
+        );
+      }
     }
 
     // Parse request body
@@ -143,6 +148,12 @@ export async function POST(req: Request) {
       { start: start_date, end: end_date },
       goals
     );
+
+    // Incrementa quota de relatórios
+    if (userPlan !== 'unlimited') {
+      const { incrementQuota } = await import('@/lib/quota');
+      await incrementQuota(session.userId, tenant.id, 'report' as any);
+    }
 
     return NextResponse.json({
       ok: true,

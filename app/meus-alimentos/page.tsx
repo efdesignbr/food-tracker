@@ -5,6 +5,7 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { useQuota } from '@/hooks/useQuota';
 import { PaywallModal, QuotaCard } from '@/components/subscription';
 import { api, apiClient } from '@/lib/api-client';
+import { callWithAdIfRequired } from '@/lib/ads/guard';
 
 interface FoodBankItem {
   id: string;
@@ -264,17 +265,18 @@ export default function MeusAlimentosPage() {
       const formData = new FormData();
       formData.append('image', selectedImage);
 
-      const res = await apiClient('/api/food-bank/analyze-label', {
-        method: 'POST',
-        body: formData
-      });
+      const res = await callWithAdIfRequired(
+        (extra) => apiClient('/api/food-bank/analyze-label', {
+          method: 'POST',
+          body: formData,
+          headers: extra
+        }),
+        { feature: 'ocr_analysis' }
+      );
 
       if (!res.ok) {
         // Se for 403, é bloqueio de plano
-        if (res.status === 403) {
-          setShowPaywall(true);
-          return;
-        }
+        // watch_ad_required já tratado pelo guard
 
         // Tenta fazer parse do JSON se possível, senão usa mensagem genérica
         let errorMessage = 'Erro ao analisar imagem';

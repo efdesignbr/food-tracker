@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import PlanBadge from '@/components/subscription/PlanBadge';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { triggerClientLogout } from '@/lib/auth-client';
+import { Capacitor } from '@capacitor/core';
 
 type NavItem = {
   href: string;
@@ -54,8 +55,17 @@ export default function AppLayout({ children, tenantName, userName }: {
     router.refresh();
   }
 
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(Capacitor.isNativePlatform());
+  }, []);
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+      {/* Top banner spacer (mobile only) */}
+      {isMobile && (
+        <div style={{ height: 50, background: 'transparent' }} />
+      )}
       {/* Header */}
       <header style={{
         backgroundColor: '#fff',

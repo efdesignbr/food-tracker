@@ -3,6 +3,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getCurrentDateBR, toDateBR } from '@/lib/datetime';
 import { api } from '@/lib/api-client';
+import { callWithAdIfRequired } from '@/lib/ads/guard';
+import { useUserPlan } from '@/hooks/useUserPlan';
+import { showRewardedAd } from '@/lib/ads/admob';
 
 type Food = {
   id: string;
@@ -111,6 +114,8 @@ type WaterRecord = {
 };
 
 export default function ReportsPage() {
+  const { plan } = useUserPlan();
+  const [extrasUnlocked, setExtrasUnlocked] = useState(false);
   const [meals, setMeals] = useState<Meal[]>([]);
   const [waterRecords, setWaterRecords] = useState<WaterRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -458,11 +463,14 @@ export default function ReportsPage() {
         end_date = getCurrentDateBR();
       }
 
-      const response = await api.post('/api/reports/analysis', {
-        start_date,
-        end_date,
-        goals
-      });
+      const response = await callWithAdIfRequired(
+        (extra) => fetch('/api/reports/analysis', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(extra || {}) },
+          body: JSON.stringify({ start_date, end_date, goals })
+        }),
+        { feature: 'ai_reports' }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -872,12 +880,44 @@ export default function ReportsPage() {
           </div>
 
           {/* Nutrientes + Calorias por Tipo lado a lado (responsivo) */}
+          {(plan !== 'free' || extrasUnlocked) && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, marginBottom: 24, alignItems: 'stretch' }}>
             {/* Nutrientes */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#374151' }}>
                  Nutrientes no Período
               </h2>
+              {/* Gate extra sections for FREE: unlock with rewarded */}
+              {plan === 'free' && !extrasUnlocked && (
+                <div style={{
+                  padding: 12,
+                  background: '#fef3c7',
+                  border: '1px solid #fcd34d',
+                  borderRadius: 8,
+                  marginBottom: 12,
+                }}>
+                  <div style={{ fontSize: 13, color: '#92400e', marginBottom: 8 }}>
+                    Para ver detalhes completos deste período, assista a um anúncio.
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const ok = await showRewardedAd('reports_extra');
+                      if (ok) setExtrasUnlocked(true);
+                    }}
+                    style={{
+                      padding: '8px 12px',
+                      background: '#fbbf24',
+                      color: '#92400e',
+                      border: 'none',
+                      borderRadius: 8,
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Desbloquear com anúncio
+                  </button>
+                </div>
+              )}
 
               {/* Grid de Nutrientes - 2 linhas x 3 colunas */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12, flex: 1 }}>
@@ -1050,6 +1090,7 @@ export default function ReportsPage() {
               </div>
             </div>
           </div>
+          )}
 
           {/* Gráfico de Evolução */}
           <div style={{ marginBottom: 24 }}>
@@ -1133,7 +1174,7 @@ export default function ReportsPage() {
           </div>
 
           {/* Micronutrientes no Período */}
-          {(stats.totalCalcium > 0 || stats.totalIron > 0 || stats.totalVitaminC > 0 ||
+          {(plan !== 'free' || extrasUnlocked) && (stats.totalCalcium > 0 || stats.totalIron > 0 || stats.totalVitaminC > 0 ||
             stats.totalMagnesium > 0 || stats.totalPotassium > 0 || stats.totalZinc > 0) && (
             <div style={{
               background: 'white',

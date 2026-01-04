@@ -5,6 +5,7 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { PaywallModal } from '@/components/subscription';
 import { PLAN_LIMITS } from '@/lib/constants';
 import { api } from '@/lib/api-client';
+import { callWithAdIfRequired } from '@/lib/ads/guard';
 
 interface CoachAnalysis {
   id?: string;
@@ -80,7 +81,14 @@ export default function CoachPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.post('/api/coach/analyze', {});
+      const res = await callWithAdIfRequired(
+        (extra) => fetch('/api/coach/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(extra || {}) },
+          body: JSON.stringify({})
+        }),
+        { feature: 'coach_analysis' }
+      );
       const data = await res.json();
 
       if (!res.ok) {

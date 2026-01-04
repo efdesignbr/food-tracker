@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import AppLayout from './AppLayout';
+import { initAdMob, showTopBanner } from '@/lib/ads/admob';
 
 /**
  * Decodifica um JWT e retorna o payload
@@ -89,6 +90,8 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
       if (userId) {
         initializeRevenueCat(userId);
       }
+      // Initialize and show AdMob banner (top)
+      initAdMob().then(() => showTopBanner());
     }
   }, [router, pathname]);
 

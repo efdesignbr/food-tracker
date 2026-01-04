@@ -5,6 +5,7 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { useQuota } from '@/hooks/useQuota';
 import { PaywallModal, QuotaCard } from '@/components/subscription';
 import { api, apiClient } from '@/lib/api-client';
+import { callWithAdIfRequired } from '@/lib/ads/guard';
 
 function nowSaoPauloLocalInput() {
   try {
@@ -245,10 +246,14 @@ export default function CapturePage() {
         restaurant_name: locationType === 'out' ? selectedRestaurant?.name : undefined
       }));
 
-      const res = await apiClient('/api/meals/analyze-image', {
-        method: 'POST',
-        body: fd,
-      });
+      const res = await callWithAdIfRequired(
+        (extraHeaders) => apiClient('/api/meals/analyze-image', {
+          method: 'POST',
+          body: fd,
+          headers: extraHeaders,
+        }),
+        { feature: 'photo_analysis' }
+      );
 
       const json = await res.json();
       if (!res.ok) {
@@ -301,21 +306,29 @@ export default function CapturePage() {
         const fd = new FormData();
         fd.append('image', file);
         fd.append('data', JSON.stringify(payload));
-        res = await apiClient('/api/meals/analyze-meal', {
-          method: 'POST',
-          body: fd,
-        });
+        res = await callWithAdIfRequired(
+          (extraHeaders) => apiClient('/api/meals/analyze-meal', {
+            method: 'POST',
+            body: fd,
+            headers: extraHeaders,
+          }),
+          { feature: 'photo_analysis' }
+        );
       } else {
-        res = await api.post('/api/meals/analyze-meal', payload);
+        res = await callWithAdIfRequired(
+          (extraHeaders) => apiClient('/api/meals/analyze-meal', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'application/json', ...(extraHeaders || {}) },
+          }),
+          { feature: 'text_analysis' }
+        );
       }
 
       const json = await res.json();
       if (!res.ok) {
         // Se for 403, é bloqueio de plano
-        if (res.status === 403) {
-          setShowPaywall(true);
-          return;
-        }
+        // watch_ad_required já tratado pelo guard
         throw new Error(json.error || 'Erro ao analisar');
       }
       setAnalysis(json.result);

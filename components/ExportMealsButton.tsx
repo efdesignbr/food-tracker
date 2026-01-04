@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { generateCSVFilename } from '@/lib/utils/csv-export';
 import { api } from '@/lib/api-client';
+import { showRewardedAd } from '@/lib/ads/admob';
 import type { Plan } from '@/lib/types/subscription';
 
 type ExportPeriod = 'last30days' | 'last3months' | 'last6months' | 'thisMonth' | 'lastMonth' | 'custom';
@@ -82,6 +83,14 @@ export default function ExportMealsButton({ plan = 'free' }: ExportMealsButtonPr
       const startDateStr = format(startDate, 'yyyy-MM-dd');
       const endDateStr = format(endDate, 'yyyy-MM-dd');
 
+      // FREE: exige rewarded ad antes de exportar
+      if (plan === 'free') {
+        const ok = await showRewardedAd('export_csv');
+        if (!ok) {
+          throw new Error('Não foi possível exibir o anúncio. Tente novamente.');
+        }
+      }
+
       const response = await api.get(
         `/api/meals/export?start_date=${startDateStr}&end_date=${endDateStr}`
       );
@@ -110,35 +119,6 @@ export default function ExportMealsButton({ plan = 'free' }: ExportMealsButtonPr
       setIsExporting(false);
     }
   };
-
-  // FREE: botão bloqueado que redireciona para upgrade
-  if (plan === 'free') {
-    return (
-      <button
-        onClick={() => router.push('/upgrade')}
-        style={{
-          background: 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',
-          color: 'white',
-          border: 'none',
-          borderRadius: 12,
-          padding: '12px 20px',
-          fontSize: 15,
-          fontWeight: 600,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          boxShadow: '0 2px 8px rgba(107, 114, 128, 0.3)',
-          transition: 'all 0.2s ease',
-          width: '100%',
-          justifyContent: 'center',
-        }}
-      >
-        <span style={{ fontSize: 20 }}></span>
-        Exportar para CSV (Premium)
-      </button>
-    );
-  }
 
   return (
     <>

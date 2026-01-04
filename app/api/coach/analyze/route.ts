@@ -8,6 +8,7 @@ import { init } from '@/lib/init';
 import { getPool } from '@/lib/db';
 import { PLAN_LIMITS } from '@/lib/constants';
 import type { Plan } from '@/lib/types/subscription';
+import { getCurrentDateBR } from '@/lib/datetime';
 import {
   gatherUserContext,
   analyzeWithAI,
@@ -36,18 +37,33 @@ export async function POST(req: Request) {
     );
     const userPlan = (userData[0]?.plan || 'free') as Plan;
 
-    // Verificar se o plano tem acesso ao Coach IA
-    if (!PLAN_LIMITS[userPlan].coach_ai) {
-      return NextResponse.json(
-        {
-          error: 'upgrade_required',
-          message: 'Coach IA é um recurso exclusivo PREMIUM',
-          feature: 'coach_analysis',
-          currentPlan: userPlan,
-          upgradeTo: 'premium',
-        },
-        { status: 403 }
+    const adCompleted = (req.headers.get('x-ad-completed') || '').trim() === '1';
+
+    // Gate por anúncio: FREE sempre exige; PREMIUM exige após limite mensal de 5
+    if (userPlan === 'free') {
+      if (!adCompleted) {
+        return NextResponse.json(
+          { error: 'watch_ad_required', feature: 'coach_analysis', currentPlan: userPlan },
+          { status: 403 }
+        );
+      }
+    } else if (userPlan === 'premium') {
+      // Contar análises do mês atual
+      const monthStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }).slice(0, 7);
+      const { rows: countRows } = await pool.query<{ count: string }>(
+        `SELECT COUNT(*)::text as count
+         FROM coach_analyses
+         WHERE user_id = $1 AND tenant_id = $2 AND to_char(analysis_date at time zone 'America/Sao_Paulo', 'YYYY-MM') = $3`,
+        [session.userId, tenant.id, monthStr]
       );
+      const used = parseInt(countRows[0]?.count || '0', 10);
+      const limit = PLAN_LIMITS.premium.coach_analyses_per_month || 5;
+      if (used >= limit && !adCompleted) {
+        return NextResponse.json(
+          { error: 'watch_ad_required', feature: 'coach_analysis', currentPlan: userPlan },
+          { status: 403 }
+        );
+      }
     }
 
     // Coletar contexto
