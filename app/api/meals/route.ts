@@ -47,6 +47,10 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ meals });
   } catch (err: any) {
+    // Preserve thrown Response (e.g., 401 from requireTenant)
+    if (err instanceof Response) {
+      return err;
+    }
     logger.error('Error fetching meals', err);
     return NextResponse.json({ error: err?.message || 'unknown_error' }, { status: 400 });
   }

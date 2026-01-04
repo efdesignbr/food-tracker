@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import PlanBadge from '@/components/subscription/PlanBadge';
 import { useUserPlan } from '@/hooks/useUserPlan';
+import { triggerClientLogout } from '@/lib/auth-client';
 
 type NavItem = {
   href: string;
@@ -37,11 +38,11 @@ export default function AppLayout({ children, tenantName, userName }: {
   const { plan, isLoading: isPlanLoading } = useUserPlan();
 
   async function handleLogout() {
-    // Mobile: Limpa token e redireciona
+    // Mobile: Limpa token e dispara evento de logout (navegação via router)
     if (typeof window !== 'undefined' && localStorage.getItem('auth_token')) {
-      localStorage.removeItem('auth_token');
-      window.location.href = '/login';
-      return;
+      try {
+        triggerClientLogout();
+      } catch {}
     }
 
     try {
@@ -50,6 +51,7 @@ export default function AppLayout({ children, tenantName, userName }: {
       console.error('SignOut error:', e);
     }
     router.push('/login');
+    router.refresh();
   }
 
   return (

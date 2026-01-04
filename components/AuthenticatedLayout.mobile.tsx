@@ -47,33 +47,74 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
   const router = useRouter();
   const pathname = usePathname();
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
   const revenueCatInitialized = useRef(false);
 
   useEffect(() => {
     // Rotas públicas que não precisam de auth
     const publicRoutes = ['/login', '/signup'];
-    if (publicRoutes.some(route => pathname?.startsWith(route))) {
+    const isPublic = publicRoutes.some(route => pathname?.startsWith(route));
+
+    if (typeof window === 'undefined') return;
+
+    const currentToken = localStorage.getItem('auth_token');
+    setToken(currentToken);
+
+    if (isPublic) {
       setIsAuthorized(true);
       return;
     }
 
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      router.push('/login');
-    } else {
-      setIsAuthorized(true);
+    if (!currentToken) {
+      setIsAuthorized(false);
+      router.replace('/login');
+      return;
+    }
 
-      // Inicializa RevenueCat com o userId do token
-      if (!revenueCatInitialized.current) {
-        revenueCatInitialized.current = true;
-        const payload = decodeJwtPayload(token);
-        const userId = payload?.userId as string | undefined;
-        if (userId) {
-          initializeRevenueCat(userId);
-        }
+    setIsAuthorized(true);
+
+    // Inicializa RevenueCat com o userId do token (uma vez)
+    if (!revenueCatInitialized.current && currentToken) {
+      revenueCatInitialized.current = true;
+      const payload = decodeJwtPayload(currentToken);
+      const userId = payload?.userId as string | undefined;
+      if (userId) {
+        initializeRevenueCat(userId);
       }
     }
   }, [router, pathname]);
+
+  // Reage a mudanças no token (ex: logout por 401 ou clique em "Sair")
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'auth_token' || e.key === 'auth_logout_at') {
+        const t = localStorage.getItem('auth_token');
+        setToken(t);
+        if (!t) {
+          setIsAuthorized(false);
+          router.replace('/login');
+        }
+      }
+    };
+
+    const onAppLogout = () => {
+      const t = localStorage.getItem('auth_token');
+      setToken(t);
+      if (!t) {
+        setIsAuthorized(false);
+        router.replace('/login');
+      }
+    };
+
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('app:logout', onAppLogout as EventListener);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('app:logout', onAppLogout as EventListener);
+    };
+  }, [router]);
 
   if (!isAuthorized) {
     return (
