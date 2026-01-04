@@ -204,7 +204,7 @@ export async function handleRevenueCatEvent(
   const eventType = processed.eventType;
 
   if ((REVENUECAT.ACTIVATE_EVENTS as readonly string[]).includes(eventType)) {
-    // Ativa a subscription
+    // Ativa ou reativa a assinatura (mantém acesso)
     await updateUserSubscription({
       userId: user.id,
       plan: 'premium',
@@ -215,15 +215,27 @@ export async function handleRevenueCatEvent(
       store: processed.store,
       expiresAt: processed.expirationAt,
     });
-  } else if ((REVENUECAT.DEACTIVATE_EVENTS as readonly string[]).includes(eventType)) {
-    // Desativa/expira a subscription
-    await revertToFreePlan(user.id);
-  } else if (eventType === 'BILLING_ISSUE') {
-    // Problema de cobranca - atualiza status mas mantem premium por ora
+  } else if (eventType === 'CANCELLATION') {
+    // Usuário cancelou auto-renovação: mantém premium até a expiração
     await updateUserSubscription({
       userId: user.id,
       plan: 'premium',
-      subscriptionStatus: 'canceled', // Indica problema, mas ainda tem acesso
+      subscriptionStatus: 'canceled',
+      revenuecatAppUserId: processed.appUserId,
+      originalTransactionId: processed.originalTransactionId,
+      productId: processed.productId,
+      store: processed.store,
+      expiresAt: processed.expirationAt,
+    });
+  } else if (eventType === 'EXPIRATION') {
+    // Expirou de fato: rebaixa para free
+    await revertToFreePlan(user.id);
+  } else if (eventType === 'BILLING_ISSUE') {
+    // Problema de cobrança - mantém premium por ora, marca como canceled
+    await updateUserSubscription({
+      userId: user.id,
+      plan: 'premium',
+      subscriptionStatus: 'canceled',
       revenuecatAppUserId: processed.appUserId,
       originalTransactionId: processed.originalTransactionId,
       productId: processed.productId,

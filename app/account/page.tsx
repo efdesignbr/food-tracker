@@ -7,6 +7,7 @@ import { PlanBadge, UpgradeButton, QuotaCard } from '@/components/subscription';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { useQuota } from '@/hooks/useQuota';
 import { api } from '@/lib/api-client';
+import { Capacitor } from '@capacitor/core';
 
 type UserProfile = {
   id: string;
@@ -60,6 +61,7 @@ export default function AccountPage() {
   // Subscription hooks
   const { plan, quota, isLoading: planLoading } = useUserPlan();
   const { canUseFeature, getQuotaInfo, hasQuota } = useQuota(plan, quota);
+  const [managingSub, setManagingSub] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -215,6 +217,49 @@ export default function AccountPage() {
     } catch (err: any) {
       setDeleteError('Erro ao excluir conta. Tente novamente.');
       setDeleting(false);
+    }
+  }
+
+  // Abrir gerenciamento de assinatura para cancelar (voltar ao FREE)
+  async function handleManageSubscription() {
+    try {
+      setManagingSub(true);
+      const isMobile = Capacitor.isNativePlatform();
+
+      if (isMobile) {
+        try {
+          const { Purchases } = await import('@revenuecat/purchases-capacitor');
+          // Tenta abrir a tela nativa de gerenciamento de assinatura, se disponível
+          // Caso não exista no plugin atual, cai para o fallback com Browser
+          const maybeFn: any = (Purchases as any).showManageSubscriptions;
+          if (typeof maybeFn === 'function') {
+            await maybeFn();
+          } else {
+            // Fallback: abre a página de assinaturas da Apple
+            const { Browser } = await import('@capacitor/browser');
+            await Browser.open({ url: 'https://apps.apple.com/account/subscriptions' });
+          }
+
+          // Ao retornar, sincroniza estado com RevenueCat
+          try {
+            const { Purchases } = await import('@revenuecat/purchases-capacitor');
+            const { customerInfo } = await Purchases.getCustomerInfo();
+            await api.post('/api/subscription/sync', { customerInfo });
+          } catch (syncErr) {
+            console.warn('[Account] Sync after manage subscription failed:', syncErr);
+          }
+        } catch (e) {
+          console.error('[Account] Manage subscription error:', e);
+        }
+      } else {
+        // Web: orientar o usuário e abrir página da Apple (irá abrir no navegador do sistema)
+        window.open('https://apps.apple.com/account/subscriptions', '_blank');
+      }
+
+      // Atualiza UI
+      await fetchProfile();
+    } finally {
+      setManagingSub(false);
     }
   }
 
@@ -376,6 +421,31 @@ export default function AccountPage() {
                           remaining={getQuotaInfo('ocr').remaining}
                           resetDate={quota.resetDate}
                         />
+                      </div>
+
+                      {/* Gerenciar assinatura (cancelar / voltar ao FREE) */}
+                      <div style={{ marginTop: 16 }}>
+                        <button
+                          onClick={handleManageSubscription}
+                          disabled={managingSub}
+                          style={{
+                            width: '100%',
+                            padding: 12,
+                            border: 'none',
+                            background: managingSub ? '#9ca3af' : '#ef4444',
+                            color: 'white',
+                            borderRadius: 10,
+                            fontWeight: 700,
+                            fontSize: 14,
+                            cursor: managingSub ? 'not-allowed' : 'pointer',
+                            boxShadow: managingSub ? 'none' : '0 4px 12px rgba(239, 68, 68, 0.3)'
+                          }}
+                        >
+                          {managingSub ? 'Abrindo gerenciamento…' : 'Cancelar assinatura (voltar ao FREE)'}
+                        </button>
+                        <p style={{ fontSize: 12, color: '#6b7280', marginTop: 8, textAlign: 'center' }}>
+                          Você será redirecionado à App Store para gerenciar sua assinatura.
+                        </p>
                       </div>
                     </div>
                   )}

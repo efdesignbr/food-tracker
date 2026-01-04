@@ -16,15 +16,15 @@ const PLAN_CONFIG = {
     border: '#d1d5db'
   },
   premium: {
-    label: 'PRO',
+    label: 'Premium',
     emoji: '',
     bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     text: '#ffffff',
     border: '#667eea'
   },
   unlimited: {
-    label: 'ADMIN',
-    emoji: '⭐',
+    label: 'Unlimited',
+    emoji: '',
     bg: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
     text: '#ffffff',
     border: '#f093fb'
