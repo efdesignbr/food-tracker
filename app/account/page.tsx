@@ -230,14 +230,12 @@ export default function AccountPage() {
         try {
           const { Purchases } = await import('@revenuecat/purchases-capacitor');
           // Tenta abrir a tela nativa de gerenciamento de assinatura, se disponível
-          // Caso não exista no plugin atual, cai para o fallback com Browser
           const maybeFn: any = (Purchases as any).showManageSubscriptions;
           if (typeof maybeFn === 'function') {
             await maybeFn();
           } else {
-            // Fallback: abre a página de assinaturas da Apple
-            const { Browser } = await import('@capacitor/browser');
-            await Browser.open({ url: 'https://apps.apple.com/account/subscriptions' });
+            // Fallback: abre a página de assinaturas da Apple diretamente
+            window.location.href = 'https://apps.apple.com/account/subscriptions';
           }
 
           // Ao retornar, sincroniza estado com RevenueCat
