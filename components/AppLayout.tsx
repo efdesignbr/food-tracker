@@ -62,9 +62,9 @@ export default function AppLayout({ children, tenantName, userName }: {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      {/* Top banner spacer (mobile only) */}
+      {/* Top banner spacer (mobile only - AdMob banner height + padding) */}
       {isMobile && (
-        <div style={{ height: 50, background: 'transparent' }} />
+        <div style={{ height: 60, background: 'transparent' }} />
       )}
       {/* Header */}
       <header style={{

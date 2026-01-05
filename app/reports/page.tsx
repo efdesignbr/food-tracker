@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getCurrentDateBR, toDateBR } from '@/lib/datetime';
 import { api } from '@/lib/api-client';
-import { callWithAdIfRequired } from '@/lib/ads/guard';
+import { callWithAdIfRequired, getAdGuardErrorMessage } from '@/lib/ads/guard';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { showRewardedAd } from '@/lib/ads/admob';
 
@@ -474,6 +474,17 @@ export default function ReportsPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
+
+        // Check for ad-related errors
+        const adError = getAdGuardErrorMessage(response, errorData);
+        if (adError) {
+          throw new Error(adError);
+        }
+        // User cancelled ad - just return silently
+        if (response.status === 499) {
+          return;
+        }
+
         throw new Error(errorData.error || 'Erro ao analisar período');
       }
 

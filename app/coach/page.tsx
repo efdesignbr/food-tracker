@@ -5,7 +5,7 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { PaywallModal } from '@/components/subscription';
 import { PLAN_LIMITS } from '@/lib/constants';
 import { api } from '@/lib/api-client';
-import { callWithAdIfRequired } from '@/lib/ads/guard';
+import { callWithAdIfRequired, getAdGuardErrorMessage } from '@/lib/ads/guard';
 
 interface CoachAnalysis {
   id?: string;
@@ -92,7 +92,16 @@ export default function CoachPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        // Se retornar 403, é bloqueio de plano
+        // Check for ad-related errors
+        const adError = getAdGuardErrorMessage(res, data);
+        if (adError) {
+          throw new Error(adError);
+        }
+        // User cancelled ad - just return silently
+        if (res.status === 499) {
+          return;
+        }
+        // Paywall
         if (res.status === 403 && data.error === 'upgrade_required') {
           setShowPaywall(true);
           return;

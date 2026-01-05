@@ -47,12 +47,14 @@ export async function apiClient(
   // Determine full URL
   const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`;
 
-  console.log('[API Client]', { 
-    isMobile, 
-    baseUrl, 
-    endpoint, 
+  console.log('[API Client]', {
+    isMobile,
+    baseUrl,
+    endpoint,
     finalUrl: url,
-    hasAuthToken: !!headers['Authorization']
+    hasAuthToken: !!headers['Authorization'],
+    allHeaders: Object.keys(headers),
+    xAdCompleted: headers['x-ad-completed'] || 'not set',
   });
 
   try {

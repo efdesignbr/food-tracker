@@ -5,7 +5,7 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { useQuota } from '@/hooks/useQuota';
 import { PaywallModal, QuotaCard } from '@/components/subscription';
 import { api, apiClient } from '@/lib/api-client';
-import { callWithAdIfRequired } from '@/lib/ads/guard';
+import { callWithAdIfRequired, getAdGuardErrorMessage } from '@/lib/ads/guard';
 
 function nowSaoPauloLocalInput() {
   try {
@@ -239,17 +239,27 @@ export default function CapturePage() {
     setLoading(true);
     setError(null);
     try {
-      const fd = new FormData();
-      fd.append('image', file);
-      fd.append('context', JSON.stringify({
+      // Converte o File para Blob ANTES de qualquer request
+      // Isso evita que a referência ao arquivo expire durante o ad
+      const fileArrayBuffer = await file.arrayBuffer();
+      const fileBlob = new Blob([fileArrayBuffer], { type: file.type || 'image/jpeg' });
+      const fileName = file.name || 'image.jpg';
+      const contextJson = JSON.stringify({
         location_type: locationType,
         restaurant_name: locationType === 'out' ? selectedRestaurant?.name : undefined
-      }));
+      });
+
+      const createFormData = () => {
+        const fd = new FormData();
+        fd.append('image', fileBlob, fileName);
+        fd.append('context', contextJson);
+        return fd;
+      };
 
       const res = await callWithAdIfRequired(
         (extraHeaders) => apiClient('/api/meals/analyze-image', {
           method: 'POST',
-          body: fd,
+          body: createFormData(),
           headers: extraHeaders,
         }),
         { feature: 'photo_analysis' }
@@ -257,7 +267,17 @@ export default function CapturePage() {
 
       const json = await res.json();
       if (!res.ok) {
-        if (res.status === 403) {
+        // Check for ad-related errors first
+        const adError = getAdGuardErrorMessage(res, json);
+        if (adError) {
+          throw new Error(adError);
+        }
+        // User cancelled ad - just return silently
+        if (res.status === 499) {
+          return;
+        }
+        // Paywall
+        if (res.status === 403 && json?.error === 'upgrade_required') {
           setShowPaywall(true);
           return;
         }
@@ -303,13 +323,23 @@ export default function CapturePage() {
       // Se tem foto, envia também
       let res: Response;
       if (file) {
-        const fd = new FormData();
-        fd.append('image', file);
-        fd.append('data', JSON.stringify(payload));
+        // Converte o File para Blob ANTES de qualquer request
+        // Isso evita que a referência ao arquivo expire durante o ad
+        const fileArrayBuffer = await file.arrayBuffer();
+        const fileBlob = new Blob([fileArrayBuffer], { type: file.type || 'image/jpeg' });
+        const fileName = file.name || 'image.jpg';
+        const payloadJson = JSON.stringify(payload);
+
+        const createFormData = () => {
+          const fd = new FormData();
+          fd.append('image', fileBlob, fileName);
+          fd.append('data', payloadJson);
+          return fd;
+        };
         res = await callWithAdIfRequired(
           (extraHeaders) => apiClient('/api/meals/analyze-meal', {
             method: 'POST',
-            body: fd,
+            body: createFormData(),
             headers: extraHeaders,
           }),
           { feature: 'photo_analysis' }
@@ -327,8 +357,20 @@ export default function CapturePage() {
 
       const json = await res.json();
       if (!res.ok) {
-        // Se for 403, é bloqueio de plano
-        // watch_ad_required já tratado pelo guard
+        // Check for ad-related errors first
+        const adError = getAdGuardErrorMessage(res, json);
+        if (adError) {
+          throw new Error(adError);
+        }
+        // User cancelled ad - just return silently
+        if (res.status === 499) {
+          return;
+        }
+        // Paywall
+        if (res.status === 403 && json?.error === 'upgrade_required') {
+          setShowPaywall(true);
+          return;
+        }
         throw new Error(json.error || 'Erro ao analisar');
       }
       setAnalysis(json.result);

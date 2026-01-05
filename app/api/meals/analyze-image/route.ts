@@ -60,11 +60,35 @@ export async function POST(req: Request) {
     const userPlan = (userData[0]?.plan || 'free') as Plan;
 
     // Gate por anúncio: FREE sempre exige anúncio; PREMIUM exige ao estourar cota; UNLIMITED segue livre
-    const adCompleted = (req.headers.get('x-ad-completed') || '').trim() === '1';
+    const adCompletedHeader = req.headers.get('x-ad-completed');
+    const adCompleted = (adCompletedHeader || '').trim() === '1';
+
+    // 🔍 DEBUG LOGS
+    console.log('[analyze-image] DEBUG:', {
+      userId: session.userId,
+      userPlan,
+      userDataRows: userData.length,
+      rawPlanFromDB: userData[0]?.plan,
+      adCompletedHeader,
+      adCompleted,
+    });
+
     if (userPlan !== 'unlimited') {
       const quota = await checkQuota(session.userId, tenant.id, userPlan, 'photo');
       const needsAd = (userPlan === 'free') || (userPlan === 'premium' && !quota.allowed);
+
+      console.log('[analyze-image] QUOTA CHECK:', {
+        userPlan,
+        quotaAllowed: quota.allowed,
+        quotaUsed: quota.used,
+        quotaLimit: quota.limit,
+        needsAd,
+        adCompleted,
+        willBlock: needsAd && !adCompleted,
+      });
+
       if (needsAd && !adCompleted) {
+        console.log('[analyze-image] BLOCKING - returning watch_ad_required');
         return NextResponse.json(
           {
             error: 'watch_ad_required',
@@ -74,6 +98,8 @@ export async function POST(req: Request) {
           { status: 403 }
         );
       }
+    } else {
+      console.log('[analyze-image] UNLIMITED user - skipping ad check');
     }
 
     // Converte e comprime a imagem para JPEG (max 100kb)

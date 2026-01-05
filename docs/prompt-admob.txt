@@ -1,0 +1,68 @@
+Prompt: Integração AdMob em App Capacitor iOS - Problema na Segunda Request
+
+  Contexto do Projeto
+
+  - Stack: Next.js 14 (App Router) + React 18 + TypeScript + Capacitor (iOS)
+  - Plugin AdMob: @capacitor-community/admob@7.2.0
+  - Objetivo: Usuários FREE devem assistir rewarded ad antes de análises (foto/texto); Premium/Unlimited sem ads
+
+  O que foi implementado
+
+  1. Wrapper AdMob (lib/ads/admob.ts): Funções initAdMob(), showTopBanner(), hideTopBanner(), showRewardedAd()
+  2. Guard (lib/ads/guard.ts): callWithAdIfRequired() intercepta requests, se backend retorna 403 + watch_ad_required, mostra confirm → exibe ad → refaz request com header x-ad-completed: 1
+  3. Backend: Endpoints verificam plano e header x-ad-completed, retornam 403 se FREE sem ad
+  4. Info.plist: Configurado com GADApplicationIdentifier e 49 SKAdNetworkItems
+
+  Estado atual - O que funciona
+
+  - Banner no topo: ✅ funciona
+  - Rewarded ad: ✅ carrega e exibe corretamente
+  - Primeira request: ✅ retorna 403 como esperado
+  - Guard detecta e mostra ad: ✅ funciona
+  - Header x-ad-completed: 1 é incluído na segunda request: ✅ confirmado nos logs
+
+  O PROBLEMA REAL (identificado nos logs)
+
+  A segunda request falha com erro de rede vazio após o ad ser exibido:
+
+  [AdMob] showRewardedAd: completed successfully
+  [AdGuard] Ad result: true
+  [AdGuard] Ad success, retrying with x-ad-completed header
+  [API Client] {"xAdCompleted":"1"} ← Header está correto
+  [API Client Error] {} ← ERRO VAZIO - request nem chega ao servidor
+  [AdGuard] Error: {}
+
+  Seguido de erros do iOS:
+  Error acquiring assertion: ... target is not running or doesn't have entitlement...
+  ProcessAssertion::acquireSync Failed to acquire RBS assertion...
+  Specified target process does not exist
+
+  Hipótese mais provável
+
+  Quando o rewarded ad fullscreen é exibido, o iOS pode suspender ou terminar o processo WebView para economizar recursos. Quando o ad fecha e o código tenta fazer a segunda request HTTP, o WebView/processo não está mais disponível, causando falha silenciosa.
+
+  Arquivos principais modificados
+
+  - lib/ads/admob.ts - wrapper AdMob (pode estar com código desnecessário de tentativas anteriores)
+  - lib/ads/guard.ts - guard com confirm e retry (tem muitos console.logs de debug)
+  - app/capture/page.tsx - converte File para Blob antes de requests
+  - app/meus-alimentos/page.tsx - mesma correção de Blob
+  - components/AuthenticatedLayout.mobile.tsx - inicialização do banner
+  - ios/App/App/Info.plist - SKAdNetworkItems adicionados
+
+  O que NÃO é o problema
+
+  - API do plugin (está correta para v7.2.0)
+  - IDs de teste do AdMob (funcionam, ad é exibido)
+  - Header não sendo enviado (está sendo, confirmado nos logs)
+  - SKAdNetwork (já configurado)
+
+  Próximos passos sugeridos
+
+  1. Investigar como manter o WebView ativo durante fullscreen ads no Capacitor/iOS
+  2. Possível solução: usar eventos do AdMob (onRewardedVideoAdDismissed) para fazer a retry request após o WebView estar disponível novamente
+  3. Ou: mudar a arquitetura para não precisar de request imediata após o ad (ex: salvar flag localmente e processar no próximo ciclo)
+
+  Observação sobre o código
+
+  O código pode estar com linhas desnecessárias de tentativas anteriores (console.logs de debug, código morto). Recomendo uma limpeza antes de continuar.

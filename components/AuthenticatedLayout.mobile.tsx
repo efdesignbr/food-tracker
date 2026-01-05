@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import AppLayout from './AppLayout';
-import { initAdMob, showTopBanner } from '@/lib/ads/admob';
+import { initAdMob, showTopBanner, hideTopBanner } from '@/lib/ads/admob';
 
 /**
  * Decodifica um JWT e retorna o payload
@@ -57,7 +57,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
   const pathname = usePathname();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-  const revenueCatInitialized = useRef(false);
+  const lastInitializedToken = useRef<string | null>(null);
 
   useEffect(() => {
     // Rotas públicas que não precisam de auth
@@ -71,29 +71,63 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
 
     if (isPublic) {
       setIsAuthorized(true);
+      // Hide banner on public routes
+      hideTopBanner();
       return;
     }
 
     if (!currentToken) {
       setIsAuthorized(false);
+      // Hide banner when logged out
+      hideTopBanner();
       router.replace('/login');
       return;
     }
 
     setIsAuthorized(true);
 
-    // Inicializa RevenueCat com o userId do token (uma vez)
-    if (!revenueCatInitialized.current && currentToken) {
-      revenueCatInitialized.current = true;
+    // Inicializa RevenueCat e AdMob quando o token muda (novo login)
+    if (lastInitializedToken.current !== currentToken) {
+      lastInitializedToken.current = currentToken;
       const payload = decodeJwtPayload(currentToken);
       const userId = payload?.userId as string | undefined;
       if (userId) {
         initializeRevenueCat(userId);
       }
-      // Initialize and show AdMob banner (top)
-      initAdMob().then(() => showTopBanner());
+      // Apenas inicializa AdMob (banner será controlado pelo useEffect do plano)
+      initAdMob();
     }
   }, [router, pathname]);
+
+  // Controla exibição do banner baseado no plano do usuário (extraído do JWT)
+  useEffect(() => {
+    // Rotas públicas NUNCA mostram banner
+    const publicRoutes = ['/login', '/signup'];
+    const isPublic = publicRoutes.some(route => pathname?.startsWith(route));
+
+    if (isPublic) {
+      hideTopBanner();
+      return;
+    }
+
+    // Sem token = sem banner
+    const currentToken = localStorage.getItem('auth_token');
+    if (!currentToken) {
+      hideTopBanner();
+      return;
+    }
+
+    // Extrai o plano do JWT
+    const payload = decodeJwtPayload(currentToken);
+    const userPlan = (payload?.plan as string) || 'free';
+
+    // Só mostra banner para FREE
+    if (userPlan === 'free') {
+      showTopBanner();
+    } else {
+      hideTopBanner();
+    }
+  }, [token, pathname]);
 
   // Reage a mudanças no token (ex: logout por 401 ou clique em "Sair")
   useEffect(() => {
@@ -105,6 +139,8 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
         setToken(t);
         if (!t) {
           setIsAuthorized(false);
+          hideTopBanner();
+          lastInitializedToken.current = null; // Reset para re-inicializar no próximo login
           router.replace('/login');
         }
       }
@@ -115,6 +151,8 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
       setToken(t);
       if (!t) {
         setIsAuthorized(false);
+        hideTopBanner();
+        lastInitializedToken.current = null; // Reset para re-inicializar no próximo login
         router.replace('/login');
       }
     };

@@ -5,7 +5,7 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { useQuota } from '@/hooks/useQuota';
 import { PaywallModal, QuotaCard } from '@/components/subscription';
 import { api, apiClient } from '@/lib/api-client';
-import { callWithAdIfRequired } from '@/lib/ads/guard';
+import { callWithAdIfRequired, getAdGuardErrorMessage } from '@/lib/ads/guard';
 
 interface FoodBankItem {
   id: string;
@@ -262,36 +262,51 @@ export default function MeusAlimentosPage() {
     setAnalyzing(true);
 
     try {
-      const formData = new FormData();
-      formData.append('image', selectedImage);
+      // Converte o File para Blob ANTES de qualquer request
+      // Isso evita que a referência ao arquivo expire durante o ad
+      const fileArrayBuffer = await selectedImage.arrayBuffer();
+      const fileBlob = new Blob([fileArrayBuffer], { type: selectedImage.type || 'image/jpeg' });
+      const fileName = selectedImage.name || 'image.jpg';
+
+      const createFormData = () => {
+        const fd = new FormData();
+        fd.append('image', fileBlob, fileName);
+        return fd;
+      };
 
       const res = await callWithAdIfRequired(
         (extra) => apiClient('/api/food-bank/analyze-label', {
           method: 'POST',
-          body: formData,
+          body: createFormData(),
           headers: extra
         }),
         { feature: 'ocr_analysis' }
       );
 
       if (!res.ok) {
-        // Se for 403, é bloqueio de plano
-        // watch_ad_required já tratado pelo guard
-
-        // Tenta fazer parse do JSON se possível, senão usa mensagem genérica
-        let errorMessage = 'Erro ao analisar imagem';
+        // Tenta fazer parse do JSON se possível
+        let json: any = null;
         try {
-          const json = await res.json();
-          errorMessage = json.error || errorMessage;
+          json = await res.json();
         } catch {
-          // Se não conseguir fazer parse (ex: erro 413 retorna HTML), usa mensagem baseada no status
+          // Se não conseguir fazer parse (ex: erro 413 retorna HTML)
           if (res.status === 413) {
-            errorMessage = 'Imagem muito grande. Por favor, use uma imagem menor que 5MB.';
-          } else {
-            errorMessage = `Erro ao analisar imagem (${res.status})`;
+            throw new Error('Imagem muito grande. Por favor, use uma imagem menor que 5MB.');
           }
+          throw new Error(`Erro ao analisar imagem (${res.status})`);
         }
-        throw new Error(errorMessage);
+
+        // Check for ad-related errors
+        const adError = getAdGuardErrorMessage(res, json);
+        if (adError) {
+          throw new Error(adError);
+        }
+        // User cancelled ad - just return silently
+        if (res.status === 499) {
+          return;
+        }
+
+        throw new Error(json?.error || 'Erro ao analisar imagem');
       }
 
       const json = await res.json();

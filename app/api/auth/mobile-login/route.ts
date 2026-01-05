@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const pool = getPool();
     const { rows } = await pool.query(
-      `select u.id, u.email, u.name, u.password_hash, u.role, u.tenant_id, t.slug as tenant_slug
+      `select u.id, u.email, u.name, u.password_hash, u.role, u.tenant_id, u.plan, t.slug as tenant_slug
        from users u
        join tenants t on t.id = u.tenant_id
        where u.email = $1
@@ -37,13 +37,14 @@ export async function POST(req: Request) {
     const secretStr = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'fallback-secret-dev';
     const secret = new TextEncoder().encode(secretStr);
     
-    const token = await new SignJWT({ 
+    const token = await new SignJWT({
         sub: user.id,
         userId: user.id,
         email: user.email,
         role: user.role,
         tenantId: user.tenant_id,
-        tenantSlug: user.tenant_slug
+        tenantSlug: user.tenant_slug,
+        plan: user.plan || 'free'
       })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
