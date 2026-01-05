@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api-client';
+import { api, apiClient } from '@/lib/api-client';
 import { useUserPlan } from '@/hooks/useUserPlan';
 
 interface ShoppingList {
@@ -609,7 +609,7 @@ export default function ListaComprasPage() {
         formData.append('store_id', storeId);
       }
 
-      const res = await fetch('/api/shopping-lists/scan-receipt', {
+      const res = await apiClient('/api/shopping-lists/scan-receipt', {
         method: 'POST',
         body: formData
       });
@@ -622,7 +622,7 @@ export default function ListaComprasPage() {
           const ok = await showRewardedAd('scan_receipt');
           if (!ok) throw new Error('Anúncio indisponível. Tente novamente.');
           // Repetir com header de bypass
-          const retry = await fetch('/api/shopping-lists/scan-receipt', {
+          const retry = await apiClient('/api/shopping-lists/scan-receipt', {
             method: 'POST',
             body: formData,
             headers: { 'x-ad-completed': '1' }

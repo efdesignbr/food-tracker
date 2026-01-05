@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { PaywallModal } from '@/components/subscription';
 import { PLAN_LIMITS } from '@/lib/constants';
-import { api } from '@/lib/api-client';
+import { api, apiClient } from '@/lib/api-client';
 import { callWithAdIfRequired, getAdGuardErrorMessage } from '@/lib/ads/guard';
 
 interface CoachAnalysis {
@@ -82,7 +82,7 @@ export default function CoachPage() {
     setError(null);
     try {
       const res = await callWithAdIfRequired(
-        (extra) => fetch('/api/coach/analyze', {
+        (extra) => apiClient('/api/coach/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...(extra || {}) },
           body: JSON.stringify({})

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { getCurrentDateBR, toDateBR } from '@/lib/datetime';
-import { api } from '@/lib/api-client';
+import { api, apiClient } from '@/lib/api-client';
 import { callWithAdIfRequired, getAdGuardErrorMessage } from '@/lib/ads/guard';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { showRewardedAd } from '@/lib/ads/admob';
@@ -464,7 +464,7 @@ export default function ReportsPage() {
       }
 
       const response = await callWithAdIfRequired(
-        (extra) => fetch('/api/reports/analysis', {
+        (extra) => apiClient('/api/reports/analysis', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...(extra || {}) },
           body: JSON.stringify({ start_date, end_date, goals })
