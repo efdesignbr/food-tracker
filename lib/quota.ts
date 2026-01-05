@@ -12,6 +12,24 @@ import { PLAN_LIMITS } from './constants';
 import type { Plan, UsageQuota, QuotaCheck } from './types/subscription';
 
 /**
+ * Busca o plano do usuário pelo ID
+ * Retorna 'free' como fallback seguro se não encontrar
+ *
+ * @param userId - ID do usuário
+ * @returns Plano do usuário ('free' | 'premium' | 'unlimited')
+ */
+export async function getUserPlanById(userId: string): Promise<Plan> {
+  const pool = getPool();
+
+  const { rows } = await pool.query<{ plan: Plan }>(
+    'SELECT plan FROM users WHERE id = $1 LIMIT 1',
+    [userId]
+  );
+
+  return rows[0]?.plan || 'free';
+}
+
+/**
  * Obtém o mês atual no formato YYYY-MM em America/Sao_Paulo
  */
 function getCurrentMonth(): string {

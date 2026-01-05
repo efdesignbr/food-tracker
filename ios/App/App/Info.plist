@@ -51,6 +51,10 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Food Tracker usa identificadores para exibir anúncios relevantes para você.</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-1018925088575422~2172895788</string>
 	<key>SKAdNetworkItems</key>
