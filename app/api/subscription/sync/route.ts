@@ -171,7 +171,7 @@ export async function POST(req: Request) {
         subscription_store = $5,
         revenuecat_app_user_id = COALESCE($6, revenuecat_app_user_id),
         subscription_started_at = CASE
-          WHEN $1 = 'premium' AND subscription_started_at IS NULL
+          WHEN $1::text = 'premium' AND subscription_started_at IS NULL
           THEN NOW()
           ELSE subscription_started_at
         END,
