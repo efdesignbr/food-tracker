@@ -164,7 +164,7 @@ export async function POST(req: Request) {
     // Atualiza o usuario no banco
     await pool.query(
       `UPDATE users SET
-        plan = $1,
+        plan = $1::text,
         subscription_status = $2,
         subscription_expires_at = $3,
         subscription_product_id = $4,
