@@ -276,6 +276,10 @@ export default function CapturePage() {
         if (res.status === 499) {
           return;
         }
+        // Ad failed - just return silently (Apple rejects apps showing ad errors)
+        if (res.status === 503 && json?.error === 'ad_failed') {
+          return;
+        }
         // Paywall
         if (res.status === 403 && json?.error === 'upgrade_required') {
           setShowPaywall(true);
@@ -364,6 +368,10 @@ export default function CapturePage() {
         }
         // User cancelled ad - just return silently
         if (res.status === 499) {
+          return;
+        }
+        // Ad failed - just return silently (Apple rejects apps showing ad errors)
+        if (res.status === 503 && json?.error === 'ad_failed') {
           return;
         }
         // Paywall

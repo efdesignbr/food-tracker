@@ -95,11 +95,24 @@ export async function POST(req: Request) {
     const anyActiveEntitlement = premiumEntitlement?.isActive
       ? premiumEntitlement
       : Object.values(activeEntitlements).find((e: any) => e?.isActive);
-    // Fallback 2: produtos ativos conhecidos
+    // Fallback 2: produtos ativos conhecidos em activeSubscriptions
     const activeProductId = (customerInfo.activeSubscriptions || []).find((pid) =>
       pid === REVENUECAT.PRODUCTS.MONTHLY || pid === REVENUECAT.PRODUCTS.ANNUAL
     ) || null;
-    const isPremium = !!anyActiveEntitlement || !!activeProductId;
+    // Fallback 3: produtos comprados (útil para simulador StoreKit)
+    const purchasedProductId = (customerInfo.allPurchasedProductIdentifiers || []).find((pid) =>
+      pid === REVENUECAT.PRODUCTS.MONTHLY || pid === REVENUECAT.PRODUCTS.ANNUAL
+    ) || null;
+    const isPremium = !!anyActiveEntitlement || !!activeProductId || !!purchasedProductId;
+
+    logger.info('[Subscription Sync] Detection', {
+      hasEntitlement: !!anyActiveEntitlement,
+      activeProductId,
+      purchasedProductId,
+      isPremium,
+      activeSubscriptions: customerInfo.activeSubscriptions,
+      allPurchased: customerInfo.allPurchasedProductIdentifiers,
+    });
 
     // Busca estado atual do usuario
     const { rows: userRows } = await pool.query<{
@@ -130,10 +143,10 @@ export async function POST(req: Request) {
     if (isPremium) {
       newPlan = 'premium';
       const ent = anyActiveEntitlement as any;
-      // willRenew pode não existir em alguns SDKs → assume true quando houver activeSubscriptions
-      const willRenew = ent?.willRenew ?? (activeProductId ? true : false);
+      // willRenew pode não existir em alguns SDKs → assume true quando houver activeSubscriptions ou purchasedProducts
+      const willRenew = ent?.willRenew ?? (activeProductId || purchasedProductId ? true : false);
       newStatus = willRenew ? 'active' : 'canceled';
-      productId = ent?.productIdentifier || activeProductId;
+      productId = ent?.productIdentifier || activeProductId || purchasedProductId;
       // store pode não estar no entitlement; mantém null se indisponível
       store = ent?.store ? mapStoreToDb(ent.store) : null;
 

@@ -83,91 +83,32 @@ export default function AppLayout({ children, tenantName, userName }: {
           height: 56
         }}>
           {/* Logo */}
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div>
-                <h1 style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  margin: 0,
-                  color: '#2196F3',
-                  cursor: 'pointer'
-                }}>
-                  Food Tracker
-                </h1>
-                {tenantName && (
-                  <p style={{
-                    fontSize: 10,
-                    color: '#666',
-                    margin: 0
-                  }}>
-                    {tenantName}
-                  </p>
-                )}
-              </div>
-              {!isPlanLoading && <PlanBadge plan={plan} size="sm" />}
-            </div>
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <img
+              src="/icon-192.png"
+              alt="Food Tracker"
+              width={36}
+              height={36}
+              style={{ borderRadius: 8 }}
+            />
+            {!isPlanLoading && <PlanBadge plan={plan} size="sm" />}
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav style={{
-            display: 'flex',
-            gap: 8,
-            alignItems: 'center'
-          }}>
-            <div style={{ display: 'none' }} className="desktop-nav-items">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: 8,
-                    textDecoration: 'none',
-                    color: pathname === item.href ? '#2196F3' : '#333',
-                    backgroundColor: pathname === item.href ? '#E3F2FD' : 'transparent',
-                    fontWeight: pathname === item.href ? 600 : 400,
-                    fontSize: 14
-                  }}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <button
-                onClick={handleLogout}
-                style={{
-                  marginLeft: 16,
-                  padding: '8px 16px',
-                  borderRadius: 8,
-                  border: '1px solid #e0e0e0',
-                  backgroundColor: '#fff',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  color: '#c62828'
-                }}
-              >
-                Sair
-              </button>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              style={{
-                display: 'block',
-                padding: 8,
-                border: 'none',
-                background: 'none',
-                fontSize: 24,
-                cursor: 'pointer',
-                lineHeight: 1
-              }}
-              className="mobile-menu-btn"
-              aria-label={showMobileMenu ? 'Fechar menu' : 'Abrir menu'}
-            >
-              {showMobileMenu ? '✕' : '☰'}
-            </button>
-          </nav>
+          {/* Menu Button (Hamburger) */}
+          <button
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            style={{
+              padding: 8,
+              border: 'none',
+              background: 'none',
+              fontSize: 24,
+              cursor: 'pointer',
+              lineHeight: 1
+            }}
+            aria-label={showMobileMenu ? 'Fechar menu' : 'Abrir menu'}
+          >
+            {showMobileMenu ? '✕' : '☰'}
+          </button>
         </div>
 
         {/* Mobile Menu */}
@@ -227,16 +168,6 @@ export default function AppLayout({ children, tenantName, userName }: {
         {children}
       </main>
 
-      <style jsx global>{`
-        @media (min-width: 768px) {
-          .desktop-nav-items {
-            display: flex !important;
-          }
-          .mobile-menu-btn {
-            display: none !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

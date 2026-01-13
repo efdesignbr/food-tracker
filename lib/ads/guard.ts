@@ -86,7 +86,9 @@ export function getAdGuardErrorMessage(response: Response, json: any): string | 
   }
 
   if (response.status === 503 && json?.error === 'ad_failed') {
-    return 'Não foi possível carregar o anúncio. Por favor, tente novamente em alguns instantes.';
+    // Não mostrar erro ao usuário - degradar graciosamente
+    // A Apple rejeita apps que mostram erros de anúncio
+    return null;
   }
 
   if (response.status === 403) {

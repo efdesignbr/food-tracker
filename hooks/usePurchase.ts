@@ -67,10 +67,11 @@ export function usePurchase() {
 
       const current = offerings.current;
       if (!current) {
+        // Não mostrar erro técnico - usar mensagem amigável
         setState(prev => ({
           ...prev,
           isLoading: false,
-          error: 'Nenhuma oferta disponível',
+          error: 'Assinaturas temporariamente indisponíveis. Tente novamente mais tarde.',
         }));
         return;
       }
@@ -83,10 +84,12 @@ export function usePurchase() {
       });
     } catch (err) {
       console.error('[Purchase] Load offerings error:', err);
+      // Não mostrar mensagem técnica do SDK - usar mensagem amigável
+      // A Apple rejeita apps que mostram erros técnicos de configuração
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: err instanceof Error ? err.message : 'Erro ao carregar ofertas',
+        error: 'Assinaturas temporariamente indisponíveis. Tente novamente mais tarde.',
       }));
     }
   }, [isMobile]);
@@ -104,24 +107,25 @@ export function usePurchase() {
 
       const result = await Purchases.purchasePackage({ aPackage: pkg as any });
 
-      // Verifica se a compra foi bem sucedida
+      // Sempre sincroniza com o backend após compra bem-sucedida
+      // O entitlement pode não estar imediatamente ativo no customerInfo
+      try {
+        await api.post('/api/subscription/sync', {
+          customerInfo: result.customerInfo,
+        });
+        console.log('[Purchase] Sync success');
+      } catch (syncErr) {
+        console.error('[Purchase] Sync error:', syncErr);
+      }
+
+      // Verifica se a compra ativou o premium
       const isPremium = !!result.customerInfo.entitlements.active['premium'];
 
       setState(prev => ({ ...prev, isLoading: false }));
 
-      if (isPremium) {
-        // Sincroniza com o backend
-        try {
-          await api.post('/api/subscription/sync', {
-            customerInfo: result.customerInfo,
-          });
-          console.log('[Purchase] Sync success');
-        } catch (syncErr) {
-          console.error('[Purchase] Sync error:', syncErr);
-        }
-      }
-
-      return isPremium;
+      // Se não detectou premium no customerInfo, pode ser delay do RevenueCat
+      // O sync já foi feito, então retorna true para atualizar UI
+      return isPremium || result.customerInfo.activeSubscriptions.length > 0;
     } catch (err: any) {
       // Verifica se foi cancelamento do usuario
       if (err?.userCancelled) {
@@ -130,10 +134,11 @@ export function usePurchase() {
       }
 
       console.error('[Purchase] Error:', err);
+      // Não mostrar mensagem técnica - usar mensagem amigável
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: err instanceof Error ? err.message : 'Erro na compra',
+        error: 'Não foi possível completar a compra. Tente novamente.',
       }));
       return false;
     }
@@ -168,10 +173,11 @@ export function usePurchase() {
       return isPremium;
     } catch (err) {
       console.error('[Purchase] Restore error:', err);
+      // Não mostrar mensagem técnica - usar mensagem amigável
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: err instanceof Error ? err.message : 'Erro ao restaurar',
+        error: 'Não foi possível restaurar compras. Tente novamente.',
       }));
       return false;
     }
