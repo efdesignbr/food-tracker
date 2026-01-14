@@ -750,6 +750,161 @@ export async function getShoppingStats(args: {
   }
 }
 
+// ============ PRICE ANALYSIS ============
+
+export interface ProductListItem {
+  name: string;
+  displayName: string;
+  purchaseCount: number;
+}
+
+export interface PriceByStore {
+  storeName: string;
+  avgPrice: number;
+  lastPrice: number;
+  purchaseCount: number;
+}
+
+export interface PriceHistoryItem {
+  date: Date;
+  price: number;
+  storeName: string;
+}
+
+export interface ProductPriceAnalysis {
+  products: ProductListItem[];
+  pricesByStore: PriceByStore[];
+  priceHistory: PriceHistoryItem[];
+}
+
+export async function getProductPriceAnalysis(args: {
+  tenantId: string;
+  userId: string;
+  productName?: string;
+}): Promise<ProductPriceAnalysis> {
+  const pool = getPool();
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+    await client.query("SELECT set_config('app.tenant_id', $1, true)", [args.tenantId]);
+
+    // 1. Lista de produtos com preço unitário (top 50)
+    const productsRes = await client.query(
+      `SELECT
+         LOWER(TRIM(si.name)) as name,
+         COUNT(*) as purchase_count
+       FROM shopping_items si
+       JOIN shopping_lists sl ON si.list_id = sl.id
+       WHERE sl.tenant_id = $1
+         AND sl.user_id = $2
+         AND si.is_purchased = true
+         AND si.unit_price IS NOT NULL
+       GROUP BY 1
+       ORDER BY COUNT(*) DESC
+       LIMIT 50`,
+      [args.tenantId, args.userId]
+    );
+
+    const products: ProductListItem[] = productsRes.rows.map(r => ({
+      name: r.name,
+      displayName: r.name.charAt(0).toUpperCase() + r.name.slice(1),
+      purchaseCount: Number(r.purchase_count)
+    }));
+
+    let pricesByStore: PriceByStore[] = [];
+    let priceHistory: PriceHistoryItem[] = [];
+
+    // Se um produto foi especificado, buscar análise detalhada
+    if (args.productName) {
+      const normalizedName = args.productName.toLowerCase().trim();
+
+      // 2. Preços por mercado
+      const storeRes = await client.query(
+        `SELECT
+           COALESCE(s.name, 'Sem mercado') as store_name,
+           AVG(si.unit_price) as avg_price,
+           COUNT(*) as purchase_count
+         FROM shopping_items si
+         JOIN shopping_lists sl ON si.list_id = sl.id
+         LEFT JOIN stores s ON sl.store_id = s.id
+         WHERE sl.tenant_id = $1
+           AND sl.user_id = $2
+           AND si.is_purchased = true
+           AND si.unit_price IS NOT NULL
+           AND LOWER(TRIM(si.name)) = $3
+         GROUP BY COALESCE(s.name, 'Sem mercado')
+         ORDER BY AVG(si.unit_price) ASC`,
+        [args.tenantId, args.userId, normalizedName]
+      );
+
+      // Buscar último preço para cada loja
+      for (const row of storeRes.rows) {
+        const lastPriceRes = await client.query(
+          `SELECT si.unit_price
+           FROM shopping_items si
+           JOIN shopping_lists sl ON si.list_id = sl.id
+           LEFT JOIN stores s ON sl.store_id = s.id
+           WHERE sl.tenant_id = $1
+             AND sl.user_id = $2
+             AND si.is_purchased = true
+             AND si.unit_price IS NOT NULL
+             AND LOWER(TRIM(si.name)) = $3
+             AND COALESCE(s.name, 'Sem mercado') = $4
+           ORDER BY sl.completed_at DESC
+           LIMIT 1`,
+          [args.tenantId, args.userId, normalizedName, row.store_name]
+        );
+
+        pricesByStore.push({
+          storeName: row.store_name,
+          avgPrice: Number(row.avg_price),
+          lastPrice: lastPriceRes.rows[0]?.unit_price ? Number(lastPriceRes.rows[0].unit_price) : Number(row.avg_price),
+          purchaseCount: Number(row.purchase_count)
+        });
+      }
+
+      // 3. Histórico de preços
+      const historyRes = await client.query(
+        `SELECT
+           sl.completed_at as date,
+           si.unit_price as price,
+           COALESCE(s.name, 'Sem mercado') as store_name
+         FROM shopping_items si
+         JOIN shopping_lists sl ON si.list_id = sl.id
+         LEFT JOIN stores s ON sl.store_id = s.id
+         WHERE sl.tenant_id = $1
+           AND sl.user_id = $2
+           AND si.is_purchased = true
+           AND si.unit_price IS NOT NULL
+           AND LOWER(TRIM(si.name)) = $3
+         ORDER BY sl.completed_at ASC`,
+        [args.tenantId, args.userId, normalizedName]
+      );
+
+      priceHistory = historyRes.rows.map(r => ({
+        date: r.date,
+        price: Number(r.price),
+        storeName: r.store_name
+      }));
+    }
+
+    await client.query('COMMIT');
+
+    return {
+      products,
+      pricesByStore,
+      priceHistory
+    };
+
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
 // ============ SCAN RECEIPT ============
 
 export interface ReceiptItemInput {

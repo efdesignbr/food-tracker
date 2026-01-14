@@ -133,6 +133,21 @@ export async function POST(req: Request) {
     const currentUser = userRows[0];
     const originalAppUserId = customerInfo.originalAppUserId;
 
+    // PROTECAO: Nunca sobrescrever plano "unlimited"
+    if (currentUser.plan === 'unlimited') {
+      logger.info('[Subscription Sync] Skipping - user has unlimited plan', {
+        userId: user.id,
+        plan: currentUser.plan,
+      });
+      return NextResponse.json({
+        ok: true,
+        synced: false,
+        plan: 'unlimited',
+        subscription_status: currentUser.subscription_status,
+        message: 'Unlimited plan is protected',
+      });
+    }
+
     // Determina o novo estado da assinatura
     let newPlan: Plan = 'free';
     let newStatus: SubscriptionStatus = 'active';
