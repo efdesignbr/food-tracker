@@ -29,6 +29,7 @@ let admob: AdmobModule | null = null;
 let BannerAdSizeEnum: any = null;
 let BannerAdPositionEnum: any = null;
 let initialized = false;
+let attRequested = false;
 
 async function loadAdmob(): Promise<void> {
   if (admob) return;
@@ -43,9 +44,41 @@ async function loadAdmob(): Promise<void> {
   }
 }
 
+/**
+ * Solicita permissão de App Tracking Transparency (ATT) no iOS 14.5+
+ * IMPORTANTE: Esta função DEVE ser chamada ANTES de inicializar o AdMob
+ * para cumprir os requisitos da Apple App Store.
+ */
+export async function requestTrackingPermission(): Promise<void> {
+  if (!Capacitor.isNativePlatform()) return;
+  if (attRequested) return;
+
+  attRequested = true;
+
+  await loadAdmob();
+  if (!admob) return;
+
+  try {
+    // Verifica se o método existe (iOS 14.5+)
+    if (typeof admob.requestTrackingAuthorization === 'function') {
+      console.log('[ATT] Requesting tracking authorization...');
+      const result = await admob.requestTrackingAuthorization();
+      console.log('[ATT] Authorization result:', result);
+    } else {
+      console.log('[ATT] requestTrackingAuthorization not available (possibly Android or older iOS)');
+    }
+  } catch (e) {
+    console.warn('[ATT] requestTrackingAuthorization error (non-fatal):', e);
+  }
+}
+
 export async function initAdMob(): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
   if (initialized) return;
+
+  // IMPORTANTE: Solicita ATT ANTES de inicializar o AdMob
+  await requestTrackingPermission();
+
   await loadAdmob();
   if (!admob) {
     initialized = true;

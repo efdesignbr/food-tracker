@@ -191,6 +191,52 @@ export function PaywallScreen({ onPurchaseComplete, onClose }: PaywallScreenProp
         </button>
       </div>
 
+      {/* Subscription Terms - Required by Apple */}
+      <div style={{
+        marginTop: 24,
+        padding: '16px 0',
+        borderTop: '1px solid #e5e7eb',
+        textAlign: 'center'
+      }}>
+        <p style={{
+          fontSize: 11,
+          color: '#9ca3af',
+          lineHeight: 1.6,
+          margin: '0 0 12px 0'
+        }}>
+          A assinatura sera renovada automaticamente ao final de cada periodo.
+          O pagamento sera cobrado na sua conta da App Store.
+          Voce pode cancelar a qualquer momento nas configuracoes da sua conta.
+        </p>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 16,
+          flexWrap: 'wrap'
+        }}>
+          <a
+            href="/privacidade"
+            style={{
+              fontSize: 12,
+              color: '#667eea',
+              textDecoration: 'underline'
+            }}
+          >
+            Politica de Privacidade
+          </a>
+          <a
+            href="/termos"
+            style={{
+              fontSize: 12,
+              color: '#667eea',
+              textDecoration: 'underline'
+            }}
+          >
+            Termos de Uso
+          </a>
+        </div>
+      </div>
+
       {/* Close */}
       {onClose && (
         <div style={{ marginTop: 16, textAlign: 'center' }}>

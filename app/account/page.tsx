@@ -1080,7 +1080,85 @@ export default function AccountPage() {
           )}
         </div>
 
-        {/* 5. Zona de Perigo - Excluir Conta */}
+        {/* 5. Termos e Privacidade */}
+        <div style={{
+          background: 'white',
+          borderRadius: 16,
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          border: expandedSection === 'legal' ? '2px solid #3b82f6' : '1px solid #e5e7eb'
+        }}>
+          <button
+            onClick={() => toggleSection('legal')}
+            style={{
+              width: '100%',
+              padding: 20,
+              border: 'none',
+              background: expandedSection === 'legal' ? '#eff6ff' : 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontWeight: 700,
+              fontSize: 16,
+              color: expandedSection === 'legal' ? '#3b82f6' : '#374151'
+            }}
+          >
+            <span>Termos e Privacidade</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expandedSection === 'legal' ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+
+          {expandedSection === 'legal' && (
+            <div style={{ padding: 20, borderTop: '1px solid #e5e7eb' }}>
+              <div style={{ display: 'grid', gap: 12 }}>
+                <a
+                  href="/privacidade"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: 16,
+                    background: '#f9fafb',
+                    borderRadius: 12,
+                    textDecoration: 'none',
+                    color: '#374151',
+                    fontWeight: 600,
+                    fontSize: 14
+                  }}
+                >
+                  <span>Politica de Privacidade</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </a>
+                <a
+                  href="/termos"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: 16,
+                    background: '#f9fafb',
+                    borderRadius: 12,
+                    textDecoration: 'none',
+                    color: '#374151',
+                    fontWeight: 600,
+                    fontSize: 14
+                  }}
+                >
+                  <span>Termos de Uso</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 6. Zona de Perigo - Excluir Conta */}
         <div style={{
           background: 'white',
           borderRadius: 16,
