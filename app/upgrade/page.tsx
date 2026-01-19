@@ -122,6 +122,7 @@ export default function UpgradePage() {
     setShowPaywall(false);
     refetch();
     router.push('/account');
+    router.refresh();
   };
 
   return (

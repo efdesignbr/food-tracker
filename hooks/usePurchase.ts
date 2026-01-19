@@ -51,6 +51,8 @@ export function usePurchase() {
    * Carrega as ofertas disponiveis
    */
   const loadOfferings = useCallback(async () => {
+    console.log('[Purchase] loadOfferings called, isMobile:', isMobile);
+
     if (!isMobile) {
       setState(prev => ({
         ...prev,
@@ -63,10 +65,37 @@ export function usePurchase() {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
 
       const { Purchases } = await import('@revenuecat/purchases-capacitor');
+
+      // LOG: Verifica se SDK está configurado tentando obter customerInfo
+      console.log('[Purchase] Checking if SDK is configured...');
+      try {
+        const { customerInfo } = await Purchases.getCustomerInfo();
+        console.log('[Purchase] SDK is configured, customerInfo userId:', customerInfo.originalAppUserId);
+      } catch (configCheckErr) {
+        console.log('[Purchase] SDK NOT configured, configuring now...');
+        const apiKey = process.env.NEXT_PUBLIC_REVENUECAT_API_KEY;
+        console.log('[Purchase] API Key exists:', !!apiKey);
+        if (apiKey) {
+          await Purchases.configure({ apiKey });
+          console.log('[Purchase] SDK configured successfully');
+        } else {
+          console.error('[Purchase] NO API KEY FOUND!');
+        }
+      }
+
+      console.log('[Purchase] Calling getOfferings...');
       const offerings = await Purchases.getOfferings();
+      console.log('[Purchase] getOfferings result:', JSON.stringify({
+        hasOfferings: !!offerings,
+        hasCurrent: !!offerings?.current,
+        currentIdentifier: offerings?.current?.identifier,
+        allOfferingsKeys: offerings?.all ? Object.keys(offerings.all) : [],
+        availablePackagesCount: offerings?.current?.availablePackages?.length ?? 0,
+      }));
 
       const current = offerings.current;
       if (!current) {
+        console.error('[Purchase] offerings.current is NULL! Full offerings:', JSON.stringify(offerings));
         // Não mostrar erro técnico - usar mensagem amigável
         setState(prev => ({
           ...prev,
@@ -76,14 +105,23 @@ export function usePurchase() {
         return;
       }
 
+      console.log('[Purchase] Current offering found:', current.identifier, 'packages:', current.availablePackages?.length);
+
       setState({
         isLoading: false,
         error: null,
         offerings: current as unknown as Offering,
         packages: (current.availablePackages || []) as unknown as Package[],
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error('[Purchase] Load offerings error:', err);
+      console.error('[Purchase] Error details:', JSON.stringify({
+        message: err?.message,
+        code: err?.code,
+        underlyingErrorMessage: err?.underlyingErrorMessage,
+        readableErrorCode: err?.readableErrorCode,
+        stack: err?.stack,
+      }));
       // Não mostrar mensagem técnica do SDK - usar mensagem amigável
       // A Apple rejeita apps que mostram erros técnicos de configuração
       setState(prev => ({
@@ -108,7 +146,6 @@ export function usePurchase() {
       const result = await Purchases.purchasePackage({ aPackage: pkg as any });
 
       // Sempre sincroniza com o backend após compra bem-sucedida
-      // O entitlement pode não estar imediatamente ativo no customerInfo
       try {
         await api.post('/api/subscription/sync', {
           customerInfo: result.customerInfo,
@@ -118,14 +155,11 @@ export function usePurchase() {
         console.error('[Purchase] Sync error:', syncErr);
       }
 
-      // Verifica se a compra ativou o premium
-      const isPremium = !!result.customerInfo.entitlements.active['premium'];
-
       setState(prev => ({ ...prev, isLoading: false }));
 
-      // Se não detectou premium no customerInfo, pode ser delay do RevenueCat
-      // O sync já foi feito, então retorna true para atualizar UI
-      return isPremium || result.customerInfo.activeSubscriptions.length > 0;
+      // Compra bem-sucedida (não caiu no catch) = retorna true
+      // O backend já foi sincronizado e tem fallbacks robustos
+      return true;
     } catch (err: any) {
       // Verifica se foi cancelamento do usuario
       if (err?.userCancelled) {
