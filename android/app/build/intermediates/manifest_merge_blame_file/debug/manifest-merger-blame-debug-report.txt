@@ -1,0 +1,579 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="br.com.foodtracker.app"
+4    android:versionCode="1"
+5    android:versionName="1.0.1" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="35" />
+10
+11    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+11-->[:capacitor-community-admob] /Users/edsonferreira/projetos/food-tracker/node_modules/@capacitor-community/admob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-79
+11-->[:capacitor-community-admob] /Users/edsonferreira/projetos/food-tracker/node_modules/@capacitor-community/admob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:7:22-76
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->[:capacitor-community-admob] /Users/edsonferreira/projetos/food-tracker/node_modules/@capacitor-community/admob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:8:5-67
+12-->[:capacitor-community-admob] /Users/edsonferreira/projetos/food-tracker/node_modules/@capacitor-community/admob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:8:22-64
+13    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+13-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:26:5-79
+13-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:26:22-76
+14    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" />
+14-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:27:5-82
+14-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:27:22-79
+15    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION" />
+15-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:28:5-88
+15-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:28:22-85
+16    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_TOPICS" /> <!-- Android package visibility setting -->
+16-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:29:5-83
+16-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:29:22-80
+17    <queries>
+17-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:35:5-68:15
+18
+19        <!-- For browser content -->
+20        <intent>
+20-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:38:9-44:18
+21            <action android:name="android.intent.action.VIEW" />
+21-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:39:13-65
+21-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:39:21-62
+22
+23            <category android:name="android.intent.category.BROWSABLE" />
+23-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:41:13-74
+23-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:41:23-71
+24
+25            <data android:scheme="https" />
+25-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:43:13-44
+25-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:43:19-41
+26        </intent>
+27        <!-- End of browser content -->
+28        <!-- For CustomTabsService -->
+29        <intent>
+29-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:47:9-49:18
+30            <action android:name="android.support.customtabs.action.CustomTabsService" />
+30-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:48:13-90
+30-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:48:21-87
+31        </intent>
+32        <!-- End of CustomTabsService -->
+33        <!-- For MRAID capabilities -->
+34        <intent>
+34-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:52:9-56:18
+35            <action android:name="android.intent.action.INSERT" />
+35-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:53:13-67
+35-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:53:21-64
+36
+37            <data android:mimeType="vnd.android.cursor.dir/event" />
+37-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:43:13-44
+38        </intent>
+39        <intent>
+39-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:57:9-61:18
+40            <action android:name="android.intent.action.VIEW" />
+40-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:39:13-65
+40-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:39:21-62
+41
+42            <data android:scheme="sms" />
+42-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:43:13-44
+42-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:43:19-41
+43        </intent>
+44        <intent>
+44-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:62:9-66:18
+45            <action android:name="android.intent.action.DIAL" />
+45-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:63:13-65
+45-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:63:21-62
+46
+47            <data android:path="tel:" />
+47-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:43:13-44
+48        </intent>
+49        <!-- End of MRAID capabilities -->
+50        <intent>
+50-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:13:9-15:18
+51            <action android:name="com.android.vending.billing.InAppBillingService.BIND" />
+51-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:14:13-91
+51-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:14:21-88
+52        </intent>
+53        <intent>
+53-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:16:9-18:18
+54            <action android:name="com.google.android.apps.play.billingtestcompanion.BillingOverrideService.BIND" />
+54-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:17:13-116
+54-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:17:21-113
+55        </intent>
+56    </queries>
+57
+58    <uses-permission android:name="com.android.vending.BILLING" />
+58-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:10:5-67
+58-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:10:22-64
+59    <uses-permission android:name="android.permission.WAKE_LOCK" />
+59-->[com.google.android.gms:play-services-measurement-sdk-api:20.1.2] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/f72115538bd1d66355d54de67eb7700e/transformed/play-services-measurement-sdk-api-20.1.2/AndroidManifest.xml:25:5-68
+59-->[com.google.android.gms:play-services-measurement-sdk-api:20.1.2] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/f72115538bd1d66355d54de67eb7700e/transformed/play-services-measurement-sdk-api-20.1.2/AndroidManifest.xml:25:22-65
+60    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+60-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:28:5-77
+60-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:28:22-74
+61
+62    <permission
+62-->[androidx.core:core:1.17.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/d8c025e07660f5d47dbe01f9d85cec9d/transformed/core-1.17.0/AndroidManifest.xml:22:5-24:47
+63        android:name="br.com.foodtracker.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+63-->[androidx.core:core:1.17.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/d8c025e07660f5d47dbe01f9d85cec9d/transformed/core-1.17.0/AndroidManifest.xml:23:9-81
+64        android:protectionLevel="signature" />
+64-->[androidx.core:core:1.17.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/d8c025e07660f5d47dbe01f9d85cec9d/transformed/core-1.17.0/AndroidManifest.xml:24:9-44
+65
+66    <uses-permission android:name="br.com.foodtracker.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+66-->[androidx.core:core:1.17.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/d8c025e07660f5d47dbe01f9d85cec9d/transformed/core-1.17.0/AndroidManifest.xml:26:5-97
+66-->[androidx.core:core:1.17.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/d8c025e07660f5d47dbe01f9d85cec9d/transformed/core-1.17.0/AndroidManifest.xml:26:22-94
+67
+68    <application
+68-->/Users/edsonferreira/projetos/food-tracker/android/app/src/main/AndroidManifest.xml:5:5-10:19
+69        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+69-->[androidx.core:core:1.17.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/d8c025e07660f5d47dbe01f9d85cec9d/transformed/core-1.17.0/AndroidManifest.xml:28:18-86
+70        android:debuggable="true"
+71        android:extractNativeLibs="false"
+72        android:testOnly="true" >
+73        <activity
+73-->/Users/edsonferreira/projetos/food-tracker/android/app/src/main/AndroidManifest.xml:6:9-9:57
+74            android:name="br.com.foodtracker.app.MainActivity"
+74-->/Users/edsonferreira/projetos/food-tracker/android/app/src/main/AndroidManifest.xml:7:13-63
+75            android:screenOrientation="portrait" />
+75-->/Users/edsonferreira/projetos/food-tracker/android/app/src/main/AndroidManifest.xml:8:13-49
+76        <!-- Include the AdActivity and InAppPurchaseActivity configChanges and themes. -->
+77        <activity
+77-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:73:9-79:43
+78            android:name="com.google.android.gms.ads.AdActivity"
+78-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:74:13-65
+79            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+79-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:75:13-122
+80            android:enableOnBackInvokedCallback="false"
+80-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:76:13-56
+81            android:exported="false"
+81-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:77:13-37
+82            android:theme="@android:style/Theme.Translucent" />
+82-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:78:13-61
+83
+84        <provider
+84-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:81:9-86:43
+85            android:name="com.google.android.gms.ads.MobileAdsInitProvider"
+85-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:82:13-76
+86            android:authorities="br.com.foodtracker.app.mobileadsinitprovider"
+86-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:83:13-73
+87            android:exported="false"
+87-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:84:13-37
+88            android:initOrder="100" />
+88-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:85:13-36
+89
+90        <service
+90-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:88:9-92:43
+91            android:name="com.google.android.gms.ads.AdService"
+91-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:89:13-64
+92            android:enabled="true"
+92-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:90:13-35
+93            android:exported="false" />
+93-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:91:13-37
+94
+95        <activity
+95-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:94:9-98:43
+96            android:name="com.google.android.gms.ads.OutOfContextTestingActivity"
+96-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:95:13-82
+97            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+97-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:96:13-122
+98            android:exported="false" />
+98-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:97:13-37
+99        <activity
+99-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:99:9-106:43
+100            android:name="com.google.android.gms.ads.NotificationHandlerActivity"
+100-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:100:13-82
+101            android:excludeFromRecents="true"
+101-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:101:13-46
+102            android:exported="false"
+102-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:102:13-37
+103            android:launchMode="singleTask"
+103-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:103:13-44
+104            android:taskAffinity=""
+104-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:104:13-36
+105            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+105-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:105:13-72
+106
+107        <meta-data
+107-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:108:9-110:36
+108            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
+108-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:109:13-79
+109            android:value="true" />
+109-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:110:13-33
+110        <meta-data
+110-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:111:9-113:36
+111            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
+111-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:112:13-83
+112            android:value="true" />
+112-->[com.google.android.gms:play-services-ads-api:24.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/687ed80842f0d992a04a2975e4df07d0/transformed/play-services-ads-api-24.7.0/AndroidManifest.xml:113:13-33
+113
+114        <receiver
+114-->[com.revenuecat.purchases:purchases-store-amazon:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/477880234b2bfd64d2cfa38498271e8f/transformed/purchases-store-amazon-9.18.0/AndroidManifest.xml:8:9-15:20
+115            android:name="com.amazon.device.iap.ResponseReceiver"
+115-->[com.revenuecat.purchases:purchases-store-amazon:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/477880234b2bfd64d2cfa38498271e8f/transformed/purchases-store-amazon-9.18.0/AndroidManifest.xml:9:13-66
+116            android:exported="true"
+116-->[com.revenuecat.purchases:purchases-store-amazon:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/477880234b2bfd64d2cfa38498271e8f/transformed/purchases-store-amazon-9.18.0/AndroidManifest.xml:10:13-36
+117            android:permission="com.amazon.inapp.purchasing.Permission.NOTIFY" >
+117-->[com.revenuecat.purchases:purchases-store-amazon:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/477880234b2bfd64d2cfa38498271e8f/transformed/purchases-store-amazon-9.18.0/AndroidManifest.xml:11:13-79
+118            <intent-filter>
+118-->[com.revenuecat.purchases:purchases-store-amazon:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/477880234b2bfd64d2cfa38498271e8f/transformed/purchases-store-amazon-9.18.0/AndroidManifest.xml:12:13-14:29
+119                <action android:name="com.amazon.inapp.purchasing.NOTIFY" />
+119-->[com.revenuecat.purchases:purchases-store-amazon:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/477880234b2bfd64d2cfa38498271e8f/transformed/purchases-store-amazon-9.18.0/AndroidManifest.xml:13:17-77
+119-->[com.revenuecat.purchases:purchases-store-amazon:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/477880234b2bfd64d2cfa38498271e8f/transformed/purchases-store-amazon-9.18.0/AndroidManifest.xml:13:25-74
+120            </intent-filter>
+121        </receiver>
+122
+123        <activity
+123-->[com.revenuecat.purchases:purchases:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/4216f19685855ab63bf016e417709a91/transformed/purchases-9.18.0/AndroidManifest.xml:10:9-13:75
+124            android:name="com.revenuecat.purchases.amazon.purchasing.ProxyAmazonBillingActivity"
+124-->[com.revenuecat.purchases:purchases:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/4216f19685855ab63bf016e417709a91/transformed/purchases-9.18.0/AndroidManifest.xml:11:13-97
+125            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+125-->[com.revenuecat.purchases:purchases:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/4216f19685855ab63bf016e417709a91/transformed/purchases-9.18.0/AndroidManifest.xml:12:13-96
+126            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+126-->[com.revenuecat.purchases:purchases:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/4216f19685855ab63bf016e417709a91/transformed/purchases-9.18.0/AndroidManifest.xml:13:13-72
+127        <activity
+127-->[com.revenuecat.purchases:purchases:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/4216f19685855ab63bf016e417709a91/transformed/purchases-9.18.0/AndroidManifest.xml:14:9-18:74
+128            android:name="com.revenuecat.purchases.SimulatedStoreErrorDialogActivity"
+128-->[com.revenuecat.purchases:purchases:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/4216f19685855ab63bf016e417709a91/transformed/purchases-9.18.0/AndroidManifest.xml:15:13-86
+129            android:configChanges="orientation|screenSize"
+129-->[com.revenuecat.purchases:purchases:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/4216f19685855ab63bf016e417709a91/transformed/purchases-9.18.0/AndroidManifest.xml:16:13-59
+130            android:excludeFromRecents="true"
+130-->[com.revenuecat.purchases:purchases:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/4216f19685855ab63bf016e417709a91/transformed/purchases-9.18.0/AndroidManifest.xml:17:13-46
+131            android:theme="@android:style/Theme.Material.Dialog.Alert" />
+131-->[com.revenuecat.purchases:purchases:9.18.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/4216f19685855ab63bf016e417709a91/transformed/purchases-9.18.0/AndroidManifest.xml:18:13-71
+132
+133        <meta-data
+133-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:22:9-24:37
+134            android:name="com.google.android.play.billingclient.version"
+134-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:23:13-73
+135            android:value="8.0.0" />
+135-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:24:13-34
+136
+137        <activity
+137-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:26:9-30:75
+138            android:name="com.android.billingclient.api.ProxyBillingActivity"
+138-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:27:13-78
+139            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+139-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:28:13-96
+140            android:exported="false"
+140-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:29:13-37
+141            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+141-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:30:13-72
+142        <activity
+142-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:31:9-35:75
+143            android:name="com.android.billingclient.api.ProxyBillingActivityV2"
+143-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:32:13-80
+144            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+144-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:33:13-96
+145            android:exported="false"
+145-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:34:13-37
+146            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+146-->[com.android.billingclient:billing:8.0.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9bf5c0afff0cb948c5031be90451ba04/transformed/billing-8.0.0/AndroidManifest.xml:35:13-72
+147        <activity
+147-->[com.google.android.gms:play-services-base:18.5.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9f1cc34b4773c8ef71bd5f5f81139140/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:9-173
+148            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+148-->[com.google.android.gms:play-services-base:18.5.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9f1cc34b4773c8ef71bd5f5f81139140/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:19-85
+149            android:exported="false"
+149-->[com.google.android.gms:play-services-base:18.5.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9f1cc34b4773c8ef71bd5f5f81139140/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:146-170
+150            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+150-->[com.google.android.gms:play-services-base:18.5.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/9f1cc34b4773c8ef71bd5f5f81139140/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:86-145
+151
+152        <meta-data
+152-->[com.google.android.gms:play-services-basement:18.4.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/54cd590121b17a0c892d90978c27b180/transformed/play-services-basement-18.4.0/AndroidManifest.xml:6:9-122
+153            android:name="com.google.android.gms.version"
+153-->[com.google.android.gms:play-services-basement:18.4.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/54cd590121b17a0c892d90978c27b180/transformed/play-services-basement-18.4.0/AndroidManifest.xml:6:20-65
+154            android:value="@integer/google_play_services_version" />
+154-->[com.google.android.gms:play-services-basement:18.4.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/54cd590121b17a0c892d90978c27b180/transformed/play-services-basement-18.4.0/AndroidManifest.xml:6:66-119
+155
+156        <provider
+156-->[androidx.emoji2:emoji2:1.3.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/1067e55c6c3e756c311fa13122fd4a6d/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
+157            android:name="androidx.startup.InitializationProvider"
+157-->[androidx.emoji2:emoji2:1.3.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/1067e55c6c3e756c311fa13122fd4a6d/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
+158            android:authorities="br.com.foodtracker.app.androidx-startup"
+158-->[androidx.emoji2:emoji2:1.3.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/1067e55c6c3e756c311fa13122fd4a6d/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
+159            android:exported="false" >
+159-->[androidx.emoji2:emoji2:1.3.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/1067e55c6c3e756c311fa13122fd4a6d/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
+160            <meta-data
+160-->[androidx.emoji2:emoji2:1.3.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/1067e55c6c3e756c311fa13122fd4a6d/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+161                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+161-->[androidx.emoji2:emoji2:1.3.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/1067e55c6c3e756c311fa13122fd4a6d/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+162                android:value="androidx.startup" />
+162-->[androidx.emoji2:emoji2:1.3.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/1067e55c6c3e756c311fa13122fd4a6d/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+163            <meta-data
+163-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:36:13-38:52
+164                android:name="androidx.work.WorkManagerInitializer"
+164-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:37:17-68
+165                android:value="androidx.startup" />
+165-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:38:17-49
+166            <meta-data
+166-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/5815dbffddb3efb5511e9e44bcd8bdd7/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:29:13-31:52
+167                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+167-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/5815dbffddb3efb5511e9e44bcd8bdd7/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:30:17-78
+168                android:value="androidx.startup" />
+168-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/5815dbffddb3efb5511e9e44bcd8bdd7/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:31:17-49
+169            <meta-data
+169-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
+170                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+170-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
+171                android:value="androidx.startup" />
+171-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
+172        </provider>
+173
+174        <uses-library
+174-->[androidx.privacysandbox.ads:ads-adservices:1.0.0-beta05] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/2d54111e8fe34ab3efcc27ce8b275242/transformed/ads-adservices-1.0.0-beta05/AndroidManifest.xml:23:9-25:40
+175            android:name="android.ext.adservices"
+175-->[androidx.privacysandbox.ads:ads-adservices:1.0.0-beta05] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/2d54111e8fe34ab3efcc27ce8b275242/transformed/ads-adservices-1.0.0-beta05/AndroidManifest.xml:24:13-50
+176            android:required="false" />
+176-->[androidx.privacysandbox.ads:ads-adservices:1.0.0-beta05] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/2d54111e8fe34ab3efcc27ce8b275242/transformed/ads-adservices-1.0.0-beta05/AndroidManifest.xml:25:13-37
+177
+178        <service
+178-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:41:9-46:35
+179            android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
+179-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:42:13-88
+180            android:directBootAware="false"
+180-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:43:13-44
+181            android:enabled="@bool/enable_system_alarm_service_default"
+181-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:44:13-72
+182            android:exported="false" />
+182-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:45:13-37
+183        <service
+183-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:47:9-53:35
+184            android:name="androidx.work.impl.background.systemjob.SystemJobService"
+184-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:48:13-84
+185            android:directBootAware="false"
+185-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:49:13-44
+186            android:enabled="@bool/enable_system_job_service_default"
+186-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:50:13-70
+187            android:exported="true"
+187-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:51:13-36
+188            android:permission="android.permission.BIND_JOB_SERVICE" />
+188-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:52:13-69
+189        <service
+189-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:54:9-59:35
+190            android:name="androidx.work.impl.foreground.SystemForegroundService"
+190-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:55:13-81
+191            android:directBootAware="false"
+191-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:56:13-44
+192            android:enabled="@bool/enable_system_foreground_service_default"
+192-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:57:13-77
+193            android:exported="false" />
+193-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:58:13-37
+194
+195        <receiver
+195-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:61:9-66:35
+196            android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
+196-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:62:13-88
+197            android:directBootAware="false"
+197-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:63:13-44
+198            android:enabled="true"
+198-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:64:13-35
+199            android:exported="false" />
+199-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:65:13-37
+200        <receiver
+200-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:67:9-77:20
+201            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy"
+201-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:68:13-106
+202            android:directBootAware="false"
+202-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:69:13-44
+203            android:enabled="false"
+203-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:70:13-36
+204            android:exported="false" >
+204-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:71:13-37
+205            <intent-filter>
+205-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:73:13-76:29
+206                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+206-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:74:17-87
+206-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:74:25-84
+207                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+207-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:75:17-90
+207-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:75:25-87
+208            </intent-filter>
+209        </receiver>
+210        <receiver
+210-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:78:9-88:20
+211            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy"
+211-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:79:13-104
+212            android:directBootAware="false"
+212-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:80:13-44
+213            android:enabled="false"
+213-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:81:13-36
+214            android:exported="false" >
+214-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:82:13-37
+215            <intent-filter>
+215-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:84:13-87:29
+216                <action android:name="android.intent.action.BATTERY_OKAY" />
+216-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:85:17-77
+216-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:85:25-74
+217                <action android:name="android.intent.action.BATTERY_LOW" />
+217-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:86:17-76
+217-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:86:25-73
+218            </intent-filter>
+219        </receiver>
+220        <receiver
+220-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:89:9-99:20
+221            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy"
+221-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:90:13-104
+222            android:directBootAware="false"
+222-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:91:13-44
+223            android:enabled="false"
+223-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:92:13-36
+224            android:exported="false" >
+224-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:93:13-37
+225            <intent-filter>
+225-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:95:13-98:29
+226                <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
+226-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:96:17-83
+226-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:96:25-80
+227                <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
+227-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:97:17-82
+227-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:97:25-79
+228            </intent-filter>
+229        </receiver>
+230        <receiver
+230-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:100:9-109:20
+231            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy"
+231-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:101:13-103
+232            android:directBootAware="false"
+232-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:102:13-44
+233            android:enabled="false"
+233-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:103:13-36
+234            android:exported="false" >
+234-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:104:13-37
+235            <intent-filter>
+235-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:106:13-108:29
+236                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+236-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:107:17-79
+236-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:107:25-76
+237            </intent-filter>
+238        </receiver>
+239        <receiver
+239-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:110:9-121:20
+240            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+240-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:111:13-88
+241            android:directBootAware="false"
+241-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:112:13-44
+242            android:enabled="false"
+242-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:113:13-36
+243            android:exported="false" >
+243-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:114:13-37
+244            <intent-filter>
+244-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:116:13-120:29
+245                <action android:name="android.intent.action.BOOT_COMPLETED" />
+245-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:117:17-79
+245-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:117:25-76
+246                <action android:name="android.intent.action.TIME_SET" />
+246-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:118:17-73
+246-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:118:25-70
+247                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+247-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:119:17-81
+247-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:119:25-78
+248            </intent-filter>
+249        </receiver>
+250        <receiver
+250-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:122:9-131:20
+251            android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver"
+251-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:123:13-99
+252            android:directBootAware="false"
+252-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:124:13-44
+253            android:enabled="@bool/enable_system_alarm_service_default"
+253-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:125:13-72
+254            android:exported="false" >
+254-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:126:13-37
+255            <intent-filter>
+255-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:128:13-130:29
+256                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies" />
+256-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:129:17-98
+256-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:129:25-95
+257            </intent-filter>
+258        </receiver>
+259        <receiver
+259-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:132:9-142:20
+260            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
+260-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:133:13-78
+261            android:directBootAware="false"
+261-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:134:13-44
+262            android:enabled="true"
+262-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:135:13-35
+263            android:exported="true"
+263-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:136:13-36
+264            android:permission="android.permission.DUMP" >
+264-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:137:13-57
+265            <intent-filter>
+265-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:139:13-141:29
+266                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS" />
+266-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:140:17-88
+266-->[androidx.work:work-runtime:2.7.0] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/77746dc881c3c0e043488634b9529230/transformed/work-runtime-2.7.0/AndroidManifest.xml:140:25-85
+267            </intent-filter>
+268        </receiver>
+269        <receiver
+269-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+270            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+270-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+271            android:directBootAware="false"
+271-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+272            android:enabled="true"
+272-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+273            android:exported="true"
+273-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+274            android:permission="android.permission.DUMP" >
+274-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+275            <intent-filter>
+275-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+276                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+276-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+276-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+277            </intent-filter>
+278            <intent-filter>
+278-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+279                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+279-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+279-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+280            </intent-filter>
+281            <intent-filter>
+281-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+282                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+282-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+282-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+283            </intent-filter>
+284            <intent-filter>
+284-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+285                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+285-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+285-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7aa358c4042314a5015db5499d5120ee/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
+286            </intent-filter>
+287        </receiver>
+288
+289        <service
+289-->[androidx.room:room-runtime:2.2.5] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/b7a471333caa1a729e4e44e1b08efc6b/transformed/room-runtime-2.2.5/AndroidManifest.xml:25:9-28:40
+290            android:name="androidx.room.MultiInstanceInvalidationService"
+290-->[androidx.room:room-runtime:2.2.5] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/b7a471333caa1a729e4e44e1b08efc6b/transformed/room-runtime-2.2.5/AndroidManifest.xml:26:13-74
+291            android:directBootAware="true"
+291-->[androidx.room:room-runtime:2.2.5] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/b7a471333caa1a729e4e44e1b08efc6b/transformed/room-runtime-2.2.5/AndroidManifest.xml:27:13-43
+292            android:exported="false" />
+292-->[androidx.room:room-runtime:2.2.5] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/b7a471333caa1a729e4e44e1b08efc6b/transformed/room-runtime-2.2.5/AndroidManifest.xml:28:13-37
+293        <service
+293-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/580a1e08ef4a949357da10abcc9ce6a5/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:28:9-34:19
+294            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+294-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/580a1e08ef4a949357da10abcc9ce6a5/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:29:13-103
+295            android:exported="false" >
+295-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/580a1e08ef4a949357da10abcc9ce6a5/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:30:13-37
+296            <meta-data
+296-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/580a1e08ef4a949357da10abcc9ce6a5/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:31:13-33:39
+297                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+297-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/580a1e08ef4a949357da10abcc9ce6a5/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:32:17-94
+298                android:value="cct" />
+298-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/580a1e08ef4a949357da10abcc9ce6a5/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:33:17-36
+299        </service>
+300        <service
+300-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/ddb510b5cd4cb2a38b757879718ae587/transformed/transport-runtime-3.1.8/AndroidManifest.xml:26:9-30:19
+301            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+301-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/ddb510b5cd4cb2a38b757879718ae587/transformed/transport-runtime-3.1.8/AndroidManifest.xml:27:13-117
+302            android:exported="false"
+302-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/ddb510b5cd4cb2a38b757879718ae587/transformed/transport-runtime-3.1.8/AndroidManifest.xml:28:13-37
+303            android:permission="android.permission.BIND_JOB_SERVICE" >
+303-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/ddb510b5cd4cb2a38b757879718ae587/transformed/transport-runtime-3.1.8/AndroidManifest.xml:29:13-69
+304        </service>
+305
+306        <receiver
+306-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/ddb510b5cd4cb2a38b757879718ae587/transformed/transport-runtime-3.1.8/AndroidManifest.xml:32:9-34:40
+307            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+307-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/ddb510b5cd4cb2a38b757879718ae587/transformed/transport-runtime-3.1.8/AndroidManifest.xml:33:13-132
+308            android:exported="false" />
+308-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/ddb510b5cd4cb2a38b757879718ae587/transformed/transport-runtime-3.1.8/AndroidManifest.xml:34:13-37
+309    </application>
+310
+311</manifest>

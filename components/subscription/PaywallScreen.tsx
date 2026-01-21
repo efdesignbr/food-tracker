@@ -20,6 +20,7 @@ export function PaywallScreen({ onPurchaseComplete, onClose }: PaywallScreenProp
   } = usePurchase();
 
   useEffect(() => {
+    console.log('[PaywallScreen] Component mounted, calling loadOfferings...');
     loadOfferings();
   }, [loadOfferings]);
 

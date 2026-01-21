@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "br.com.foodtracker.app-mergeDebugResources-38:/values-v29/values-v29.xml",
+            "map": [
+                {
+                    "source": "/Users/edsonferreira/.gradle/caches/9.0-milestone-1/transforms/7be0544a1d5e639ed1a62e62bf879331/transformed/core-splashscreen-1.0.1/res/values-v29/values-v29.xml",
+                    "from": {
+                        "startLines": "2,7",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,374",
+                        "endLines": "6,8",
+                        "endColumns": "12,12",
+                        "endOffsets": "369,464"
+                    }
+                }
+            ]
+        }
+    ]
+}

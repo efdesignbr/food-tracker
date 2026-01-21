@@ -3,6 +3,7 @@ import { getCurrentUser } from '@/lib/auth-helper';
 import { getPool } from '@/lib/db';
 import { getUserPlanById } from '@/lib/quota';
 import { PLAN_LIMITS } from '@/lib/constants';
+import { getCurrentDateBR, getCurrentTimeBR } from '@/lib/datetime';
 
 // GET: Buscar registros de água por data ou histórico agregado
 export async function GET(req: NextRequest) {
@@ -30,13 +31,13 @@ export async function GET(req: NextRequest) {
       // Buscar histórico agregado por dia
       const query = `
         SELECT
-          DATE(consumed_at) as date,
+          consumed_date as date,
           SUM(amount_ml) as total_ml
         FROM water_intake
         WHERE user_id = $1
-          AND consumed_at >= NOW() - INTERVAL '${intervalDays} days'
-        GROUP BY DATE(consumed_at)
-        ORDER BY date DESC
+          AND consumed_date >= CURRENT_DATE - INTERVAL '${intervalDays} days'
+        GROUP BY consumed_date
+        ORDER BY consumed_date DESC
       `;
       const { rows } = await pool.query(query, [session.userId]);
 
@@ -61,13 +62,14 @@ export async function GET(req: NextRequest) {
         SELECT
           id,
           amount_ml,
-          consumed_at,
+          consumed_date,
+          consumed_time,
           notes,
           created_at
         FROM water_intake
         WHERE user_id = $1
-          AND DATE(consumed_at) = $2
-        ORDER BY consumed_at DESC
+          AND consumed_date = $2
+        ORDER BY consumed_date DESC, consumed_time DESC
       `;
       params = [session.userId, date];
     } else {
@@ -76,13 +78,14 @@ export async function GET(req: NextRequest) {
         SELECT
           id,
           amount_ml,
-          consumed_at,
+          consumed_date,
+          consumed_time,
           notes,
           created_at
         FROM water_intake
         WHERE user_id = $1
-          AND DATE(consumed_at) = CURRENT_DATE
-        ORDER BY consumed_at DESC
+          AND consumed_date = CURRENT_DATE
+        ORDER BY consumed_date DESC, consumed_time DESC
       `;
       params = [session.userId];
     }
@@ -130,14 +133,14 @@ export async function POST(req: NextRequest) {
 
     const pool = getPool();
 
-    // Inserir registro
+    // Inserir registro com data e hora separados (timezone BR)
     const { rows } = await pool.query(
       `
-      INSERT INTO water_intake (user_id, tenant_id, amount_ml, notes)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, amount_ml, consumed_at, notes, created_at
+      INSERT INTO water_intake (user_id, tenant_id, amount_ml, consumed_date, consumed_time, notes)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, amount_ml, consumed_date, consumed_time, notes, created_at
       `,
-      [session.userId, session.tenantId, amount_ml, notes]
+      [session.userId, session.tenantId, amount_ml, getCurrentDateBR(), getCurrentTimeBR(), notes]
     );
 
     // Buscar total do dia após inserção
@@ -146,7 +149,7 @@ export async function POST(req: NextRequest) {
       SELECT COALESCE(SUM(amount_ml), 0) as total
       FROM water_intake
       WHERE user_id = $1
-        AND DATE(consumed_at) = CURRENT_DATE
+        AND consumed_date = CURRENT_DATE
       `,
       [session.userId]
     );
@@ -209,7 +212,7 @@ export async function DELETE(req: NextRequest) {
       SELECT COALESCE(SUM(amount_ml), 0) as total
       FROM water_intake
       WHERE user_id = $1
-        AND DATE(consumed_at) = CURRENT_DATE
+        AND consumed_date = CURRENT_DATE
       `,
       [session.userId]
     );

@@ -1,0 +1,129 @@
+ [log] - [useUserPlan] Starting RevenueCat sync...
+⚡️  [log] - [AdMob] showTopBanner: calling showBanner with id: ca-app-pub-1018925088575422/1014553329
+⚡️  To Native ->  AdMob showBanner 130167466
+⚡️  To Native ->  Purchases getCustomerInfo 130167467
+AdMob: find subView
+DEBUG: ℹ️ Vending CustomerInfo from cache.
+⚡️  TO JS {}
+⚡️  TO JS {"customerInfo":{"subscriptionsByProductIdentifier":{},"allPurchasedProductIdentifiers":[],"allPurchaseDates":{},"activeSubscriptions":[],"requestDateMillis":1768818258000,"firstSeen":"2026-01-19T10:17:20Z","requestDate":"2026-01-19T10:24:18Z","latestExpir
+⚡️  [log] - [AdMob] showTopBanner: success
+⚡️  [log] - [useUserPlan] CustomerInfo received: {"originalAppUserId":"358cd7a6-f597-4f7f-876d-7bcd39ff050c","activeSubscriptions":[],"hasActiveEntitlements":false}
+⚡️  [log] - [API Client] localStorage auth_token: exists
+⚡️  [log] - [API Client] {"isMobile":true,"baseUrl":"https://app.foodtracker.com.br","endpoint":"/api/subscription/sync","finalUrl":"https://app.foodtracker.com.br/api/subscription/sync","hasAuthToken":true,"allHeaders":["Authorization","Content-Type"],"xAdCompleted":"not set"}
+⚡️  [log] - [API Client] Response /api/subscription/sync: {"status":200}
+⚡️  [log] - [useUserPlan] Sync response: {}
+⚡️  [log] - [API Client] localStorage auth_token: exists
+⚡️  [log] - [API Client] {"isMobile":true,"baseUrl":"https://app.foodtracker.com.br","endpoint":"/api/user/profile","finalUrl":"https://app.foodtracker.com.br/api/user/profile","hasAuthToken":true,"allHeaders":["Authorization"],"xAdCompleted":"not set"}
+bannerViewDidReceiveAd
+⚡️  [log] - [API Client] Response /api/user/profile: {"status":200}
+Error acquiring assertion: <Error Domain=RBSAssertionErrorDomain Code=2 "Specified target process 7311 does not exist" UserInfo={NSLocalizedFailureReason=Specified target process 7311 does not exist}>
+0x117174600 - ProcessAssertion::acquireSync Failed to acquire RBS assertion 'XPCConnectionTerminationWatchdog' for process with PID=7311, error: (null)
+Error acquiring assertion: <Error Domain=RBSAssertionErrorDomain Code=2 "Specified target process 7311 does not exist" UserInfo={NSLocalizedFailureReason=Specified target process 7311 does not exist}>
+0x117174780 - ProcessAssertion::acquireSync Failed to acquire RBS assertion 'WebProcess NearSuspended Assertion' for process with PID=7311, error: (null)
+⚡️  [log] - [PaywallScreen] Component mounted, calling loadOfferings...
+⚡️  [log] - [Purchase] loadOfferings called, isMobile: true
+⚡️  [log] - [Purchase] Checking if SDK is configured...
+⚡️  To Native ->  Purchases getCustomerInfo 130167468
+DEBUG: ℹ️ Vending CustomerInfo from cache.
+⚡️  TO JS {"customerInfo":{"originalPurchaseDate":null,"nonSubscriptionTransactions":[],"allPurchasedProductIdentifiers":[],"allPurchaseDatesMillis":{},"latestExpirationDate":null,"managementURL":null,"subscriptionsByProductIdentifier":{},"requestDateMillis":1768818
+⚡️  [log] - [Purchase] SDK is configured, customerInfo userId: 358cd7a6-f597-4f7f-876d-7bcd39ff050c
+⚡️  [log] - [Purchase] Calling getOfferings...
+⚡️  To Native ->  Purchases getOfferings 130167469
+DEBUG: ℹ️ Vending Offerings from memory cache
+⚡️  TO JS {"all":{"premium":{"monthly":{"identifier":"$rc_monthly","packageType":"MONTHLY","product":{"currencyCode":"USD","title":"","productCategory":"SUBSCRIPTION","pricePerWeekString":"$3.44","price":14.99,"pricePerMonth":14.99,"pricePerYearString":"$179.88","su
+⚡️  [log] - [Purchase] getOfferings result: {"hasOfferings":true,"hasCurrent":true,"currentIdentifier":"premium","allOfferingsKeys":["premium"],"availablePackagesCount":2}
+⚡️  [log] - [Purchase] Current offering found: premium packages: 2
+⚡️  To Native ->  Purchases purchasePackage 130167470
+DEBUG: ℹ️ Vending Offerings from memory cache
+INFO: 💰 Purchasing Product 'premium_annual' from package in Offering 'premium'
+DEBUG: ℹ️ Adding Product.PurchaseOption for .appAccountToken '358CD7A6-F597-4F7F-876D-7BCD39FF050C'
+DEBUG: ℹ️ Background task started: com.revenuecat.flushAllEvents
+DEBUG: ℹ️ Background task started: com.revenuecat.flushAllEvents
+Failed to terminate process: Error Domain=com.apple.extensionKit.errorDomain Code=18 "(null)" UserInfo={NSUnderlyingError=0x600000c76d60 {Error Domain=RBSRequestErrorDomain Code=3 "No such process found" UserInfo={NSLocalizedFailureReason=No such process found}}}
+DEBUG: ℹ️ Found 0 unsynced attributes for App User ID: 358cd7a6-f597-4f7f-876d-7bcd39ff050c
+DEBUG: ℹ️ TransactionPoster: handling transaction '0' for product 'premium_annual' (date: 2026-01-19 10:24:47 +0000) in Offering 'premium'
+DEBUG: ℹ️ Skipping products request for these products because they were already cached: ["premium_annual"]
+DEBUG: ℹ️ PostReceiptDataOperation: Started
+DEBUG: ℹ️ PostReceiptDataOperation: Posting StoreKit 2 receipt (source: 'purchase'):
+{
+  "bundle_id" : "br.com.foodtracker.app",
+  "environment" : "xcode",
+  "original_application_version" : "1.0.3",
+  "original_purchase_date" : "1970-01-01T00:00:00Z",
+  "subscription_status" : {
+    "0B65BC8B" : [
+      {
+        "renewal_info" : "eyJraWQiOiJBcHBsZV9YY29kZV9LZXkiLCJhbGciOiJFUzI1NiIsIng1YyI6WyJNSUlCeXpDQ0FYR2dBd0lCQWdJQkFUQUtCZ2dxaGtqT1BRUURBakJJTVNJd0lBWURWUVFERXhsVGRHOXlaVXRwZENCVVpYTjBhVzVuSUdsdUlGaGpiMlJsTVNJd0lBWURWUVFLRXhsVGRHOXlaVXRwZENCVVpYTjBhVzVuSUdsdUlGaGpiMlJsTUI0WERUSTJNREV4T1RFd01qUTBOMW9YRFRJM01ERXhPVEV3TWpRME4xb3dTREVpTUNBR0ExVUVBeE1aVTNSdmNtVkxhWFFnVkdWemRHbHVaeUJwYmlCWVkyOWtaVEVpTUNBR0ExVUVDaE1aVTNSdmNtVkxhWFFnVkdWemRHbHVaeUJwYmlCWVkyOWtaVEJaTUJNR0J5cUdTTTQ5QWdFR0NDcUdTTTQ5QXdFSEEwSUFCQUJwb01YcWlvUmttT2RjN2FVUFRsdzZqYlRaZHpHZ3h5UE9lc2VRSDRjcGFhT3NwUHk2RjQrOXZBdUNWM1VJRFwvUkFyaVhMM3ZJbWZFQ0Q4UVpcL0RXV2pUREJLTUJJR0ExVWRFd0VCXC93UUlNQVlCQWY4Q0FRQXdKQVlEVlIwUkJCMHdHNEVaVTNSdmNtVkxhWFFnVkdWemRHbHVaeUJwYmlCWVkyOWtaVEFPQmdOVkhROEJBZjhFQkFNQ0I0QXdDZ1lJS29aSXpqMEVBd0lEU0FBd1JRSWhBUGlaNzFXTURONjc3SzZia1FcLzhvaXpHdGROczRQWGJBTXhcL0FIalRCTnBPQWlCaWxvZ3lOQkFVN1E5WWJTSklVXC9MZGNMQlwvY1dTMkNBdlJNQzdvMGZwcHNBPT0iXSwidHlwIjoiSldUIn0.eyJzaWduZWREYXRlIjoxNzY4ODE4MjkxMzc3LCJyZWNlbnRTdWJzY3JpcHRpb25TdGFydERhdGUiOjE3Njg4MTgyODc1NTksIm9yaWdpbmFsVHJhbnNhY3Rpb25JZCI6IjAiLCJhdXRvUmVuZXdTdGF0dXMiOjEsImRldmljZVZlcmlmaWNhdGlvbk5vbmNlIjoiZjVlMDczYzYtYWI1Zi00N2RkLWEyOTEtMjAyMGZkYTVjY2U5IiwiYXBwVHJhbnNhY3Rpb25JZCI6IjAiLCJhdXRvUmVuZXdQcm9kdWN0SWQiOiJwcmVtaXVtX2FubnVhbCIsImVudmlyb25tZW50IjoiWGNvZGUiLCJyZW5ld2FsUHJpY2UiOjU5OTkwLCJwcm9kdWN0SWQiOiJwcmVtaXVtX2FubnVhbCIsInJlbmV3YWxEYXRlIjoxODAwMzU0Mjg3NTU5LCJlbGlnaWJsZVdpbkJhY2tPZmZlcklkcyI6W10sImRldmljZVZlcmlmaWNhdGlvbiI6ImVXbHZad1lyZjB5Mng3WTR5VmN6Y0FSSjgycU9YTjMzMGNrUDZpRXpHUmYrMzZjR05wQjl3eGpEQk5QSncycmsiLCJjdXJyZW5jeSI6IlVTRCJ9.ZQy87Y4AUm7qpS2Jr7VeE-2TMvSlsLMua3PslWYshNinWMONW-2pjH6EzS-mNb7HBV9bXlKAyYcFSRKi4NgvkA",
+        "state" : 1,
+        "transaction" : "eyJ4NWMiOlsiTUlJQnl6Q0NBWEdnQXdJQkFnSUJBVEFLQmdncWhrak9QUVFEQWpCSU1TSXdJQVlEVlFRREV4bFRkRzl5WlV0cGRDQlVaWE4wYVc1bklHbHVJRmhqYjJSbE1TSXdJQVlEVlFRS0V4bFRkRzl5WlV0cGRDQlVaWE4wYVc1bklHbHVJRmhqYjJSbE1CNFhEVEkyTURFeE9URXdNalEwTjFvWERUSTNNREV4T1RFd01qUTBOMW93U0RFaU1DQUdBMVVFQXhNWlUzUnZjbVZMYVhRZ1ZHVnpkR2x1WnlCcGJpQllZMjlrWlRFaU1DQUdBMVVFQ2hNWlUzUnZjbVZMYVhRZ1ZHVnpkR2x1WnlCcGJpQllZMjlrWlRCWk1CTUdCeXFHU000OUFnRUdDQ3FHU000OUF3RUhBMElBQkFCcG9NWHFpb1JrbU9kYzdhVVBUbHc2amJUWmR6R2d4eVBPZXNlUUg0Y3BhYU9zcFB5NkY0Kzl2QXVDVjNVSURcL1JBcmlYTDN2SW1mRUNEOFFaXC9EV1dqVERCS01CSUdBMVVkRXdFQlwvd1FJTUFZQkFmOENBUUF3SkFZRFZSMFJCQjB3RzRFWlUzUnZjbVZMYVhRZ1ZHVnpkR2x1WnlCcGJpQllZMjlrWlRBT0JnTlZIUThCQWY4RUJBTUNCNEF3Q2dZSUtvWkl6ajBFQXdJRFNBQXdSUUloQVBpWjcxV01ETjY3N0s2YmtRXC84b2l6R3RkTnM0UFhiQU14XC9BSGpUQk5wT0FpQmlsb2d5TkJBVTdROVliU0pJVVwvTGRjTEJcL2NXUzJDQXZSTUM3bzBmcHBzQT09Il0sInR5cCI6IkpXVCIsImFsZyI6IkVTMjU2Iiwia2lkIjoiQXBwbGVfWGNvZGVfS2V5In0.eyJkZXZpY2VWZXJpZmljYXRpb25Ob25jZSI6ImExZGUzMGFlLWUwYWEtNDY2Zi1iOWRmLWRhMzczMmY5ZmVhNCIsImFwcFRyYW5zYWN0aW9uSWQiOiIwIiwidHlwZSI6IkF1dG8tUmVuZXdhYmxlIFN1YnNjcmlwdGlvbiIsInByaWNlIjo1OTk5MCwicHJvZHVjdElkIjoicHJlbWl1bV9hbm51YWwiLCJvcmlnaW5hbFB1cmNoYXNlRGF0ZSI6MTc2ODgxODI4NzU1OSwiZXhwaXJlc0RhdGUiOjE4MDAzNTQyODc1NTksIm9yaWdpbmFsVHJhbnNhY3Rpb25JZCI6IjAiLCJjdXJyZW5jeSI6IlVTRCIsImFwcEFjY291bnRUb2tlbiI6IjM1OGNkN2E2LWY1OTctNGY3Zi04NzZkLTdiY2QzOWZmMDUwYyIsInN0b3JlZnJvbnRJZCI6IjE0MzQ0MSIsIndlYk9yZGVyTGluZUl0ZW1JZCI6IjAiLCJzaWduZWREYXRlIjoxNzY4ODE4MjkxMzc3LCJkZXZpY2VWZXJpZmljYXRpb24iOiJCZkNaRjdac3FjejFpY1ZGQ080XC9uZFZmbWdwTkxGSnFBaUhIRzJcL0FlU2NjQXoxQjZzSWV6RHpoSWtpOHByQW0iLCJpc1VwZ3JhZGVkIjpmYWxzZSwiaW5BcHBPd25lcnNoaXBUeXBlIjoiUFVSQ0hBU0VEIiwicXVhbnRpdHkiOjEsInRyYW5zYWN0aW9uSWQiOiIwIiwicHVyY2hhc2VEYXRlIjoxNzY4ODE4Mjg3NTU5LCJ0cmFuc2FjdGlvblJlYXNvbiI6IlBVUkNIQVNFIiwic3RvcmVmcm9udCI6IlVTQSIsImVudmlyb25tZW50IjoiWGNvZGUiLCJidW5kbGVJZCI6ImJyLmNvbS5mb29kdHJhY2tlci5hcHAiLCJzdWJzY3JpcHRpb25Hcm91cElkZW50aWZpZXIiOiIwQjY1QkM4QiJ9.RVTMxLYsfKTTEOawX0bTOEMR-TITwiocWgpab9-np14b5Ox0p5vKs9A2IKXyoCPNjr0yZxrKg8a50AnmdyIiiw"
+      }
+    ]
+  },
+  "transactions" : [
+    "eyJ4NWMiOlsiTUlJQnl6Q0NBWEdnQXdJQkFnSUJBVEFLQmdncWhrak9QUVFEQWpCSU1TSXdJQVlEVlFRREV4bFRkRzl5WlV0cGRDQlVaWE4wYVc1bklHbHVJRmhqYjJSbE1TSXdJQVlEVlFRS0V4bFRkRzl5WlV0cGRDQlVaWE4wYVc1bklHbHVJRmhqYjJSbE1CNFhEVEkyTURFeE9URXdNalEwTjFvWERUSTNNREV4T1RFd01qUTBOMW93U0RFaU1DQUdBMVVFQXhNWlUzUnZjbVZMYVhRZ1ZHVnpkR2x1WnlCcGJpQllZMjlrWlRFaU1DQUdBMVVFQ2hNWlUzUnZjbVZMYVhRZ1ZHVnpkR2x1WnlCcGJpQllZMjlrWlRCWk1CTUdCeXFHU000OUFnRUdDQ3FHU000OUF3RUhBMElBQkFCcG9NWHFpb1JrbU9kYzdhVVBUbHc2amJUWmR6R2d4eVBPZXNlUUg0Y3BhYU9zcFB5NkY0Kzl2QXVDVjNVSURcL1JBcmlYTDN2SW1mRUNEOFFaXC9EV1dqVERCS01CSUdBMVVkRXdFQlwvd1FJTUFZQkFmOENBUUF3SkFZRFZSMFJCQjB3RzRFWlUzUnZjbVZMYVhRZ1ZHVnpkR2x1WnlCcGJpQllZMjlrWlRBT0JnTlZIUThCQWY4RUJBTUNCNEF3Q2dZSUtvWkl6ajBFQXdJRFNBQXdSUUloQVBpWjcxV01ETjY3N0s2YmtRXC84b2l6R3RkTnM0UFhiQU14XC9BSGpUQk5wT0FpQmlsb2d5TkJBVTdROVliU0pJVVwvTGRjTEJcL2NXUzJDQXZSTUM3bzBmcHBzQT09Il0sInR5cCI6IkpXVCIsImFsZyI6IkVTMjU2Iiwia2lkIjoiQXBwbGVfWGNvZGVfS2V5In0.eyJkZXZpY2VWZXJpZmljYXRpb25Ob25jZSI6ImExZGUzMGFlLWUwYWEtNDY2Zi1iOWRmLWRhMzczMmY5ZmVhNCIsImFwcFRyYW5zYWN0aW9uSWQiOiIwIiwidHlwZSI6IkF1dG8tUmVuZXdhYmxlIFN1YnNjcmlwdGlvbiIsInByaWNlIjo1OTk5MCwicHJvZHVjdElkIjoicHJlbWl1bV9hbm51YWwiLCJvcmlnaW5hbFB1cmNoYXNlRGF0ZSI6MTc2ODgxODI4NzU1OSwiZXhwaXJlc0RhdGUiOjE4MDAzNTQyODc1NTksIm9yaWdpbmFsVHJhbnNhY3Rpb25JZCI6IjAiLCJjdXJyZW5jeSI6IlVTRCIsImFwcEFjY291bnRUb2tlbiI6IjM1OGNkN2E2LWY1OTctNGY3Zi04NzZkLTdiY2QzOWZmMDUwYyIsInN0b3JlZnJvbnRJZCI6IjE0MzQ0MSIsIndlYk9yZGVyTGluZUl0ZW1JZCI6IjAiLCJzaWduZWREYXRlIjoxNzY4ODE4MjkxMzc3LCJkZXZpY2VWZXJpZmljYXRpb24iOiJCZkNaRjdac3FjejFpY1ZGQ080XC9uZFZmbWdwTkxGSnFBaUhIRzJcL0FlU2NjQXoxQjZzSWV6RHpoSWtpOHByQW0iLCJpc1VwZ3JhZGVkIjpmYWxzZSwiaW5BcHBPd25lcnNoaXBUeXBlIjoiUFVSQ0hBU0VEIiwicXVhbnRpdHkiOjEsInRyYW5zYWN0aW9uSWQiOiIwIiwicHVyY2hhc2VEYXRlIjoxNzY4ODE4Mjg3NTU5LCJ0cmFuc2FjdGlvblJlYXNvbiI6IlBVUkNIQVNFIiwic3RvcmVmcm9udCI6IlVTQSIsImVudmlyb25tZW50IjoiWGNvZGUiLCJidW5kbGVJZCI6ImJyLmNvbS5mb29kdHJhY2tlci5hcHAiLCJzdWJzY3JpcHRpb25Hcm91cElkZW50aWZpZXIiOiIwQjY1QkM4QiJ9.RVTMxLYsfKTTEOawX0bTOEMR-TITwiocWgpab9-np14b5Ox0p5vKs9A2IKXyoCPNjr0yZxrKg8a50AnmdyIiiw"
+  ]
+}
+DEBUG: ℹ️ There are no requests currently running, starting request POST /v1/receipts
+DEBUG: ℹ️ API request started: POST '/v1/receipts'
+DEBUG: ℹ️ API request completed: POST '/v1/receipts' (200)
+DEBUG: ℹ️ PostReceiptDataOperation: Finished
+INFO: 💰 Finishing transaction '0' for product 'premium_annual'
+DEBUG: ℹ️ Serial request done: POST /v1/receipts, 0 requests left in the queue
+DEBUG: ℹ️ Sending updated CustomerInfo to delegate.
+DEBUG: ℹ️ Detected active subscriptions changed. Clearing trial or intro eligibility cache.
+DEBUG: ℹ️ PurchasedProductsFetcher: invalidating cache
+DEBUG: ℹ️ Background task started: com.revenuecat.flushFeatureEvents
+INFO: 😻💰 Purchased product - 'premium_annual'
+⚡️  TO JS {"productIdentifier":"premium_annual","customerInfo":{"allExpirationDatesMillis":{"premium_annual":1800354287000},"originalApplicationVersion":"1.0.3","allExpirationDates":{"premium_annual":"2027-01-19T10:24:47Z"},"requestDate":"2026-01-19T10:24:51Z","enti
+⚡️  [log] - [API Client] localStorage auth_token: exists
+⚡️  [log] - [API Client] {"isMobile":true,"baseUrl":"https://app.foodtracker.com.br","endpoint":"/api/subscription/sync","finalUrl":"https://app.foodtracker.com.br/api/subscription/sync","hasAuthToken":true,"allHeaders":["Authorization","Content-Type"],"xAdCompleted":"not set"}
+⚡️  [log] - [API Client] Response /api/subscription/sync: {"status":200}
+⚡️  [log] - [Purchase] Sync success
+⚡️  [log] - [API Client] localStorage auth_token: exists
+⚡️  [log] - [API Client] {"isMobile":true,"baseUrl":"https://app.foodtracker.com.br","endpoint":"/api/user/profile","finalUrl":"https://app.foodtracker.com.br/api/user/profile","hasAuthToken":true,"allHeaders":["Authorization"],"xAdCompleted":"not set"}
+⚡️  [log] - [useUserPlan] Starting RevenueCat sync...
+⚡️  [log] - [API Client] localStorage auth_token: exists
+⚡️  [log] - [API Client] {"isMobile":true,"baseUrl":"https://app.foodtracker.com.br","endpoint":"/api/user/profile","finalUrl":"https://app.foodtracker.com.br/api/user/profile","hasAuthToken":true,"allHeaders":["Authorization"],"xAdCompleted":"not set"}
+⚡️  [log] - [API Client] localStorage auth_token: exists
+⚡️  [log] - [API Client] {"isMobile":true,"baseUrl":"https://app.foodtracker.com.br","endpoint":"/api/user/goals","finalUrl":"https://app.foodtracker.com.br/api/user/goals","hasAuthToken":true,"allHeaders":["Authorization"],"xAdCompleted":"not set"}
+⚡️  To Native ->  AdMob ⚡️  [log] - [AdMob] showTopBanner: calling showBanner with id: ca-app-pub-1018925088575422/1014553329
+showBanner 130167471
+⚡️  To Native ->  Purchases getCustomerInfo 130167472
+AdMob: find subView
+DEBUG: ℹ️ Vending CustomerInfo from cache.
+⚡️  TO JS {}
+⚡️  TO JS {"customerInfo":{"latestExpirationDateMillis":1800354287000,"firstSeenMillis":1768817840000,"allExpirationDates":{"premium_annual":"2027-01-19T10:24:47Z"},"allExpirationDatesMillis":{"premium_annual":1800354287000},"requestDate":"2026-01-19T10:24:51Z","man
+⚡️  [log] - [AdMob] showTopBanner: success
+⚡️  [log] - [useUserPlan] CustomerInfo received: {"originalAppUserId":"358cd7a6-f597-4f7f-876d-7bcd39ff050c","activeSubscriptions":["premium_annual"],"hasActiveEntitlements":true}
+⚡️  [log] - [API Client] localStorage auth_token: exists
+⚡️  [log] - [API Client] {"isMobile":true,"baseUrl":"https://app.foodtracker.com.br","endpoint":"/api/subscription/sync","finalUrl":"https://app.foodtracker.com.br/api/subscription/sync","hasAuthToken":true,"allHeaders":["Authorization","Content-Type"],"xAdCompleted":"not set"}
+⚡️  [log] - [API Client] Response /api/subscription/sync: {"status":200}
+⚡️  [log] - [useUserPlan] Sync response: {}
+⚡️  [log] - [API Client] localStorage auth_token: exists
+⚡️  [log] - [API Client] {"isMobile":true,"baseUrl":"https://app.foodtracker.com.br","endpoint":"/api/user/profile","finalUrl":"https://app.foodtracker.com.br/api/user/profile","hasAuthToken":true,"allHeaders":["Authorization"],"xAdCompleted":"not set"}
+bannerViewDidReceiveAd
+⚡️  [log] - [API Client] Response /api/user/profile: {"status":200}
+⚡️  [log] - [API Client] localStorage auth_token: exists
+⚡️  [log] - [API Client] {"isMobile":true,"baseUrl":"https://app.foodtracker.com.br","endpoint":"/api/subscription/quota","finalUrl":"https://app.foodtracker.com.br/api/subscription/quota","hasAuthToken":true,"allHeaders":["Authorization"],"xAdCompleted":"not set"}
+Error acquiring assertion: <Error Domain=RBSServiceErrorDomain Code=1 "((target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.rendering AND target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.networking AND target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.webcontent))" UserInfo={NSLocalizedFailureReason=((target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.rendering AND target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.networking AND target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.webcontent))}>
+0x1171746c0 - ProcessAssertion::acquireSync Failed to acquire RBS assertion 'XPCConnectionTerminationWatchdog' for process with PID=7315, error: (null)
+Failed to terminate process: Error Domain=com.apple.extensionKit.errorDomain Code=18 "(null)" UserInfo={NSUnderlyingError=0x600000ce82a0 {Error Domain=RBSRequestErrorDomain Code=3 "No such process found" UserInfo={NSLocalizedFailureReason=No such process found}}}
+Error acquiring assertion: <Error Domain=RBSAssertionErrorDomain Code=2 "Specified target process 7315 does not exist" UserInfo={NSLocalizedFailureReason=Specified target process 7315 does not exist}>
+0x117174780 - ProcessAssertion::acquireSync Failed to acquire RBS assertion 'WebProcess NearSuspended Assertion' for process with PID=7315, error: (null)
+Failed to terminate process: Error Domain=com.apple.extensionKit.errorDomain Code=18 "(null)" UserInfo={NSUnderlyingError=0x600000cb0300 {Error Domain=RBSRequestErrorDomain Code=3 "No such process found" UserInfo={NSLocalizedFailureReason=No such process found}}}
+⚡️  [log] - [API Client] Response /api/user/goals: {"status":200}
+⚡️  [log] - [API Client] Response /api/user/profile: {"status":200}
+⚡️  [log] - [API Client] localStorage auth_token: exists
+⚡️  [log] - [API Client] {"isMobile":true,"baseUrl":"https://app.foodtracker.com.br","endpoint":"/api/subscription/quota","finalUrl":"https://app.foodtracker.com.br/api/subscription/quota","hasAuthToken":true,"allHeaders":["Authorization"],"xAdCompleted":"not set"}
+⚡️  [log] - [API Client] Response /api/user/profile: {"status":200}
+⚡️  [log] - [API Client] Response /api/subscription/quota: {"status":200}
+⚡️  [log] - [API Client] Response /api/subscription/quota: {"status":200}
+Failed to terminate process: Error Domain=com.apple.extensionKit.errorDomain Code=18 "(null)" UserInfo={NSUnderlyingError=0x600000ce9ef0 {Error Domain=RBSRequestErrorDomain Code=3 "No such process found" UserInfo={NSLocalizedFailureReason=No such process found}}}
+Failed to terminate process: Error Domain=com.apple.extensionKit.errorDomain Code=18 "(null)" UserInfo={NSUnderlyingError=0x600000c2e760 {Error Domain=RBSRequestErrorDomain Code=3 "No such process found" UserInfo={NSLocalizedFailureReason=No such process found}}}
+Failed to terminate process: Error Domain=com.apple.extensionKit.errorDomain Code=18 "(null)" UserInfo={NSUnderlyingError=0x600000c1d800 {Error Domain=RBSRequestErrorDomain Code=3 "No such process found" UserInfo={NSLocalizedFailureReason=No such process found}}}
+nw_connection_copy_connected_local_endpoint_block_invoke [C2] Connection has no local endpoint
+bannerViewDidReceiveAd
+Error acquiring assertion: <Error Domain=RBSAssertionErrorDomain Code=2 "Specified target process 7345 does not exist" UserInfo={NSLocalizedFailureReason=Specified target process 7345 does not exist}>
+0x117174540 - ProcessAssertion::acquireSync Failed to acquire RBS assertion 'XPCConnectionTerminationWatchdog' for process with PID=7345, error: (null)
+Error acquiring assertion: <Error Domain=RBSAssertionErrorDomain Code=2 "Specified target process 7345 does not exist" UserInfo={NSLocalizedFailureReason=Specified target process 7345 does not exist}>
+0x117174600 - ProcessAssertion::acquireSync Failed to acquire RBS assertion 'WebProcess NearSuspended Assertion' for process with PID=7345, error: (null)

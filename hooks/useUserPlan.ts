@@ -21,14 +21,21 @@ interface UserPlan {
  */
 async function syncRevenueCatSubscription(): Promise<void> {
   try {
+    console.log('[useUserPlan] Starting RevenueCat sync...');
     const { Purchases } = await import('@revenuecat/purchases-capacitor');
     const { customerInfo } = await Purchases.getCustomerInfo();
 
-    await api.post('/api/subscription/sync', { customerInfo });
-    console.log('[useUserPlan] Sync success');
-  } catch (err) {
+    console.log('[useUserPlan] CustomerInfo received:', JSON.stringify({
+      originalAppUserId: customerInfo.originalAppUserId,
+      activeSubscriptions: customerInfo.activeSubscriptions,
+      hasActiveEntitlements: Object.keys(customerInfo.entitlements?.active || {}).length > 0,
+    }));
+
+    const response = await api.post('/api/subscription/sync', { customerInfo });
+    console.log('[useUserPlan] Sync response:', JSON.stringify(response));
+  } catch (err: any) {
     // Silently fail - sync is best effort
-    console.warn('[useUserPlan] Sync error:', err);
+    console.warn('[useUserPlan] Sync error:', err?.message || err);
   }
 }
 

@@ -24,31 +24,58 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
  * Inicializa o RevenueCat SDK com o userId do usuario
  */
 async function initializeRevenueCat(userId: string): Promise<void> {
+  console.log('[RevenueCat] initializeRevenueCat called with userId:', userId);
+  const startTime = Date.now();
+
   try {
     const apiKey = process.env.NEXT_PUBLIC_REVENUECAT_API_KEY;
+    console.log('[RevenueCat] API key exists:', !!apiKey);
     if (!apiKey) {
       console.warn('[RevenueCat] API key not configured');
       return;
     }
 
     const { Purchases } = await import('@revenuecat/purchases-capacitor');
+    console.log('[RevenueCat] Purchases module imported');
 
+    console.log('[RevenueCat] Calling configure...');
     await Purchases.configure({
       apiKey,
       appUserID: userId,
     });
+    console.log('[RevenueCat] configure completed in', Date.now() - startTime, 'ms');
 
     // Garante que compras anteriores (anonimas) sejam vinculadas ao userId atual
     try {
+      console.log('[RevenueCat] Calling logIn...');
       await Purchases.logIn({ appUserID: userId } as any);
-    } catch (e) {
+      console.log('[RevenueCat] logIn completed');
+    } catch (e: any) {
       // Ignora se ja estiver logado; apenas informativo
-      console.log('[RevenueCat] logIn skipped or failed:', e);
+      console.log('[RevenueCat] logIn skipped or failed:', e?.message || e);
     }
 
-    console.log('[RevenueCat] Initialized with userId:', userId);
-  } catch (err) {
-    console.error('[RevenueCat] Init error:', err);
+    // Testa se offerings estão disponíveis imediatamente após configure
+    try {
+      console.log('[RevenueCat] Testing getOfferings after init...');
+      const offerings = await Purchases.getOfferings();
+      console.log('[RevenueCat] Offerings test result:', JSON.stringify({
+        hasCurrent: !!offerings?.current,
+        currentId: offerings?.current?.identifier,
+        packagesCount: offerings?.current?.availablePackages?.length ?? 0,
+      }));
+    } catch (offeringsErr: any) {
+      console.error('[RevenueCat] Offerings test FAILED:', offeringsErr?.message || offeringsErr);
+    }
+
+    console.log('[RevenueCat] Initialized successfully with userId:', userId, 'total time:', Date.now() - startTime, 'ms');
+  } catch (err: any) {
+    console.error('[RevenueCat] Init error:', err?.message || err);
+    console.error('[RevenueCat] Init error details:', JSON.stringify({
+      message: err?.message,
+      code: err?.code,
+      stack: err?.stack,
+    }));
   }
 }
 

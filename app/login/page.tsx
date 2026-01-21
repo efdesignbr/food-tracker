@@ -4,11 +4,12 @@ import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Capacitor } from '@capacitor/core';
 import { api } from '@/lib/api-client';
 
-const isMobile = process.env.NEXT_PUBLIC_IS_MOBILE === 'true';
-
 function LoginForm() {
+  // Detecta mobile em runtime, não em build time
+  const isMobile = typeof window !== 'undefined' && Capacitor.isNativePlatform();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);

@@ -91,7 +91,6 @@ export default function AppLayout({ children, tenantName, userName }: {
               height={36}
               style={{ borderRadius: 8 }}
             />
-            {!isPlanLoading && <PlanBadge plan={plan} size="sm" />}
           </Link>
 
           {/* Menu Button (Hamburger) */}

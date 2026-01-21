@@ -133,6 +133,45 @@ export async function POST(req: Request) {
     const currentUser = userRows[0];
     const originalAppUserId = customerInfo.originalAppUserId;
 
+    // PROTECAO: Verifica se o RevenueCat userId corresponde ao usuario logado
+    // Isso evita que dados de um usuario anterior sejam aplicados ao usuario atual
+    if (originalAppUserId && currentUser.revenuecat_app_user_id) {
+      // Se já tem um revenuecat_app_user_id salvo e é diferente do recebido, ignora
+      if (currentUser.revenuecat_app_user_id !== originalAppUserId) {
+        logger.warn('[Subscription Sync] RevenueCat userId mismatch - ignoring sync', {
+          userId: user.id,
+          savedRevenueCatId: currentUser.revenuecat_app_user_id,
+          receivedRevenueCatId: originalAppUserId,
+        });
+        return NextResponse.json({
+          ok: true,
+          synced: false,
+          plan: currentUser.plan,
+          subscription_status: currentUser.subscription_status,
+          message: 'RevenueCat userId mismatch',
+        });
+      }
+    }
+
+    // PROTECAO: Se usuario é FREE e nunca teve RevenueCat, só aceita sync se o RevenueCat userId
+    // corresponde ao ID do usuario (configurado no login) ou é o primeiro sync
+    const expectedRevenueCatId = user.id; // O app configura RevenueCat com o userId do banco
+    if (!currentUser.revenuecat_app_user_id && originalAppUserId && originalAppUserId !== expectedRevenueCatId) {
+      // Primeiro sync, mas o RevenueCat tem dados de outro usuario (cache do dispositivo)
+      logger.warn('[Subscription Sync] First sync but RevenueCat has different user data - ignoring', {
+        userId: user.id,
+        expectedRevenueCatId,
+        receivedRevenueCatId: originalAppUserId,
+      });
+      return NextResponse.json({
+        ok: true,
+        synced: false,
+        plan: currentUser.plan,
+        subscription_status: currentUser.subscription_status,
+        message: 'RevenueCat data belongs to different user',
+      });
+    }
+
     // PROTECAO: Nunca sobrescrever plano "unlimited"
     if (currentUser.plan === 'unlimited') {
       logger.info('[Subscription Sync] Skipping - user has unlimited plan', {
