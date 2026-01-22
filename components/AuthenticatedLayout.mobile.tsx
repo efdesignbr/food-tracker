@@ -83,7 +83,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
   const router = useRouter();
   const pathname = usePathname();
   // Rotas públicas globais
-  const PUBLIC_ROUTES = ['/login', '/signup'];
+  const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password', '/reset-password'];
 
   // Evita flash de "Carregando..." nas rotas públicas
   const [isAuthorized, setIsAuthorized] = useState<boolean>(() => {

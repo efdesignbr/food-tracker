@@ -15,22 +15,38 @@ export async function POST(req: Request) {
 
     const pool = getPool();
     const { rows } = await pool.query(
-      `select u.id, u.email, u.name, u.password_hash, u.role, u.tenant_id, u.plan, t.slug as tenant_slug
+      `select u.id,
+              u.email,
+              u.name,
+              u.password_hash,
+              u.role,
+              u.tenant_id,
+              u.plan,
+              t.slug as tenant_slug
        from users u
-       join tenants t on t.id = u.tenant_id
-       where u.email = $1
+       left join tenants t on t.id = u.tenant_id
+       where lower(u.email) = lower($1)
        limit 1`,
-      [email.toLowerCase()]
+      [email]
     );
 
     const user = rows[0];
-    if (!user || !user.password_hash) {
-      return NextResponse.json({ error: 'Credenciais inválidas' }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: 'Email ou senha incorretos' }, { status: 401 });
+    }
+
+    // Tenant deletado ou inconsistente
+    if (!user.tenant_id || !user.tenant_slug) {
+      return NextResponse.json({ error: 'tenant_not_found' }, { status: 404 });
+    }
+
+    if (!user.password_hash) {
+      return NextResponse.json({ error: 'Email ou senha incorretos' }, { status: 401 });
     }
 
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
-      return NextResponse.json({ error: 'Credenciais inválidas' }, { status: 401 });
+      return NextResponse.json({ error: 'Email ou senha incorretos' }, { status: 401 });
     }
 
     // Gerar JWT Padrão (JWS)

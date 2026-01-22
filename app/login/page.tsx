@@ -168,6 +168,12 @@ function LoginForm() {
           </div>
         )}
 
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Link href="/forgot-password" style={{ fontSize: 13, color: '#2196F3', textDecoration: 'none' }}>
+            Esqueci minha senha
+          </Link>
+        </div>
+
         <button
           type="submit"
           disabled={loading}

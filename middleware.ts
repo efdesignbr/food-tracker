@@ -59,7 +59,7 @@ export async function middleware(req: NextRequest) {
   // -------------------------------------
 
   // Public routes that don't need authentication
-  const isPublic = ['/login', '/signup', '/api/auth'].some((route) =>
+  const isPublic = ['/login', '/signup', '/forgot-password', '/reset-password', '/api/auth'].some((route) =>
     pathname.startsWith(route)
   );
 
