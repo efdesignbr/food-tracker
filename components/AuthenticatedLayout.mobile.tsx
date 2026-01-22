@@ -82,14 +82,22 @@ async function initializeRevenueCat(userId: string): Promise<void> {
 export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  // Rotas públicas globais
+  const PUBLIC_ROUTES = ['/login', '/signup'];
+
+  // Evita flash de "Carregando..." nas rotas públicas
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname || '';
+    return PUBLIC_ROUTES.some(route => path.startsWith(route));
+  });
   const [token, setToken] = useState<string | null>(null);
   const lastInitializedToken = useRef<string | null>(null);
+  const FALLBACK_LOGIN_TIMEOUT_MS = 1500;
 
   useEffect(() => {
     // Rotas públicas que não precisam de auth
-    const publicRoutes = ['/login', '/signup'];
-    const isPublic = publicRoutes.some(route => pathname?.startsWith(route));
+    const isPublic = PUBLIC_ROUTES.some(route => pathname?.startsWith(route));
 
     if (typeof window === 'undefined') return;
 
@@ -108,6 +116,20 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
       // Hide banner when logged out
       hideTopBanner();
       router.replace('/login');
+      // Fallback duro caso a navegação não ocorra (evita spinner "infinito")
+      try {
+        setTimeout(() => {
+          try {
+            if (typeof window !== 'undefined') {
+              const now = window.location.pathname || '';
+              if (!PUBLIC_ROUTES.some(route => now.startsWith(route))) {
+                // Em export estático, a rota pública existe como /login.html
+                window.location.replace('/login.html');
+              }
+            }
+          } catch {}
+        }, FALLBACK_LOGIN_TIMEOUT_MS);
+      } catch {}
       return;
     }
 
@@ -129,8 +151,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
   // Controla exibição do banner baseado no plano do usuário (extraído do JWT)
   useEffect(() => {
     // Rotas públicas NUNCA mostram banner
-    const publicRoutes = ['/login', '/signup'];
-    const isPublic = publicRoutes.some(route => pathname?.startsWith(route));
+    const isPublic = PUBLIC_ROUTES.some(route => pathname?.startsWith(route));
 
     if (isPublic) {
       hideTopBanner();
@@ -199,16 +220,21 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        paddingTop: 'env(safe-area-inset-top)'
+        paddingTop: 'env(safe-area-inset-top)',
+        flexDirection: 'column',
+        gap: 12
       }}>
-        Carregando...
+        <div>Carregando...</div>
+        {/* Link manual para garantir saída do estado de loading em caso de falha de navegação */}
+        <a href="/login.html" style={{ color: '#2196F3', textDecoration: 'underline' }}>
+          Ir para a tela de login
+        </a>
       </div>
     );
   }
 
   // Se for rota pública, renderiza sem o layout do app (header, menu)
-  const publicRoutes = ['/login', '/signup'];
-  if (publicRoutes.some(route => pathname?.startsWith(route))) {
+  if (PUBLIC_ROUTES.some(route => pathname?.startsWith(route))) {
     return (
       <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         {children}

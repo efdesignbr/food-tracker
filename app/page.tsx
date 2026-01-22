@@ -73,6 +73,55 @@ export default function HomePage() {
   const [expandedMealId, setExpandedMealId] = useState<string | null>(null);
   const [expandedFoodId, setExpandedFoodId] = useState<string | null>(null);
 
+  // Buscar dados iniciais (extraído para permitir "Tentar novamente")
+  async function fetchData() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch meals, user profile, water intake, and bowel movements in parallel
+      const [mealsRes, profileRes, waterRes, bowelRes] = await Promise.all([
+        api.get('/api/meals'),
+        api.get('/api/user/profile'),
+        api.get('/api/water-intake'),
+        api.get('/api/bowel-movements')
+      ]);
+
+      if (!mealsRes.ok) throw new Error('Erro ao buscar refeições');
+
+      const mealsData = await mealsRes.json();
+      setMeals(mealsData.meals || []);
+
+      // Load user goals if profile fetch succeeded
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        setGoals({
+          calories: profileData.user.goals.calories,
+          protein: profileData.user.goals.protein,
+          carbs: profileData.user.goals.carbs,
+          fat: profileData.user.goals.fat,
+          water: profileData.user.goals.water || 2000
+        });
+      }
+
+      // Load water intake
+      if (waterRes.ok) {
+        const waterData = await waterRes.json();
+        setWaterIntake(waterData.total_ml || 0);
+      }
+
+      // Load bowel movements
+      if (bowelRes.ok) {
+        const bowelData = await bowelRes.json();
+        setBowelMovementsCount(bowelData.count || 0);
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   // Helper para verificar se alimento tem micronutrientes
   const hasMicronutrients = (food: Food) => {
     return (food.cholesterol_mg || 0) > 0 ||
@@ -94,52 +143,6 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-
-        // Fetch meals, user profile, water intake, and bowel movements in parallel
-        const [mealsRes, profileRes, waterRes, bowelRes] = await Promise.all([
-          api.get('/api/meals'),
-          api.get('/api/user/profile'),
-          api.get('/api/water-intake'),
-          api.get('/api/bowel-movements')
-        ]);
-
-        if (!mealsRes.ok) throw new Error('Erro ao buscar refeições');
-
-        const mealsData = await mealsRes.json();
-        setMeals(mealsData.meals || []);
-
-        // Load user goals if profile fetch succeeded
-        if (profileRes.ok) {
-          const profileData = await profileRes.json();
-          setGoals({
-            calories: profileData.user.goals.calories,
-            protein: profileData.user.goals.protein,
-            carbs: profileData.user.goals.carbs,
-            fat: profileData.user.goals.fat,
-            water: profileData.user.goals.water || 2000
-          });
-        }
-
-        // Load water intake
-        if (waterRes.ok) {
-          const waterData = await waterRes.json();
-          setWaterIntake(waterData.total_ml || 0);
-        }
-
-        // Load bowel movements
-        if (bowelRes.ok) {
-          const bowelData = await bowelRes.json();
-          setBowelMovementsCount(bowelData.count || 0);
-        }
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchData();
   }, []);
 
@@ -258,7 +261,31 @@ export default function HomePage() {
           textAlign: 'center'
         }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}></div>
-          <p style={{ color: '#991b1b', margin: 0 }}>{error}</p>
+          <p style={{ color: '#991b1b', margin: 0, fontWeight: 700 }}>
+            Não foi possível carregar seus dados.
+          </p>
+          <p style={{ color: '#991b1b', marginTop: 8 }}>
+            Verifique sua conexão com a internet e tente novamente.
+          </p>
+          <div style={{ marginTop: 12 }}>
+            <button
+              onClick={fetchData}
+              style={{
+                padding: '10px 16px',
+                background: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: 8,
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              Tentar novamente
+            </button>
+          </div>
+          <p style={{ color: '#b91c1c', marginTop: 12, fontSize: 12 }}>
+            Detalhe técnico: {error}
+          </p>
         </div>
       </div>
     );
