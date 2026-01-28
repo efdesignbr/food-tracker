@@ -47,7 +47,7 @@ export async function analyzeNutritionLabel(
 
     const genAI = new GoogleGenerativeAI(e.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({
-      model: e.GEMINI_MODEL || 'gemini-2.0-flash-exp',
+      model: e.GEMINI_MODEL || 'gemini-2.0-flash',
     });
 
     const prompt = `Analise esta imagem de tabela nutricional brasileira e extraia as seguintes informações:

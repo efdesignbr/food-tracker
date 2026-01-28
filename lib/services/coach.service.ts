@@ -335,7 +335,7 @@ export async function analyzeWithAI(context: CoachContext): Promise<CoachAnalysi
   const genAI = getClient();
 
   const model = genAI.getGenerativeModel({
-    model: e.GEMINI_MODEL || 'gemini-2.0-flash-exp',
+    model: e.GEMINI_MODEL || 'gemini-2.0-flash',
     generationConfig: {
       responseMimeType: 'application/json',
       responseSchema: responseSchema as any,

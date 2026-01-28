@@ -17,7 +17,7 @@ const EnvSchema = z.object({
   ANTHROPIC_MAX_TOKENS: z.coerce.number().default(1200),
 
   GEMINI_API_KEY: z.string(),
-  GEMINI_MODEL: z.string().default('gemini-2.0-flash-exp'),
+  GEMINI_MODEL: z.string().default('gemini-2.0-flash'),
 
   // Automation flags (dev-friendly)
   AUTO_MIGRATE: z.coerce.boolean().default(true),

@@ -85,7 +85,7 @@ export async function analyzeMealFromText(
   const genAI = getClient();
 
   const model = genAI.getGenerativeModel({
-    model: e.GEMINI_MODEL || 'gemini-2.0-flash-exp',
+    model: e.GEMINI_MODEL || 'gemini-2.0-flash',
     generationConfig: {
       responseMimeType: 'application/json',
       responseSchema: responseSchema as any,
@@ -146,7 +146,7 @@ export async function analyzeMealFromImage(
   const genAI = getClient();
 
   const model = genAI.getGenerativeModel({
-    model: e.GEMINI_MODEL || 'gemini-2.0-flash-exp',
+    model: e.GEMINI_MODEL || 'gemini-2.0-flash',
     generationConfig: {
       responseMimeType: 'application/json',
       responseSchema: responseSchema as any,
@@ -218,7 +218,7 @@ export async function analyzeFood(
   const genAI = getClient();
 
   const model = genAI.getGenerativeModel({
-    model: e.GEMINI_MODEL || 'gemini-2.0-flash-exp',
+    model: e.GEMINI_MODEL || 'gemini-2.0-flash',
     generationConfig: {
       temperature: 0.1,
       maxOutputTokens: 1024,
