@@ -611,7 +611,8 @@ export default function ListaComprasPage() {
 
       const res = await apiClient('/api/shopping-lists/scan-receipt', {
         method: 'POST',
-        body: formData
+        body: formData,
+        timeoutMs: 90000
       });
 
       const json = await res.json();
@@ -625,7 +626,8 @@ export default function ListaComprasPage() {
           const retry = await apiClient('/api/shopping-lists/scan-receipt', {
             method: 'POST',
             body: formData,
-            headers: { 'x-ad-completed': '1' }
+            headers: { 'x-ad-completed': '1' },
+            timeoutMs: 90000
           });
           const retryJson = await retry.json();
           if (!retry.ok) throw new Error(retryJson.error || 'Erro ao analisar nota');

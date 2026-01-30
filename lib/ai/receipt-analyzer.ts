@@ -80,7 +80,7 @@ Retorne APENAS o JSON valido, sem texto adicional.`;
           mimeType: mediaType
         }
       }
-    ]);
+    ], { timeout: 55000 });
 
     const response = result.response;
     const text = response.text();
