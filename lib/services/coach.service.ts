@@ -4,7 +4,7 @@ import { env } from '@/lib/env';
 import { logger } from '@/lib/logger';
 import { getLatestWeightLog } from '@/lib/repos/weight.repo';
 import { getLatestBodyMeasurement } from '@/lib/repos/body-measurements.repo';
-import { toDateBR, toTimeBR } from '@/lib/datetime';
+import { toDateBR, toTimeBR, getCurrentDateBR } from '@/lib/datetime';
 
 function getClient() {
   const e = env();
@@ -197,11 +197,11 @@ export async function gatherUserContext(params: {
      LEFT JOIN food_items fi ON fi.meal_id = m.id
      LEFT JOIN nutrition_data nd ON nd.food_item_id = fi.id
      WHERE m.user_id = $1 AND m.tenant_id = $2
-       AND m.consumed_at >= CURRENT_DATE - INTERVAL '30 days'
+       AND m.consumed_at >= $3::date - INTERVAL '30 days'
      GROUP BY m.id, m.meal_type, m.consumed_at
      ORDER BY m.consumed_at DESC
      LIMIT 100`,
-    [params.userId, params.tenantId]
+    [params.userId, params.tenantId, getCurrentDateBR()]
   );
 
   console.log(`📊 [COACH] Found ${meals.length} meals for user ${params.userId}`);
@@ -244,8 +244,8 @@ export async function gatherUserContext(params: {
      LEFT JOIN food_items fi ON fi.meal_id = m.id
      LEFT JOIN nutrition_data nd ON nd.food_item_id = fi.id
      WHERE m.user_id = $1 AND m.tenant_id = $2
-       AND m.consumed_at >= CURRENT_DATE - INTERVAL '30 days'`,
-    [params.userId, params.tenantId]
+       AND m.consumed_at >= $3::date - INTERVAL '30 days'`,
+    [params.userId, params.tenantId, getCurrentDateBR()]
   );
 
   if (microRows.length > 0 && microRows[0].days_with_data > 0) {

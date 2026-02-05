@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helper';
 import { getPool } from '@/lib/db';
+import { getCurrentDateBR } from '@/lib/datetime';
 
 // GET: Buscar registros de evacuações por data
 export async function GET(req: NextRequest) {
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest) {
       `;
       params = [session.userId, date];
     } else {
-      // Buscar registros de hoje
+      // Buscar registros de hoje (data de São Paulo, não UTC)
       query = `
         SELECT
           id,
@@ -43,10 +44,10 @@ export async function GET(req: NextRequest) {
           created_at
         FROM bowel_movements
         WHERE user_id = $1
-          AND DATE(occurred_at) = CURRENT_DATE
+          AND DATE(occurred_at AT TIME ZONE 'America/Sao_Paulo') = $2
         ORDER BY occurred_at DESC
       `;
-      params = [session.userId];
+      params = [session.userId, getCurrentDateBR()];
     }
 
     const { rows } = await pool.query(query, params);
@@ -101,15 +102,15 @@ export async function POST(req: NextRequest) {
       [session.userId, session.tenantId, bristol_type, occurred_at, notes]
     );
 
-    // Buscar total do dia após inserção
+    // Buscar total do dia após inserção (data de São Paulo, não UTC)
     const { rows: todayRows } = await pool.query(
       `
       SELECT COUNT(*) as count
       FROM bowel_movements
       WHERE user_id = $1
-        AND DATE(occurred_at) = CURRENT_DATE
+        AND DATE(occurred_at AT TIME ZONE 'America/Sao_Paulo') = $2
       `,
-      [session.userId]
+      [session.userId, getCurrentDateBR()]
     );
 
     const countToday = parseInt(todayRows[0].count);
@@ -163,15 +164,15 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    // Buscar total do dia após deleção
+    // Buscar total do dia após deleção (data de São Paulo, não UTC)
     const { rows: todayRows } = await pool.query(
       `
       SELECT COUNT(*) as count
       FROM bowel_movements
       WHERE user_id = $1
-        AND DATE(occurred_at) = CURRENT_DATE
+        AND DATE(occurred_at AT TIME ZONE 'America/Sao_Paulo') = $2
       `,
-      [session.userId]
+      [session.userId, getCurrentDateBR()]
     );
 
     const countToday = parseInt(todayRows[0].count);

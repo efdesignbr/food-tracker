@@ -89,10 +89,10 @@ export async function GET(req: Request) {
 
     // Se pedir por período
     if (!startDate || !endDate) {
-      // Default: últimos 30 dias
+      // Default: últimos 2 anos (histórico de peso é importante para análise)
       const end = new Date();
       const start = new Date();
-      start.setDate(start.getDate() - 30);
+      start.setFullYear(start.getFullYear() - 2);
 
       const logs = await getWeightLogsByDateRange({
         tenantId: tenant.id,

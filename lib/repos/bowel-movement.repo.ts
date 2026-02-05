@@ -1,4 +1,5 @@
 import { getPool } from '@/lib/db';
+import { getCurrentDateBR } from '@/lib/datetime';
 
 export type DbBowelMovement = {
   id: string;
@@ -109,8 +110,8 @@ export async function countBowelMovementsToday(args: {
     const { rows } = await client.query<{ count: string }>(
       `SELECT COUNT(*) as count FROM bowel_movements
        WHERE tenant_id = $1 AND user_id = $2
-       AND occurred_at::date = CURRENT_DATE`,
-      [args.tenantId, args.userId]
+       AND DATE(occurred_at AT TIME ZONE 'America/Sao_Paulo') = $3`,
+      [args.tenantId, args.userId, getCurrentDateBR()]
     );
 
     await client.query('COMMIT');

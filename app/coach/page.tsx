@@ -85,7 +85,8 @@ export default function CoachPage() {
         (extra) => apiClient('/api/coach/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...(extra || {}) },
-          body: JSON.stringify({})
+          body: JSON.stringify({}),
+          timeoutMs: 120000 // 2 minutos - Coach coleta muitos dados e chama Gemini
         }),
         { feature: 'coach_analysis' }
       );

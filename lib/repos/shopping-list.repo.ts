@@ -1,4 +1,5 @@
 import { getPool } from '@/lib/db';
+import { getCurrentDateBR } from '@/lib/datetime';
 
 export interface ShoppingList {
   id: string;
@@ -473,12 +474,12 @@ export async function getFoodSuggestions(args: {
       WHERE si.tenant_id = $2
         AND sl.user_id = $1 -- Apenas listas do usuário
         AND si.is_purchased = true
-        AND si.created_at >= CURRENT_DATE - INTERVAL '90 days'
+        AND si.created_at >= $4::date - INTERVAL '90 days'
       GROUP BY 1
       HAVING COUNT(*) >= 2 -- Item comprado pelo menos 2x nos últimos 90 dias
       ORDER BY consumption_count DESC, last_consumed DESC
       LIMIT $3`,
-      [args.userId, args.tenantId, args.limit || 10]
+      [args.userId, args.tenantId, args.limit || 10, getCurrentDateBR()]
     );
 
     await client.query('COMMIT');
@@ -649,14 +650,14 @@ export async function getShoppingStats(args: {
          SUM(si.price) as total
        FROM shopping_lists sl
        JOIN shopping_items si ON sl.id = si.list_id
-       WHERE sl.tenant_id = $1 
+       WHERE sl.tenant_id = $1
          AND sl.user_id = $2
          AND sl.status = 'completed'
          AND si.is_purchased = true
-         AND sl.completed_at >= CURRENT_DATE - INTERVAL '12 months'
+         AND sl.completed_at >= $3::date - INTERVAL '12 months'
        GROUP BY 1
        ORDER BY 1 ASC`,
-      [args.tenantId, args.userId]
+      [args.tenantId, args.userId, getCurrentDateBR()]
     );
 
     // 2. Gastos por Loja (Top 10)

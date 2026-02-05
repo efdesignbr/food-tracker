@@ -467,7 +467,8 @@ export default function ReportsPage() {
         (extra) => apiClient('/api/reports/analysis', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...(extra || {}) },
-          body: JSON.stringify({ start_date, end_date, goals })
+          body: JSON.stringify({ start_date, end_date, goals }),
+          timeoutMs: 90000 // 90s - análise de período pode demorar
         }),
         { feature: 'ai_reports' }
       );

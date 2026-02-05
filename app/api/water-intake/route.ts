@@ -28,18 +28,18 @@ export async function GET(req: NextRequest) {
       // Caso contrário usa o limite do plano (free = 30 dias)
       const intervalDays = historyDays === null ? 5 * 365 : historyDays;
 
-      // Buscar histórico agregado por dia
+      // Buscar histórico agregado por dia (usando data de São Paulo)
       const query = `
         SELECT
           consumed_date as date,
           SUM(amount_ml) as total_ml
         FROM water_intake
         WHERE user_id = $1
-          AND consumed_date >= CURRENT_DATE - INTERVAL '${intervalDays} days'
+          AND consumed_date >= $2::date - INTERVAL '${intervalDays} days'
         GROUP BY consumed_date
         ORDER BY consumed_date DESC
       `;
-      const { rows } = await pool.query(query, [session.userId]);
+      const { rows } = await pool.query(query, [session.userId, getCurrentDateBR()]);
 
       return NextResponse.json({
         success: true,
@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
       `;
       params = [session.userId, date];
     } else {
-      // Buscar registros de hoje
+      // Buscar registros de hoje (data de São Paulo, não UTC)
       query = `
         SELECT
           id,
@@ -84,10 +84,10 @@ export async function GET(req: NextRequest) {
           created_at
         FROM water_intake
         WHERE user_id = $1
-          AND consumed_date = CURRENT_DATE
+          AND consumed_date = $2
         ORDER BY consumed_date DESC, consumed_time DESC
       `;
-      params = [session.userId];
+      params = [session.userId, getCurrentDateBR()];
     }
 
     const { rows } = await pool.query(query, params);
@@ -143,15 +143,15 @@ export async function POST(req: NextRequest) {
       [session.userId, session.tenantId, amount_ml, getCurrentDateBR(), getCurrentTimeBR(), notes]
     );
 
-    // Buscar total do dia após inserção
+    // Buscar total do dia após inserção (data de São Paulo, não UTC)
     const { rows: todayRows } = await pool.query(
       `
       SELECT COALESCE(SUM(amount_ml), 0) as total
       FROM water_intake
       WHERE user_id = $1
-        AND consumed_date = CURRENT_DATE
+        AND consumed_date = $2
       `,
-      [session.userId]
+      [session.userId, getCurrentDateBR()]
     );
 
     const totalToday = parseInt(todayRows[0].total);
@@ -206,15 +206,15 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    // Buscar total do dia após deleção
+    // Buscar total do dia após deleção (data de São Paulo, não UTC)
     const { rows: todayRows } = await pool.query(
       `
       SELECT COALESCE(SUM(amount_ml), 0) as total
       FROM water_intake
       WHERE user_id = $1
-        AND consumed_date = CURRENT_DATE
+        AND consumed_date = $2
       `,
-      [session.userId]
+      [session.userId, getCurrentDateBR()]
     );
 
     const totalToday = parseInt(todayRows[0].total);

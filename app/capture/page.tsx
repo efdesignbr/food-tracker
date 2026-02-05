@@ -261,6 +261,7 @@ export default function CapturePage() {
           method: 'POST',
           body: createFormData(),
           headers: extraHeaders,
+          timeoutMs: 60000 // 60s - análise de imagem com Gemini
         }),
         { feature: 'photo_analysis' }
       );
@@ -345,6 +346,7 @@ export default function CapturePage() {
             method: 'POST',
             body: createFormData(),
             headers: extraHeaders,
+            timeoutMs: 60000 // 60s - análise de refeição com Gemini
           }),
           { feature: 'photo_analysis' }
         );
@@ -354,6 +356,7 @@ export default function CapturePage() {
             method: 'POST',
             body: JSON.stringify(payload),
             headers: { 'Content-Type': 'application/json', ...(extraHeaders || {}) },
+            timeoutMs: 60000 // 60s - análise de refeição com Gemini
           }),
           { feature: 'text_analysis' }
         );
