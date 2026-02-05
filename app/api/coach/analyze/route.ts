@@ -66,6 +66,31 @@ export async function POST(req: Request) {
       }
     }
 
+    // Verificar se já existe análise recente (últimos 5 minutos) para evitar duplicatas
+    const { rows: recentAnalysis } = await pool.query(
+      `SELECT analysis_text, recommendations, insights, warnings
+       FROM coach_analyses
+       WHERE user_id = $1 AND tenant_id = $2
+         AND analysis_date > NOW() - INTERVAL '5 minutes'
+       ORDER BY analysis_date DESC
+       LIMIT 1`,
+      [session.userId, tenant.id]
+    );
+
+    if (recentAnalysis.length > 0) {
+      // Retorna análise recente em vez de fazer nova chamada ao Gemini
+      const existing = recentAnalysis[0];
+      return NextResponse.json({
+        ok: true,
+        analysis: {
+          analysisText: existing.analysis_text,
+          recommendations: existing.recommendations,
+          insights: existing.insights,
+          warnings: existing.warnings
+        }
+      });
+    }
+
     // Coletar contexto
     const context = await gatherUserContext({
       userId: session.userId,
