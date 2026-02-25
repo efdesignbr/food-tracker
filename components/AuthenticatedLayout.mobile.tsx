@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import AppLayout from './AppLayout';
 import { initAdMob, showTopBanner, hideTopBanner } from '@/lib/ads/admob';
-import { redirectToLogin, isRedirectingToLogin } from '@/lib/auth-client';
+import { api } from '@/lib/api-client';
 
 const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password', '/reset-password'];
 
@@ -53,17 +54,14 @@ async function initializeRevenueCat(userId: string): Promise<void> {
     });
     console.log('[RevenueCat] configure completed in', Date.now() - startTime, 'ms');
 
-    // Garante que compras anteriores (anonimas) sejam vinculadas ao userId atual
     try {
       console.log('[RevenueCat] Calling logIn...');
       await Purchases.logIn({ appUserID: userId } as any);
       console.log('[RevenueCat] logIn completed');
     } catch (e: any) {
-      // Ignora se ja estiver logado; apenas informativo
       console.log('[RevenueCat] logIn skipped or failed:', e?.message || e);
     }
 
-    // Testa se offerings estão disponíveis imediatamente após configure
     try {
       console.log('[RevenueCat] Testing getOfferings after init...');
       const offerings = await Purchases.getOfferings();
@@ -87,22 +85,184 @@ async function initializeRevenueCat(userId: string): Promise<void> {
   }
 }
 
+// ─── Inline Login Form (renderizado quando não há token) ───
+
+function InlineLoginForm({ onLoginSuccess }: { onLoginSuccess: (token: string) => void }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function onSubmit(ev: React.FormEvent) {
+    ev.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await api.post('/api/auth/mobile-login', { email, password });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Erro no login');
+      } else if (data.token) {
+        localStorage.setItem('auth_token', data.token);
+        onLoginSuccess(data.token);
+      } else {
+        setError('Erro: Token nao recebido');
+      }
+    } catch (e: any) {
+      console.error('Erro ao fazer login:', e);
+      setError('Erro ao fazer login: ' + e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#f5f5f5',
+      paddingTop: 'env(safe-area-inset-top)',
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: 400,
+        padding: 32,
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+        margin: 16,
+      }}>
+        <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8, textAlign: 'center' }}>
+          Food Tracker
+        </h1>
+        <p style={{ fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 32 }}>
+          Faca login para continuar
+        </p>
+
+        <form onSubmit={onSubmit} style={{ display: 'grid', gap: 16 }}>
+          <div>
+            <label style={{ display: 'block', fontSize: 14, fontWeight: 500, marginBottom: 8 }}>
+              Email
+            </label>
+            <input
+              type="email"
+              placeholder="seu@email.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: 14,
+                border: '1px solid #e0e0e0',
+                borderRadius: 8,
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: 14, fontWeight: 500, marginBottom: 8 }}>
+              Senha
+            </label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: 14,
+                border: '1px solid #e0e0e0',
+                borderRadius: 8,
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          {error && (
+            <div style={{
+              padding: 12,
+              backgroundColor: '#ffebee',
+              color: '#c62828',
+              borderRadius: 8,
+              fontSize: 14,
+            }}>
+              {error}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Link href="/forgot-password" style={{ fontSize: 13, color: '#2196F3', textDecoration: 'none' }}>
+              Esqueci minha senha
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '12px 24px',
+              fontSize: 16,
+              fontWeight: 600,
+              color: '#fff',
+              backgroundColor: loading ? '#999' : '#2196F3',
+              border: 'none',
+              borderRadius: 8,
+              cursor: loading ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
+        </form>
+
+        <p style={{ textAlign: 'center', marginTop: 16, color: '#666', fontSize: 14 }}>
+          Ainda nao tem conta?{' '}
+          <Link href="/signup" style={{ color: '#2196F3', fontWeight: 600, textDecoration: 'none' }}>
+            Criar conta
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Layout ───
+
 export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Evita flash de "Carregando..." nas rotas públicas
   const [isAuthorized, setIsAuthorized] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
-    return isPublicRoute(window.location.pathname);
+    const path = window.location.pathname || '';
+    if (isPublicRoute(path)) return true;
+    return !!localStorage.getItem('auth_token');
   });
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('auth_token');
+  });
   const lastInitializedToken = useRef<string | null>(null);
+
+  // Callback do login inline — atualiza state sem precisar navegar
+  function handleLoginSuccess(newToken: string) {
+    setToken(newToken);
+    setIsAuthorized(true);
+  }
 
   // === useEffect: Auth check + event listeners ===
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    function checkAuthAndRedirect() {
+    function checkAuth() {
       const currentToken = localStorage.getItem('auth_token');
       setToken(currentToken);
 
@@ -115,14 +275,12 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
       if (!currentToken) {
         setIsAuthorized(false);
         hideTopBanner();
-        redirectToLogin();
         return;
       }
 
-      // Token exists and route is protected — user is authorized
       setIsAuthorized(true);
 
-      // Initialize RevenueCat & AdMob on new token (login)
+      // Initialize RevenueCat & AdMob on new token
       if (lastInitializedToken.current !== currentToken) {
         lastInitializedToken.current = currentToken;
         const payload = decodeJwtPayload(currentToken);
@@ -134,10 +292,9 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
       }
     }
 
-    // Run immediately
-    checkAuthAndRedirect();
+    checkAuth();
 
-    // Event listeners for logout triggers
+    // Logout events
     const onStorage = (e: StorageEvent) => {
       if (e.key === 'auth_token' || e.key === 'auth_logout_at') {
         const t = localStorage.getItem('auth_token');
@@ -146,7 +303,6 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
           setIsAuthorized(false);
           hideTopBanner();
           lastInitializedToken.current = null;
-          redirectToLogin();
         }
       }
     };
@@ -158,7 +314,6 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
         setIsAuthorized(false);
         hideTopBanner();
         lastInitializedToken.current = null;
-        redirectToLogin();
       }
     };
 
@@ -170,7 +325,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
     };
   }, [pathname]);
 
-  // === useEffect: Banner control based on plan ===
+  // === useEffect: Banner control ===
   useEffect(() => {
     if (isPublicRoute(pathname)) {
       hideTopBanner();
@@ -195,43 +350,12 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
 
   // --- Render ---
 
+  // Sem token em rota protegida: mostra login inline (sem redirect)
   if (!isAuthorized) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        paddingTop: 'env(safe-area-inset-top)',
-        flexDirection: 'column',
-        gap: 16,
-      }}>
-        {isRedirectingToLogin() ? (
-          <>
-            <div style={{ fontSize: 14, color: '#666' }}>Redirecionando...</div>
-            <a
-              href="/login.html"
-              style={{ color: '#2196F3', textDecoration: 'underline', fontSize: 14 }}
-            >
-              Toque aqui se nao for redirecionado
-            </a>
-          </>
-        ) : (
-          <>
-            <div>Carregando...</div>
-            <a
-              href="/login.html"
-              style={{ color: '#2196F3', textDecoration: 'underline' }}
-            >
-              Ir para a tela de login
-            </a>
-          </>
-        )}
-      </div>
-    );
+    return <InlineLoginForm onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Rota pública: renderiza sem AppLayout (header, menu)
+  // Rota publica: renderiza sem AppLayout
   if (isPublicRoute(pathname)) {
     return (
       <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
@@ -241,7 +365,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
   }
 
   return (
-    <AppLayout tenantName="Food Tracker" userName="Você">
+    <AppLayout tenantName="Food Tracker" userName="Voce">
       {children}
     </AppLayout>
   );
