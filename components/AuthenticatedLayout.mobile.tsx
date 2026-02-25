@@ -98,8 +98,13 @@ function InlineLoginForm({ onLoginSuccess }: { onLoginSuccess: (token: string) =
     setError(null);
     setLoading(true);
     try {
-      const res = await api.post('/api/auth/mobile-login', { email, password });
+      const trimmedEmail = email.trim().toLowerCase();
+      const trimmedPassword = password;
+      console.log('[InlineLogin] Attempting login', { email: trimmedEmail, passwordLength: trimmedPassword.length });
+
+      const res = await api.post('/api/auth/mobile-login', { email: trimmedEmail, password: trimmedPassword });
       const data = await res.json();
+      console.log('[InlineLogin] Response', { status: res.status, hasToken: !!data.token, error: data.error });
 
       if (!res.ok) {
         setError(data.error || 'Erro no login');
@@ -110,7 +115,7 @@ function InlineLoginForm({ onLoginSuccess }: { onLoginSuccess: (token: string) =
         setError('Erro: Token nao recebido');
       }
     } catch (e: any) {
-      console.error('Erro ao fazer login:', e);
+      console.error('[InlineLogin] Exception:', e);
       setError('Erro ao fazer login: ' + e.message);
     } finally {
       setLoading(false);
@@ -153,10 +158,14 @@ function InlineLoginForm({ onLoginSuccess }: { onLoginSuccess: (token: string) =
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="email"
+              spellCheck={false}
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                fontSize: 14,
+                fontSize: 16,
                 border: '1px solid #e0e0e0',
                 borderRadius: 8,
                 outline: 'none',
@@ -175,10 +184,14 @@ function InlineLoginForm({ onLoginSuccess }: { onLoginSuccess: (token: string) =
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="current-password"
+              spellCheck={false}
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                fontSize: 14,
+                fontSize: 16,
                 border: '1px solid #e0e0e0',
                 borderRadius: 8,
                 outline: 'none',
