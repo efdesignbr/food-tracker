@@ -6,7 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import PlanBadge from '@/components/subscription/PlanBadge';
 import { useUserPlan } from '@/hooks/useUserPlan';
-import { triggerClientLogout } from '@/lib/auth-client';
+import { triggerClientLogout, redirectToLogin } from '@/lib/auth-client';
 import { Capacitor } from '@capacitor/core';
 
 type NavItem = {
@@ -39,13 +39,16 @@ export default function AppLayout({ children, tenantName, userName }: {
   const { plan, isLoading: isPlanLoading } = useUserPlan();
 
   async function handleLogout() {
-    // Mobile: Limpa token e dispara evento de logout (navegação via router)
+    // Mobile: Limpa token e navega direto via window.location (não depende do router)
     if (typeof window !== 'undefined' && localStorage.getItem('auth_token')) {
       try {
         triggerClientLogout();
       } catch {}
+      redirectToLogin();
+      return;
     }
 
+    // Web: NextAuth cookie flow
     try {
       await signOut({ redirect: false });
     } catch (e) {

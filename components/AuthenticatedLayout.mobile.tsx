@@ -1,9 +1,17 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import AppLayout from './AppLayout';
 import { initAdMob, showTopBanner, hideTopBanner } from '@/lib/ads/admob';
+import { redirectToLogin, isRedirectingToLogin } from '@/lib/auth-client';
+
+const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password', '/reset-password'];
+
+function isPublicRoute(path: string | null): boolean {
+  if (!path) return false;
+  return PUBLIC_ROUTES.some(route => path.startsWith(route));
+}
 
 /**
  * Decodifica um JWT e retorna o payload
@@ -80,107 +88,56 @@ async function initializeRevenueCat(userId: string): Promise<void> {
 }
 
 export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const pathname = usePathname();
-  // Rotas públicas globais
-  const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password', '/reset-password'];
 
   // Evita flash de "Carregando..." nas rotas públicas
   const [isAuthorized, setIsAuthorized] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
-    const path = window.location.pathname || '';
-    return PUBLIC_ROUTES.some(route => path.startsWith(route));
+    return isPublicRoute(window.location.pathname);
   });
   const [token, setToken] = useState<string | null>(null);
   const lastInitializedToken = useRef<string | null>(null);
-  const FALLBACK_LOGIN_TIMEOUT_MS = 1500;
 
+  // === useEffect: Auth check + event listeners ===
   useEffect(() => {
-    // Rotas públicas que não precisam de auth
-    const isPublic = PUBLIC_ROUTES.some(route => pathname?.startsWith(route));
-
     if (typeof window === 'undefined') return;
 
-    const currentToken = localStorage.getItem('auth_token');
-    setToken(currentToken);
+    function checkAuthAndRedirect() {
+      const currentToken = localStorage.getItem('auth_token');
+      setToken(currentToken);
 
-    if (isPublic) {
-      setIsAuthorized(true);
-      // Hide banner on public routes
-      hideTopBanner();
-      return;
-    }
-
-    if (!currentToken) {
-      setIsAuthorized(false);
-      // Hide banner when logged out
-      hideTopBanner();
-      router.replace('/login');
-      // Fallback duro caso a navegação não ocorra (evita spinner "infinito")
-      try {
-        setTimeout(() => {
-          try {
-            if (typeof window !== 'undefined') {
-              const now = window.location.pathname || '';
-              if (!PUBLIC_ROUTES.some(route => now.startsWith(route))) {
-                // Em export estático, a rota pública existe como /login.html
-                window.location.replace('/login.html');
-              }
-            }
-          } catch {}
-        }, FALLBACK_LOGIN_TIMEOUT_MS);
-      } catch {}
-      return;
-    }
-
-    setIsAuthorized(true);
-
-    // Inicializa RevenueCat e AdMob quando o token muda (novo login)
-    if (lastInitializedToken.current !== currentToken) {
-      lastInitializedToken.current = currentToken;
-      const payload = decodeJwtPayload(currentToken);
-      const userId = payload?.userId as string | undefined;
-      if (userId) {
-        initializeRevenueCat(userId);
+      if (isPublicRoute(pathname)) {
+        setIsAuthorized(true);
+        hideTopBanner();
+        return;
       }
-      // Apenas inicializa AdMob (banner será controlado pelo useEffect do plano)
-      initAdMob();
+
+      if (!currentToken) {
+        setIsAuthorized(false);
+        hideTopBanner();
+        redirectToLogin();
+        return;
+      }
+
+      // Token exists and route is protected — user is authorized
+      setIsAuthorized(true);
+
+      // Initialize RevenueCat & AdMob on new token (login)
+      if (lastInitializedToken.current !== currentToken) {
+        lastInitializedToken.current = currentToken;
+        const payload = decodeJwtPayload(currentToken);
+        const userId = payload?.userId as string | undefined;
+        if (userId) {
+          initializeRevenueCat(userId);
+        }
+        initAdMob();
+      }
     }
-  }, [router, pathname]);
 
-  // Controla exibição do banner baseado no plano do usuário (extraído do JWT)
-  useEffect(() => {
-    // Rotas públicas NUNCA mostram banner
-    const isPublic = PUBLIC_ROUTES.some(route => pathname?.startsWith(route));
+    // Run immediately
+    checkAuthAndRedirect();
 
-    if (isPublic) {
-      hideTopBanner();
-      return;
-    }
-
-    // Sem token = sem banner
-    const currentToken = localStorage.getItem('auth_token');
-    if (!currentToken) {
-      hideTopBanner();
-      return;
-    }
-
-    // Extrai o plano do JWT
-    const payload = decodeJwtPayload(currentToken);
-    const userPlan = (payload?.plan as string) || 'free';
-
-    // Só mostra banner para FREE
-    if (userPlan === 'free') {
-      showTopBanner();
-    } else {
-      hideTopBanner();
-    }
-  }, [token, pathname]);
-
-  // Reage a mudanças no token (ex: logout por 401 ou clique em "Sair")
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
+    // Event listeners for logout triggers
     const onStorage = (e: StorageEvent) => {
       if (e.key === 'auth_token' || e.key === 'auth_logout_at') {
         const t = localStorage.getItem('auth_token');
@@ -188,8 +145,8 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
         if (!t) {
           setIsAuthorized(false);
           hideTopBanner();
-          lastInitializedToken.current = null; // Reset para re-inicializar no próximo login
-          router.replace('/login');
+          lastInitializedToken.current = null;
+          redirectToLogin();
         }
       }
     };
@@ -200,8 +157,8 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
       if (!t) {
         setIsAuthorized(false);
         hideTopBanner();
-        lastInitializedToken.current = null; // Reset para re-inicializar no próximo login
-        router.replace('/login');
+        lastInitializedToken.current = null;
+        redirectToLogin();
       }
     };
 
@@ -211,7 +168,32 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
       window.removeEventListener('storage', onStorage);
       window.removeEventListener('app:logout', onAppLogout as EventListener);
     };
-  }, [router]);
+  }, [pathname]);
+
+  // === useEffect: Banner control based on plan ===
+  useEffect(() => {
+    if (isPublicRoute(pathname)) {
+      hideTopBanner();
+      return;
+    }
+
+    const currentToken = localStorage.getItem('auth_token');
+    if (!currentToken) {
+      hideTopBanner();
+      return;
+    }
+
+    const payload = decodeJwtPayload(currentToken);
+    const userPlan = (payload?.plan as string) || 'free';
+
+    if (userPlan === 'free') {
+      showTopBanner();
+    } else {
+      hideTopBanner();
+    }
+  }, [token, pathname]);
+
+  // --- Render ---
 
   if (!isAuthorized) {
     return (
@@ -222,19 +204,35 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
         height: '100vh',
         paddingTop: 'env(safe-area-inset-top)',
         flexDirection: 'column',
-        gap: 12
+        gap: 16,
       }}>
-        <div>Carregando...</div>
-        {/* Link manual para garantir saída do estado de loading em caso de falha de navegação */}
-        <a href="/login.html" style={{ color: '#2196F3', textDecoration: 'underline' }}>
-          Ir para a tela de login
-        </a>
+        {isRedirectingToLogin() ? (
+          <>
+            <div style={{ fontSize: 14, color: '#666' }}>Redirecionando...</div>
+            <a
+              href="/login.html"
+              style={{ color: '#2196F3', textDecoration: 'underline', fontSize: 14 }}
+            >
+              Toque aqui se nao for redirecionado
+            </a>
+          </>
+        ) : (
+          <>
+            <div>Carregando...</div>
+            <a
+              href="/login.html"
+              style={{ color: '#2196F3', textDecoration: 'underline' }}
+            >
+              Ir para a tela de login
+            </a>
+          </>
+        )}
       </div>
     );
   }
 
-  // Se for rota pública, renderiza sem o layout do app (header, menu)
-  if (PUBLIC_ROUTES.some(route => pathname?.startsWith(route))) {
+  // Rota pública: renderiza sem AppLayout (header, menu)
+  if (isPublicRoute(pathname)) {
     return (
       <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         {children}

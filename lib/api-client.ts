@@ -1,4 +1,4 @@
-import { triggerClientLogout } from '@/lib/auth-client';
+import { triggerClientLogout, redirectToLogin } from '@/lib/auth-client';
 const isMobile = process.env.NEXT_PUBLIC_IS_MOBILE === 'true';
 
 const API_URL =
@@ -85,12 +85,13 @@ export async function apiClient(
 
     console.log(`[API Client] Response ${endpoint}:`, { status: response.status });
 
-    // Handle 401 Unauthorized (Mobile): dispare logout client-side e deixe o layout redirecionar
+    // Handle 401 Unauthorized (Mobile): logout + redirect direto
     if (response.status === 401 && isMobile && typeof window !== 'undefined') {
       console.warn('401 Unauthorized - triggering client logout');
       try {
         triggerClientLogout();
       } catch {}
+      redirectToLogin();
     }
 
     // Handle 404 tenant_not_found (Mobile): token antigo com tenant removido
@@ -104,6 +105,7 @@ export async function apiClient(
           try {
             triggerClientLogout();
           } catch {}
+          redirectToLogin();
         }
       } catch {}
     }
